@@ -1,0 +1,28 @@
+.idea/
+.vscode/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Local PyCharm scratch file
+/main.py
+
+# Datasets and generated experiment artifacts must not be committed
+data/
+datasets/
+runs/
+outputs/
+weights/
+checkpoints/
+*.pt
+*.pth
+*.onnx
+*.engine
+*.zip
+*.tar
+*.7z
+
+.DS_Store
+Thumbs.db
