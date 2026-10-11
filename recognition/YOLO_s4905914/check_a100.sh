@@ -8,12 +8,13 @@
 #SBATCH --partition=comp3710
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=2
-#SBATCH --mem=16G
 #SBATCH --time=00:05:00
 #SBATCH --output=lesion_gpu_check_%j.out
 #SBATCH --error=lesion_gpu_check_%j.err
 
 set -euo pipefail
+# Rangpur's course nodes advertise RealMemory=1 to Slurm; use the partition
+# default, as in the working Demo2 scripts, instead of requesting --mem=16G.
 source "$HOME/miniconda3/bin/activate"
 conda activate torch
 printf 'Job %s on %s\n' "$SLURM_JOB_ID" "$(hostname)"
