@@ -1,0 +1,3 @@
+# Data inspection only; training dependencies will be recorded separately.
+numpy==2.3.3
+Pillow==11.3.0
