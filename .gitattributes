@@ -1,0 +1,2 @@
+# Slurm scripts must use Unix line endings even when edited on Windows.
+*.sh text eol=lf
