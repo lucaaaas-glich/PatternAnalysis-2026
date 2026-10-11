@@ -22,6 +22,8 @@ Detect skin lesions in ISIC 2017/2018 dermoscopic images using YOLOv7 or newer. 
 
 ## Data inspection and demo
 
+See [PROJECT_MAP.md](PROJECT_MAP.md) for the living project mind map, verified lecture connections, current progress, and code-to-concept mapping. Update it at each milestone or when a new problem/operation changes the workflow.
+
 See [DEMO_GUIDE.md](DEMO_GUIDE.md) for the image/mask/box concepts, a worked coordinate example, and a demonstration explanation in Chinese.
 
 Download the official validation image archive and matching Task 1 ground truth from:
@@ -53,7 +55,7 @@ Its midpoint consultation explicitly does not require a live demonstration, slid
 
 ## Artificial Intelligence Usage Disclosure
 
-ChatGPT/Codex assisted with repository setup, mask-to-box conversion, annotation checks, tests, and explanatory documentation.
+ChatGPT/Codex assisted with repository setup, mask-to-box conversion, annotation checks, tests, explanatory documentation, and a living learning map checked against relevant lecture-transcript excerpts.
 Verification so far consists of executed boundary/pairing/export tests and AI-assisted visual inspection of six real ISIC previews.
 Student review and understanding of these results remain to be confirmed; no student audit, final training, or final metric is claimed here.
 Dataset sources: [ISIC official data](https://challenge.isic-archive.com/data/) and Codella et al., [ISIC 2018 challenge](https://arxiv.org/abs/1902.03368).
