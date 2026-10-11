@@ -16,6 +16,8 @@ runs/
 outputs/
 weights/
 checkpoints/
+lesion_gpu_check_*.out
+lesion_gpu_check_*.err
 *.pt
 *.pth
 *.onnx
