@@ -18,6 +18,8 @@ weights/
 checkpoints/
 lesion_gpu_check_*.out
 lesion_gpu_check_*.err
+school_data_audit_*.out
+school_data_audit_*.err
 *.pt
 *.pth
 *.onnx
