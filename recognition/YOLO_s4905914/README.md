@@ -21,6 +21,7 @@ Detect skin lesions in ISIC 2017/2018 dermoscopic images using YOLOv7 or newer. 
 - Patient metadata, diagnosis labels, final splits, baseline training, evaluation, threshold analysis, and failure cases are pending.
 - School training audit job 653933 executed on a100-8 and ended after 3m51s with FAILED/1:0 because all 2,594 uniquely paired, readable, size-matched masks failed the current strict 0/1/255 pixel-value check. This is not evidence that lesions are absent or all data are corrupt. Actual mask modes/pixel ranges and preprocessing provenance must be inspected before changing label handling. No candidate CSV was found beneath the audited ISIC2018 root; metadata may exist elsewhere.
 - Added `audit_data.py` for input integrity checks and CSV-header inventory without exporting labels or creating splits. Ten combined tests pass on bundled Python 3.12.14. The tool passed an executed audit of the existing 100 local validation pairs; the school training audit executed but failed the strict mask-value rule, as detailed above.
+- The student executed a three-mask diagnostic: ISIC_0000000/0000001/0000003 are L-mode uint8, range 0–255, with 230/215/245 unique intensities. Added `diagnose_masks.py` to compare candidate thresholds and create previews without altering originals or exporting training labels. Four new tests pass (14 combined); local binary validation data were used only to verify figure layout/output. School preview execution, threshold approval, and source-preprocessing provenance are still pending.
 
 ## Data inspection and demo
 
