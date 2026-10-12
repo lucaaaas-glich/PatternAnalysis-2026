@@ -4,6 +4,19 @@
 
 ## 已恢复的流程
 
+### 下一步：元数据发现（尚未在学校执行）
+
+在已登录的学校终端，从仓库根目录执行：
+
+```bash
+git pull --ff-only
+source ~/miniconda3/bin/activate
+conda activate torch
+python recognition/YOLO_s4905914/inventory_metadata.py --root /home/groups/comp3710 --max-depth 3 --max-entries 20000
+```
+
+这是有界轻量文件名/表头发现，不解码图片、不训练，不需要提交GPU作业。仅输出候选路径及CSV/TSV第一行，不输出患者行；其他候选文件只列名称。若扫描截断或遇权限问题，报告会明确指出，需缩小到相关目录再检查。找到文件不代表已证明患者独立或诊断映射。不要把image_id或lesion_id未经验证当成patient_id。
+
 Assignment 3 使用独立远程目录 `/home/Student/s4905914/comp3710-a3`。
 已复用 Demo2 的 `comp3710` account/partition 和 `$HOME/miniconda3` 中的 `torch` 环境。
 参考脚本：https://github.com/lucaaaas-glich/comp3710/blob/main/lab2-pattern-recognition/train_oasis_vae_a100.sh

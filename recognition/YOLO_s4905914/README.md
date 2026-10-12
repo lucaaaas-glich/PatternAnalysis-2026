@@ -29,6 +29,8 @@ Latest verified milestone (2026-10-13): CPU label-preparation job 655099 complet
 
 ## Data inspection and demo
 
+Metadata discovery: `inventory_metadata.py` lists bounded course-directory candidates and CSV/TSV headers only, without patient rows or splits. Five new synthetic tests pass (29 total). School execution and metadata coverage/semantics remain pending. An entry-limit or depth-limited scan cannot establish absence of metadata.
+
 See [PROJECT_MAP.md](PROJECT_MAP.md) for the living project mind map, verified lecture connections, current progress, and code-to-concept mapping. Update it at each milestone or when a new problem/operation changes the workflow.
 
 See [DEMO_GUIDE.md](DEMO_GUIDE.md) for the image/mask/box concepts, a worked coordinate example, and a demonstration explanation in Chinese.
