@@ -29,6 +29,8 @@ Latest verified milestone (2026-10-13): CPU label-preparation job 655099 complet
 
 ## Data inspection and demo
 
+Metadata discovery result (2026-10-13): the bounded school ISIC2018 scan examined 6,197 entries without entry-limit truncation or directory errors and found no candidate metadata within depth 3. Official collection 63 provides a metadata CSV at https://api.isic-archive.com/collections/63/metadata/. The downloaded 2,594 unique isic_id values exactly match the exported annotation IDs. diagnosis_1 counts: Benign 2,074, Malignant 519, Indeterminate 1. patient_id is populated for only 390 images (350 known patients; 319 benign and 71 malignant images), leaving 2,204 missing; lesion_id is missing for 1,496 images. Full-cohort patient independence therefore remains unverified. No category remapping or split has been made. A known-patient-only experiment would change the study population and needs an explicit decision; alternatively obtain instructor guidance/additional patient metadata. Raw metadata remain ignored by Git. Download snapshot SHA256: 4d7d982a56c265d5440f3f85560690bbf3e3ec91b890c62873acc2315e61e0af (computed locally, not an official published checksum).
+
 Metadata discovery: `inventory_metadata.py` lists bounded course-directory candidates and CSV/TSV headers only, without patient rows or splits. Five new synthetic tests pass (29 total). School execution and metadata coverage/semantics remain pending. An entry-limit or depth-limited scan cannot establish absence of metadata.
 
 See [PROJECT_MAP.md](PROJECT_MAP.md) for the living project mind map, verified lecture connections, current progress, and code-to-concept mapping. Update it at each milestone or when a new problem/operation changes the workflow.
