@@ -19,7 +19,8 @@ Detect skin lesions in ISIC 2017/2018 dermoscopic images using YOLOv7 or newer. 
 - Remote stack: Python 3.11.16, PyTorch 2.14.0+cu130, CUDA 13.0; NVIDIA A100-PCIE-40GB, CUDA and GPU matrix multiplication passed.
 - Formal training is planned on Rangpur A100 via Slurm; Windows handles development and initial annotation checks. See [A100_GUIDE.md](A100_GUIDE.md) and `check_a100.sh` for reproducible environment verification.
 - Patient metadata, diagnosis labels, final splits, baseline training, evaluation, threshold analysis, and failure cases are pending.
-- Added `audit_data.py` for input integrity checks and CSV-header inventory without exporting labels or creating splits. Ten combined tests pass on bundled Python 3.12.14. The tool also passed an executed audit of the existing 100 local validation pairs; the full school training-data audit is not yet executed because the new SSH connection needs authentication.
+- School training audit job 653933 executed on a100-8 and ended after 3m51s with FAILED/1:0 because all 2,594 uniquely paired, readable, size-matched masks failed the current strict 0/1/255 pixel-value check. This is not evidence that lesions are absent or all data are corrupt. Actual mask modes/pixel ranges and preprocessing provenance must be inspected before changing label handling. No candidate CSV was found beneath the audited ISIC2018 root; metadata may exist elsewhere.
+- Added `audit_data.py` for input integrity checks and CSV-header inventory without exporting labels or creating splits. Ten combined tests pass on bundled Python 3.12.14. The tool passed an executed audit of the existing 100 local validation pairs; the school training audit executed but failed the strict mask-value rule, as detailed above.
 
 ## Data inspection and demo
 
