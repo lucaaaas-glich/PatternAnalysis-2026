@@ -41,7 +41,8 @@ def bbox_to_yolo(box, width, height):
             (right - left) / width, (bottom - top) / height)
 
 
-def preview(image, mask, box, name, destination):
+def preview(image, mask, box, name, destination,
+            mask_title='2. Human mask (ground truth)'):
     """Three panels: input, human mask, derived ground-truth box."""
     boxed = image.copy()
     left, top, right, bottom = box
@@ -52,8 +53,11 @@ def preview(image, mask, box, name, destination):
     font = ImageFont.load_default(size=19)
     for i, (panel, title) in enumerate(zip(
             (image, mask.convert('RGB'), boxed),
-            ('1. Original image', '2. Human mask (ground truth)', '3. Derived box (NOT prediction)'))):
-        fitted = ImageOps.contain(panel, (390, 290))
+            ('1. Original image', mask_title, '3. Derived box (NOT prediction)'))):
+        # Display categorical masks with NEAREST too; do not introduce grey
+        # interpolation just while making the diagnostic thumbnail.
+        method = Image.Resampling.NEAREST if i == 1 else Image.Resampling.LANCZOS
+        fitted = ImageOps.contain(panel, (390, 290), method=method)
         canvas.paste(fitted, (400 * i + (400 - fitted.width) // 2,
                              45 + (290 - fitted.height) // 2))
         draw.text((400 * i + 8, 12), title, font=font, fill='#182438')

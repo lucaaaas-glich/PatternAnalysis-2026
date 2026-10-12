@@ -20,6 +20,8 @@ lesion_gpu_check_*.out
 lesion_gpu_check_*.err
 school_data_audit_*.out
 school_data_audit_*.err
+official_label_prep_*.out
+official_label_prep_*.err
 *.pt
 *.pth
 *.onnx

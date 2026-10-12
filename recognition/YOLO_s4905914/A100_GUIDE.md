@@ -100,3 +100,32 @@ cat school_data_audit_JOB_ID.err
 - 审计根目录没有发现CSV候选；这不排除其他位置存在患者/诊断元数据。
 - 查看日志时SSH再次Connection reset；审计在此之前已经结束，断线不是该数据检查失败的原因。断线后必须重新登录；Windows PowerShell不能直接调用学校的sbatch。
 - 终端只复制命令，不复制提示符和欢迎语。今后查看摘要与少量示例，不再要求打印全部重复异常。
+
+## 官方二值mask的正式全量标注准备（待学校执行）
+
+小样本参照后，正式来源改用官方原始0/255 mask，按同ID学校照片尺寸做最近邻缩放。不是对学校灰度mask自动选128，也不改学校共享目录。尺寸检查要求原mask与照片约为2倍关系，允许奇数尺寸舍入造成的1个原始像素差；若不符合，暂停并报告，不自动拉伸任意尺寸。这个尺寸规则不等于已证明学校所有图像未裁剪，仍需看代表性预览。
+
+在学校SSH终端、作业仓库内执行：
+
+```bash
+cd ~/comp3710-a3
+git pull --ff-only
+bash recognition/YOLO_s4905914/submit_official_labels.sh
+```
+
+启动脚本自动激活已验证的torch环境，因此不要求本次交互窗口预先有Python。先下载/校验约26MB官方mask ZIP到被Git忽略的 `data/reference/`，不下载训练照片。SHA256固定为 `99f8b2bb3c4d6af483362010715f7e7d5d122d9f6c02cac0e0d15bef77c7604c`；已有不符的文件不会覆盖。然后 `sbatch` 提交CPU任务，不请求GPU，最长30分钟。当前24项本地测试和Bash语法检查通过；学校任务尚未提交、实际耗时未知。
+
+拿到真实JOB_ID后：
+
+```bash
+sacct -j JOB_ID --format=JobID,State,Elapsed,ExitCode
+cat official_label_prep_JOB_ID.out
+cat official_label_prep_JOB_ID.err
+```
+
+日志只打印摘要和最多5个异常示例。结果在 `outputs/official_labels/school_nn_JOB_ID/`：
+
+- 全部2594组验证通过后才生成 `labels/` 中的2594份YOLO TXT、`annotations.csv`、`summary.json`，以及6张预览（面积最小/最大加固定种子随机抽样）。
+- 原始mask必须是L/uint8、非空、只有0/255；匹配编号、照片可读性、2倍尺寸规则、最近邻后的二值性/非空和归一化框均检查。
+- 任意一组失败，不导出任何训练标签；失败目录保留摘要及 `issues.json`。不要删除原始数据、把空mask自动当健康病例，或覆盖旧的任务输出。
+- `class 0 = lesion`，不是良性/恶性；不创建train/val/test，不训练、不报告模型成绩。患者元数据、诊断范围和最终划分仍需解决。
