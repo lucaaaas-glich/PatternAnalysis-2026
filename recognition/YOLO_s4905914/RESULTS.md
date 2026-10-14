@@ -44,7 +44,7 @@ Best-box IoU is an oracle diagnostic (selects highest overlap), ignores extra bo
 
 A100 FP32 batch1,640square;10warmup calls then50predecoded images; CUDA synchronisation. Includes Python predict API/preprocessing/forward/NMS, excludes disk decoding/rendering/network/JSON serialisation. Not mobile/Mac or pure-forward throughput. Single short measurement and system effects limit speed conclusions; no meaningful speed superiority established from this small difference.
 
-## Failure analysis pending visual review
+## Five failure cases reviewed
 
 Deterministically selected primary-model errors, not a representative random sample:
 
@@ -54,4 +54,6 @@ Deterministically selected primary-model errors, not a representative random sam
 - ISIC_0012178: duplicate same-class candidate.
 - ISIC_0012758: malignant miss selected by small GT pixel-box area (not physical size).
 
-Read/render only existing test predictions; no threshold or model tuning after test. Hair/ink/contrast causes must be visually examined and framed as hypotheses, not asserted from IDs or metrics. Source summary and cached predictions remain in ignored outputs/frozen_661498. Figures and case notes pending.
+Five downloaded GT/n/s figures and cached predictions were reviewed on 2026-10-15. [FAILURE_ANALYSIS.md](FAILURE_ANALYSIS.md) records measured errors, visible features, hypotheses and demo explanations. The fifth case is a malignant-class miss despite good localisation (n IoU0.833, s0.867), not an absent small-lesion box. The third shows that an image alert can still fail localisation matching; s has a valid malignant match plus a conflicting benign FP. One-to-one matching penalises duplicate boxes.
+
+Only existing predictions were inspected; no threshold/model tuning after test. Hair/ink/contrast causes are not established. Original records and figures remain in ignored outputs. Student understanding and final README/demo packaging are still pending.

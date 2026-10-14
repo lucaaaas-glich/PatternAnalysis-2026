@@ -1,5 +1,7 @@
 # 数据准备：理解与演示
 
+2026-10-15当前学习阶段已经推进到冻结test失败分析。本文下面保留最初数据准备的讲解，不表示目前仍未训练或只有单类别。正式类别为0=Benign、1=Malignant、2=Indeterminate；第3类没有held-out答案，无法评估。最新5个失败案例及demo讲述见 [FAILURE_ANALYSIS.md](FAILURE_ANALYSIS.md)，完整当前结果见 [RESULTS.md](RESULTS.md)。下一步predict.py新图推理仍待实现。
+
 ## 本阶段在做什么
 
 输入是 ISIC 的皮肤镜照片及人工分割 mask，输出是 YOLO 使用的病灶框标注和检查图。
