@@ -1,5 +1,16 @@
 # Rangpur A100：操作与理解
 
+## YOLO运行目录装配（2026-10-14；学校实际执行待确认）
+
+本地已打包 `outputs/splits/image_level_3710_v1.zip`，仅含划分清单、诊断框标签和摘要，不含照片或原始患者元数据。Windows上传该包到 `~/comp3710-a3/`。学校终端从仓库根目录拉取新代码、激活torch后执行：
+
+```bash
+unzip -n image_level_3710_v1.zip -d outputs/splits
+python recognition/YOLO_s4905914/assemble_yolo.py --split-root outputs/splits/image_level_3710_v1 --output outputs/yolo_runtime/image_level_3710_v1 --acknowledge-image-level-split
+```
+
+`unzip -n`不覆盖既有文件；装配拒绝已存在的输出目录。若输出存在先查看结果，不要删除重跑。先全量检查manifest、图片文件存在/名称、标签类别/框范围、图片ID不跨集合，再用符号链接指向学校共享照片、复制小型标签，写data.yaml与assembly.json。不解码照片、不训练、不请求GPU；当前操作是轻量文件检查。不宣称病灶独立。四项新增本地测试通过，全套37项；Windows测试模拟符号链接调用，真实学校Linux链接仍待执行验证。
+
 最新结果（2026-10-13）：官方标签准备任务655099已确认COMPLETED，耗时11分07秒，退出码0:0；2594/2594组通过、2594标签、0问题。结果已下载，本地CSV/标签一致性检查通过，6张预览经AI辅助复核。无需再次提交本任务；该任务不训练模型。患者信息、诊断映射和独立划分仍待核实。后文历史提交记录保留当时状态。
 
 ## 已恢复的流程
