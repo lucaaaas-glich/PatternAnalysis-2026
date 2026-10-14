@@ -1,4 +1,4 @@
-"""Two-epoch GPU smoke check, NOT a completed baseline or test evaluation."""
+"""GPU smoke/baseline training with validation only, never held-out test use."""
 
 import argparse
 import hashlib
@@ -7,6 +7,8 @@ import os
 from pathlib import Path
 
 from modules import load_detector
+
+PRETRAINED_SHA256 = 'f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36'
 
 
 def smoke_config(data, output):
@@ -17,7 +19,26 @@ def smoke_config(data, output):
                 optimizer='auto', close_mosaic=0)
 
 
-def run_smoke(data, weights, output):
+def training_config(data, output, profile='smoke'):
+    options = smoke_config(data, output)
+    if profile == 'baseline':
+        options.update(epochs=30, imgsz=640, batch=16, workers=1,
+                       close_mosaic=10, patience=100, resume=False, fraction=1.0)
+    elif profile != 'smoke':
+        raise ValueError('Unknown training profile')
+    options['split'] = 'val'
+    return options
+
+
+def verify_initial_weights(weights, profile):
+    with Path(weights).open('rb') as handle:
+        digest = hashlib.file_digest(handle, 'sha256').hexdigest()
+    if profile == 'baseline' and digest != PRETRAINED_SHA256:
+        raise ValueError('Baseline requires original verified pretrained weights, not smoke best.pt')
+    return digest
+
+
+def run_training(data, weights, output, profile='smoke'):
     import torch
     import ultralytics
     import yaml
@@ -32,37 +53,45 @@ def run_smoke(data, weights, output):
     if config.get('names') != ['Benign', 'Malignant', 'Indeterminate']:
         raise ValueError('Unexpected diagnosis classes')
     if config.get('train') != 'images/train' or config.get('val') != 'images/val':
-        raise ValueError('Smoke check must use train/val only')
+        raise ValueError('Training must use train/val only')
     for name in ('train', 'val'):
         if not (Path(config['path']) / config[name]).is_dir():
             raise ValueError('Missing runtime train/val directory')
-    options = smoke_config(data, output)
-    provenance = dict(purpose='Pipeline smoke check, not final evaluation',
+    options = training_config(data, output, profile)
+    purpose = 'Baseline training with validation; no final test evaluation' if profile == 'baseline' else 'Pipeline smoke check, not final evaluation'
+    provenance = dict(purpose=purpose, profile=profile,
                       status='started', job_id=os.environ['SLURM_JOB_ID'],
                       torch=torch.__version__, ultralytics=ultralytics.__version__,
                       cuda=torch.version.cuda, gpu=torch.cuda.get_device_name(0),
                       config=options, test_split_used=False,
                       split_unit='image', patient_independent=False, lesion_independent=False)
-    with weights.open('rb') as handle:
-        provenance['weights_sha256'] = hashlib.file_digest(handle, 'sha256').hexdigest()
+    provenance['weights_sha256'] = verify_initial_weights(weights, profile)
     with data.open('rb') as handle:
         provenance['data_yaml_sha256'] = hashlib.file_digest(handle, 'sha256').hexdigest()
     model = load_detector(weights)
     output.mkdir(parents=True)
-    record = output / 'smoke.json'
+    record = output / f'{profile}.json'
     record.write_text(json.dumps(provenance, indent=2)+'\n', encoding='utf-8')
     try:
         model.train(**options)
         checkpoint = output / 'train' / 'weights' / 'last.pt'
         if not checkpoint.is_file():
             raise RuntimeError('Training returned without last.pt')
-        provenance.update(status='completed', last_checkpoint=str(checkpoint))
+        best = output / 'train' / 'weights' / 'best.pt'
+        if not best.is_file():
+            raise RuntimeError('Training returned without best.pt')
+        provenance.update(status='completed', last_checkpoint=str(checkpoint), best_checkpoint=str(best),
+                          checkpoint_selection='Ultralytics validation fitness, not test data')
     except Exception as error:
         provenance.update(status='failed', error=str(error))
         raise
     finally:
         record.write_text(json.dumps(provenance, indent=2)+'\n', encoding='utf-8')
-    print('SMOKE CHECK COMPLETED. No held-out test evaluation performed.')
+    print(f'{profile.upper()} COMPLETED. No held-out test evaluation performed.')
+
+
+def run_smoke(data, weights, output):
+    return run_training(data, weights, output, profile='smoke')
 
 
 if __name__ == '__main__':
@@ -70,6 +99,7 @@ if __name__ == '__main__':
     parser.add_argument('--data', type=Path, required=True)
     parser.add_argument('--weights', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--profile', choices=['smoke', 'baseline'], default='smoke')
     args = parser.parse_args()
-    run_smoke(args.data, args.weights, args.output)
+    run_training(args.data, args.weights, args.output, args.profile)
 

@@ -3,10 +3,34 @@ import unittest
 from pathlib import Path
 
 from modules import load_detector
-from train import smoke_config
+from train import smoke_config, training_config, verify_initial_weights
 
 
 class SmokeTests(unittest.TestCase):
+    def test_baseline_profile_preserves_validation_boundary(self):
+        options = training_config('data.yaml', 'output', 'baseline')
+        self.assertEqual(options['epochs'], 30)
+        self.assertEqual(options['imgsz'], 640)
+        self.assertEqual(options['batch'], 16)
+        self.assertEqual(options['workers'], 1)
+        self.assertEqual(options['split'], 'val')
+        self.assertFalse(options['resume'])
+        self.assertFalse(options['amp'])
+        self.assertEqual(options['seed'], 3710)
+        self.assertEqual(options['close_mosaic'], 10)
+
+    def test_unknown_profile_rejected(self):
+        with self.assertRaises(ValueError):
+            training_config('data.yaml', 'output', 'test')
+
+    def test_baseline_rejects_unverified_weights(self):
+        with tempfile.TemporaryDirectory() as directory:
+            weights = Path(directory) / 'wrong.pt'
+            weights.write_bytes(b'not the original model')
+            with self.assertRaises(ValueError):
+                verify_initial_weights(weights, 'baseline')
+            self.assertEqual(len(verify_initial_weights(weights, 'smoke')), 64)
+
     def test_config_is_small_validation_only(self):
         options = smoke_config('data.yaml', 'output')
         self.assertEqual(options['epochs'], 2)

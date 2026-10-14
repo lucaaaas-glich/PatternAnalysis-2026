@@ -1,5 +1,17 @@
 # Rangpur A100：操作与理解
 
+## 正式YOLOv8n baseline（30轮；待学校提交）
+
+两轮检查job661037已COMPLETED/0:0、耗时2分57秒，下载结果已检查。不重新安装环境、不重复提交该短跑。
+
+```bash
+cd ~/comp3710-a3
+git pull --ff-only
+sbatch recognition/YOLO_s4905914/baseline_a100.sh
+```
+
+此任务新开目录outputs/baseline/yolov8n_JOBID，日志yolo_baseline_JOBID.out/.err；30轮、640输入、batch16、workers1、FP32、原COCO预训练权重重新初始化，固定seed3710，最后10轮关闭Mosaic。不是从两轮best.pt续训；原权重SHA不符会停止。仅训练/验证，不使用test。程序完成会写baseline.json=completed以及train/weights/best.pt和last.pt。sbatch显示编号后不要重复提交。资源时限1小时不含排队；实际耗时尚未测量，不保证预算内完成。42项本地单元测试通过，不等于正式训练成功。后续按验证曲线判断是否收敛。
+
 ## YOLOv8n两轮流程检查（学校执行尚待确认）
 
 安装已由学生日志确认：Ultralytics8.3.221、torch2.14.0+cu130、torchvision0.29.0+cu130。不要重复运行setup脚本。
