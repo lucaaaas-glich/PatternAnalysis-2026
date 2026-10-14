@@ -9,6 +9,8 @@
 
 ## 图例与总目标
 
+2026-10-15 当前进度：学生安装日志确认Ultralytics8.3.221导入成功，torch2.14.0+cu130/torchvision0.29.0+cu130未改。新增modules.py现成YOLO适配器、train.py两epoch烟雾测试及提交脚本，39项本地测试通过。当前等待学校提交/运行，不是模型训练成功。预训练是通用特征起点；epoch遍历训练集一次；batch每次处理图片数。两轮imgsz320/batch8只查管线，验证集参与检查、测试集不使用。下一步取得GPU真实运行日志、权重与损失曲线，再决定正式baseline。继续披露图片级划分风险。
+
 最新学校执行证据：assemble_yolo.py已成功链接2594张图片并生成data.yaml。学校torch=2.14.0+cu130，Ultralytics未安装。当前下一步setup_yolo_env.sh准备独立.venv-yolo依赖层，继承原torch环境，固定现有torch/torchvision/numpy不升级；先检查torchvision能导入，再安装固定Ultralytics8.3.221。安装及真实兼容性尚待学校执行。虚拟环境是【工具】，模型算法尚未运行；GPU可用性需Slurm分配后核对，不在login节点训练。
 
 当前下一步（2026-10-14）：`assemble_yolo.py`已完成，4项新增测试通过，全套37项；学校实际装配尚未执行。输入图片级划分manifest/标签；检查学校路径、类别/坐标、计数、图片ID重叠；输出images/{train,val,test}符号链接、labels/{train,val,test}诊断标签、data.yaml、assembly.json。照片不复制，源数据不改，目录不覆盖。下一步先上传小型划分包并运行学校装配，不是训练。暂不检查用户提及的GitHub失败邮件。

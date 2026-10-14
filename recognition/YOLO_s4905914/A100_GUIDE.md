@@ -1,5 +1,17 @@
 # Rangpur A100：操作与理解
 
+## YOLOv8n两轮流程检查（学校执行尚待确认）
+
+安装已由学生日志确认：Ultralytics8.3.221、torch2.14.0+cu130、torchvision0.29.0+cu130。不要重复运行setup脚本。
+
+```bash
+cd ~/comp3710-a3
+git pull --ff-only
+bash recognition/YOLO_s4905914/submit_smoke.sh
+```
+
+入口先在登录节点获取官方预训练权重（不训练），再提交A100 GPU任务；以Submitted batch job编号为准，不重复提交。用sacct查询最终状态，日志yolo_smoke_JOBID.out/.err；成功时outputs/smoke/yolov8n_JOBID/smoke.json记录completed，train/weights/last.pt记录最后权重，train/results.csv记录损失和验证过程。两epoch、320像素、batch8，不是正式baseline成绩。测试集合不使用。39项本地测试及Bash语法检查通过，不表示GPU已跑通。
+
 ## YOLO运行目录装配（2026-10-14；学校实际执行待确认）
 
 本地已打包 `outputs/splits/image_level_3710_v1.zip`，仅含划分清单、诊断框标签和摘要，不含照片或原始患者元数据。Windows上传该包到 `~/comp3710-a3/`。学校终端从仓库根目录拉取新代码、激活torch后执行：

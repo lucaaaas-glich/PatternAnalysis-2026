@@ -23,6 +23,8 @@ school_data_audit_*.out
 school_data_audit_*.err
 official_label_prep_*.out
 official_label_prep_*.err
+yolo_smoke_*.out
+yolo_smoke_*.err
 *.pt
 *.pth
 *.onnx
