@@ -27,6 +27,8 @@ yolo_smoke_*.out
 yolo_smoke_*.err
 yolo_baseline_*.out
 yolo_baseline_*.err
+yolo_comparison_*.out
+yolo_comparison_*.err
 *.pt
 *.pth
 *.onnx

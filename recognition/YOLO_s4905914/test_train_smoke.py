@@ -7,6 +7,18 @@ from train import smoke_config, training_config, verify_initial_weights
 
 
 class SmokeTests(unittest.TestCase):
+    def test_comparison_matches_baseline_budget(self):
+        baseline = training_config('data.yaml', 'output', 'baseline')
+        comparison = training_config('data.yaml', 'output', 'comparison')
+        self.assertEqual(baseline, comparison)
+
+    def test_comparison_rejects_unverified_weights(self):
+        with tempfile.TemporaryDirectory() as directory:
+            weights = Path(directory) / 'wrong.pt'
+            weights.write_bytes(b'not YOLOv8s')
+            with self.assertRaises(ValueError):
+                verify_initial_weights(weights, 'comparison')
+
     def test_baseline_profile_preserves_validation_boundary(self):
         options = training_config('data.yaml', 'output', 'baseline')
         self.assertEqual(options['epochs'], 30)

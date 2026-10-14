@@ -9,6 +9,8 @@ from pathlib import Path
 from modules import load_detector
 
 PRETRAINED_SHA256 = 'f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36'
+COMPARISON_SHA256 = '1f47a78bf100391c2a140b7ac73a1caae18c32779be7d310658112f7ac9aa78a'
+EXPERIMENT_DATA_SHA256 = '78a243b872f21040acf5bb4abfa0b7b9a003766eca739178e3e160e2c959ff41'
 
 
 def smoke_config(data, output):
@@ -21,7 +23,7 @@ def smoke_config(data, output):
 
 def training_config(data, output, profile='smoke'):
     options = smoke_config(data, output)
-    if profile == 'baseline':
+    if profile in ('baseline', 'comparison'):
         options.update(epochs=30, imgsz=640, batch=16, workers=1,
                        close_mosaic=10, patience=100, resume=False, fraction=1.0)
     elif profile != 'smoke':
@@ -35,6 +37,8 @@ def verify_initial_weights(weights, profile):
         digest = hashlib.file_digest(handle, 'sha256').hexdigest()
     if profile == 'baseline' and digest != PRETRAINED_SHA256:
         raise ValueError('Baseline requires original verified pretrained weights, not smoke best.pt')
+    if profile == 'comparison' and digest != COMPARISON_SHA256:
+        raise ValueError('Comparison requires original verified YOLOv8s checkpoint')
     return digest
 
 
@@ -58,7 +62,10 @@ def run_training(data, weights, output, profile='smoke'):
         if not (Path(config['path']) / config[name]).is_dir():
             raise ValueError('Missing runtime train/val directory')
     options = training_config(data, output, profile)
-    purpose = 'Baseline training with validation; no final test evaluation' if profile == 'baseline' else 'Pipeline smoke check, not final evaluation'
+    purposes = {'baseline': 'Baseline training with validation; no final test evaluation',
+                'comparison': 'YOLOv8s matched-protocol comparison; validation only',
+                'smoke': 'Pipeline smoke check, not final evaluation'}
+    purpose = purposes[profile]
     provenance = dict(purpose=purpose, profile=profile,
                       status='started', job_id=os.environ['SLURM_JOB_ID'],
                       torch=torch.__version__, ultralytics=ultralytics.__version__,
@@ -68,6 +75,8 @@ def run_training(data, weights, output, profile='smoke'):
     provenance['weights_sha256'] = verify_initial_weights(weights, profile)
     with data.open('rb') as handle:
         provenance['data_yaml_sha256'] = hashlib.file_digest(handle, 'sha256').hexdigest()
+    if profile == 'comparison' and provenance['data_yaml_sha256'] != EXPERIMENT_DATA_SHA256:
+        raise ValueError('Comparison data config differs from executed baseline')
     model = load_detector(weights)
     output.mkdir(parents=True)
     record = output / f'{profile}.json'
@@ -99,7 +108,7 @@ if __name__ == '__main__':
     parser.add_argument('--data', type=Path, required=True)
     parser.add_argument('--weights', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--profile', choices=['smoke', 'baseline'], default='smoke')
+    parser.add_argument('--profile', choices=['smoke', 'baseline', 'comparison'], default='smoke')
     args = parser.parse_args()
     run_training(args.data, args.weights, args.output, args.profile)
 
