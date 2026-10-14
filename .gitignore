@@ -29,6 +29,8 @@ yolo_baseline_*.out
 yolo_baseline_*.err
 yolo_comparison_*.out
 yolo_comparison_*.err
+yolo_threshold_*.out
+yolo_threshold_*.err
 *.pt
 *.pth
 *.onnx
