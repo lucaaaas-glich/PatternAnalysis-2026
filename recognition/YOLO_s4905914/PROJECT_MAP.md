@@ -9,6 +9,8 @@
 
 ## 图例与总目标
 
+最新学校执行证据：assemble_yolo.py已成功链接2594张图片并生成data.yaml。学校torch=2.14.0+cu130，Ultralytics未安装。当前下一步setup_yolo_env.sh准备独立.venv-yolo依赖层，继承原torch环境，固定现有torch/torchvision/numpy不升级；先检查torchvision能导入，再安装固定Ultralytics8.3.221。安装及真实兼容性尚待学校执行。虚拟环境是【工具】，模型算法尚未运行；GPU可用性需Slurm分配后核对，不在login节点训练。
+
 当前下一步（2026-10-14）：`assemble_yolo.py`已完成，4项新增测试通过，全套37项；学校实际装配尚未执行。输入图片级划分manifest/标签；检查学校路径、类别/坐标、计数、图片ID重叠；输出images/{train,val,test}符号链接、labels/{train,val,test}诊断标签、data.yaml、assembly.json。照片不复制，源数据不改，目录不覆盖。下一步先上传小型划分包并运行学校装配，不是训练。暂不检查用户提及的GitHub失败邮件。
 
 2026-10-13 新证据与待决策：学校ISIC2018根目录有界扫描6197条目、未触发条目上限、无目录错误，在深度3内未发现候选元数据；整个课程根目录的先前扫描被20000上限截断，不能据此断言无元数据。已从官方集合63（https://api.isic-archive.com/collections/63/metadata/）下载当前元数据到Git忽略的data/reference。CSV为2594行、2594唯一isic_id，与已导出标签ID集合完全一致；diagnosis_1为Benign 2074、Malignant 519、Indeterminate 1。patient_id仅390行非空，对应350个已知患者，2204行缺失；lesion_id缺失1496行。已知患者子集诊断为Benign 319、Malignant 71。不能将空patient_id当作不同患者、用image_id替代患者，或把lesion分组声称为patient独立。尚未批准缩小数据范围、重映射类别或创建划分。下一步需用户决定：先请老师确认缺失患者信息的处理方式，或开展明确披露范围限制的已知患者子集实验。源CSV只读、不打印患者标识、不提交到Git。当前下载SHA256为4d7d982a56c265d5440f3f85560690bbf3e3ec91b890c62873acc2315e61e0af，仅标识本次下载快照，不是官方预先发布的校验值。
