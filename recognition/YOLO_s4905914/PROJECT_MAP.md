@@ -9,6 +9,8 @@
 
 ## 图例与总目标
 
+当前决策：val阈值扫描661469已完成27秒/0:0并下载；用户确认主要模型n/.05，s/.05对照，之后不按test调参。n/.05比.01相同48恶性警报、良性误报30而非43，47定位+分类正确TP；不同指标分开。下一步test评估入口已准备，学校尚未执行：标准mAP、固定.05检测P/R、图片警报、包含漏检0的IoU统计、A100预热同步batch1速度。输入两best.pt和固定test，输出summary/缓存预测/官方曲线。随后3–5失败案例、predict.py展示、README汇总/PR仍待完成。test指标未产生、不宣称IoU达标或临床安全。
+
 当前下一步：两个30轮模型已实际完成并下载核对；s job661355 29分10秒/0:0，训练配置与n除输出路径相同，data.yaml哈希相同，两者测试未用。单次val比较n总体更好，s恶性Recall仅小幅上升而Precision下降，不宣称显著优势。新增threshold_metrics.py/scan_thresholds.py/threshold_a100.sh，54项本地测试通过，学校扫描待执行。输入两个best.pt与388张val，输出14阈值统计、缓存预测、trade-off图；不重新训练、不读test。明确分开检测TP（类别正确+IoU>=.5）与图片恶性警报（有预测即警报）；后者不是活检次数，置信度不是患癌概率。NMS IoU、匹配IoU、模型置信度、mask二值阈值用途不同。操作及定义见THRESHOLD_GUIDE.md。
 
 当前阶段：YOLOv8n正式baseline已真实完成，job661165的配置、完成记录、曲线和权重已下载复核；val mAP50=0.774/mAP50:95=0.554，恶性R0.532，测试集未用。训练/验证损失总体下降，但尚不能断言收敛。下一步YOLOv8s同30轮/640/batch16/workers1/seed3710/FP32/增强配置对比已准备，学校尚未提交。预训练各自原始COCO权重、同一划分，保存baseline旧结果；不预设更大模型胜出。新增【补】容量/泛化/计算成本；操作入口submit_comparison.sh和COMPARISON_GUIDE.md。验证阈值分析、最终test、IoU/FPS和正式失败案例仍未完成。
