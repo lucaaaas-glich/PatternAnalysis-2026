@@ -1,5 +1,5 @@
 {
-  "version": "known-lesion-comparison-v1-draft",
+  "version": "known-lesion-comparison-v2-draft",
   "status": "draft_before_teacher_reply",
   "purpose": "known_lesion_supplementary_experiment",
   "ready_for_full_training": false,
@@ -120,7 +120,8 @@
     "budget_rationale": "Predeclared classroom comparison budget, not a clinically justified acceptable rate",
     "selection_rule": "Maximize malignant detection recall within benign image false-alert budget; ties: precision, fewer benign alerts, higher threshold",
     "fresh_blind_test": false,
-    "reassessment_threshold_sweep": false
+    "reassessment_threshold_sweep": false,
+    "preprocessing": "single_letterbox_v1"
   },
   "decisions_pending": [
     "Teacher acceptance of restricted cohort/grouping",

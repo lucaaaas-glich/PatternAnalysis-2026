@@ -32,6 +32,8 @@ def load_config(path):
     if cfg['models'] != read_json(Path(__file__).with_name('weights_registry.json')):
         raise ValueError('Use only the recorded official n/s initialization assets')
     train, ev = cfg['train'], cfg['evaluation']
+    if ev.get('preprocessing') != 'single_letterbox_v1':
+        raise ValueError('Use the current evaluation preprocessing protocol')
     if train['optimizer'] == 'auto' or train['resume'] or train['single_cls']:
         raise ValueError('Explicit optimizer, fresh start and two classes are required')
     if train['batch'] != train['nbs'] or train['patience'] != 0:

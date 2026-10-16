@@ -25,8 +25,10 @@ The original image-level pilot and its test results were already inspected. Repa
 | `train.py` | Produces a plan, trains and saves models, validates, and runs locked supplementary reassessment. |
 | `predict.py` | Loads the selected saved checkpoint, predicts one image and writes an overlay and JSON. |
 | `evaluation.py` | Class-correct detection matching, separate image alerts, explicit IoU denominators, validation threshold selection, and consistent NMS policy. |
+| `preprocessing.py` | Uses one aspect-preserving letterbox transform for validation, matching prediction, and records gain/padding for inverse box coordinates. |
 | `experiment.json` | Shared n/s experiment draft, data hashes, original-weight hashes and operating-point rules. |
 | `smoke_test.py` | Small synthetic end-to-end software check for both n and s. It produces no ISIC evidence. |
+| `preflight.py` | Two synthetic forward/backward/AdamW steps per model on an explicitly chosen device; records runtime and CUDA memory when available. |
 | `test_*.py` | Grouping, label, metric and experiment-boundary regression tests. |
 
 The model builder and loader calls are recorded in each run's `project_model_interface.json` and `project_loader_calls.jsonl`. These show actual integration; matching required filenames alone does not establish course compliance. Model internals and upstream source locations are explained in the project-level `MODEL_COMPONENTS_zh.txt`.
@@ -38,6 +40,8 @@ YOLOv8n is the predeclared primary model and YOLOv8s the comparator. Both use th
 The initial augmentation policy is horizontal/vertical flips with probability 0.5 each. Mosaic, MixUp, CutMix, oversampling, color changes and affine distortion are off. Optional Albumentations is removed from the runtime transform list so installing it cannot silently add blur or CLAHE. Some disabled transform objects remain present in the library's composition with zero probability/gain. This conservative policy preserves color and whole-lesion context; no performance benefit has yet been demonstrated.
 
 Both training validation and prediction use square, aspect-preserving preprocessing and class-aware NMS at 0.7, maximum 300 detections, and a score floor of 0.001. Unlike the library's default multi-label validation, our validator retains only the highest-scoring class per candidate, matching ordinary prediction. This is an explicit new protocol choice, so the resulting AP is not directly interchangeable with old default-validation results.
+
+The v2 draft also uses `single_letterbox_v1` for evaluation. An actual tensor comparison found differences on 3 of 4 synthetic images between the original validation loader and predictor: the loader initially resizes with `ceil`, whereas the predictor's letterbox uses `round`. The adapter removes the loader's initial evaluation resize and uses the predictor's single letterbox operation, including upscaling small images. It records the correct gain and padding for returning boxes to original-image coordinates. This is evidence of a software-path difference, not evidence that it caused the old malignant errors. Training augmentation remains unchanged. Regression tests compare actual input tensors on landscape, portrait, small and square images at 128 and 640 pixels, and check inverse box coordinates within 0.0001 pixel on those fixtures.
 
 `best.pt` is selected by maximum validation macro mAP50:95 over the fixed budget; the pinned trainer retains the later epoch on an exact tie. That rule is the same for n and s. The final model is not selected after comparing supplementary reassessment results.
 
@@ -68,6 +72,25 @@ python recognition/YOLO_s4905914/smoke_test.py \
   --base-config recognition/YOLO_s4905914/experiment.json \
   --weights-dir weights/original_coco --output outputs/synthetic_smoke
 ```
+
+The separate device preflight can run while the full-training gate remains closed. It uses no ISIC images, saves no checkpoint and does not select a model. For a small local CPU check, explicitly reduce the probe size:
+
+```bash
+python recognition/YOLO_s4905914/preflight.py \
+  --config recognition/YOLO_s4905914/experiment.json \
+  --weights-dir weights/original_coco --output outputs/preflight_cpu \
+  --device cpu --batch 2 --imgsz 128
+```
+
+On the school host, first obtain a GPU allocation using the school's procedure, then run the default batch 16 / 640-pixel / FP32 probe on the allocated device:
+
+```bash
+python recognition/YOLO_s4905914/preflight.py \
+  --config recognition/YOLO_s4905914/experiment.json \
+  --weights-dir weights/original_coco --output outputs/preflight_gpu --device 0
+```
+
+An unavailable GPU is an error; the script does not silently switch to CPU or reduce the batch. `preflight.json` records the environment, device, original-weight hashes, finite loss/gradients/parameters, and CUDA peak allocation/reservation when applicable. The throwaway optimizer exercises AdamW state allocation but does not reproduce the full trainer's parameter groups, EMA, loader workers or validation. Passing this probe therefore does not guarantee that complete training fits in GPU memory. Recorded step times include verification and are not inference FPS. The school GPU command has been prepared but has not been executed here.
 
 Before real training, resolve cohort acceptance and the course questions, review the draft policy, and save `status="locked_before_training"` and `ready_for_full_training=true` in the experiment configuration. This is an explicit gate, not a claim that confirmation has already occurred. A different approved cohort requires new manifests, hashes, counts and a new configuration version; do not bypass the checks.
 
@@ -113,7 +136,7 @@ python recognition/YOLO_s4905914/predict.py \
 
 ## Checks completed locally
 
-28 unit tests passed. Both n and s completed a one-epoch CPU run on 8 synthetic training images, with 4 synthetic validation images and 4 synthetic reassessment images. Each run performed 4 optimizer steps; saved/reloaded two-class checkpoints; produced a finite (1, 6, 8400) decoded output for a 640×640 input; and completed validation selection, locked reassessment and prediction overlays. These synthetic metrics are not ISIC results. `IMPLEMENTATION_VERIFICATION.json` at the restart project root records the evidence and outstanding checks. Eight installed upstream source files matched the downloaded v8.3.221 tag exactly.
+32 unit tests passed, including the eight preprocessing combinations and the single-label/class-aware NMS regression. Both n and s completed a one-epoch CPU run on 8 synthetic training images, with 4 synthetic validation images and 4 synthetic reassessment images. Each run performed 4 optimizer steps; saved/reloaded two-class checkpoints; produced a finite (1, 6, 8400) decoded output for a 640×640 input; and completed validation selection, locked reassessment and prediction overlays. The separate CPU preflight also completed two synthetic AdamW steps per model at batch 2 / 128 pixels. These synthetic metrics are not ISIC results. `IMPLEMENTATION_VERIFICATION.json` at the restart project root records the evidence and outstanding checks. Eight installed upstream source files matched the downloaded v8.3.221 tag exactly.
 
 ## Work still required for submission
 

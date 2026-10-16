@@ -121,13 +121,14 @@ def verify_staged(stage, prepared, cfg, splits=('train', 'val')):
 
 def get_dataloader(trainer, path, batch_size=16, rank=-1, mode='train'):
     """Used by ProjectTrainer, with upstream transforms/collation explicitly retained."""
-    from ultralytics.data import build_dataloader, build_yolo_dataset
+    from ultralytics.data import build_dataloader
+    from preprocessing import build_project_dataset
     from ultralytics.utils.torch_utils import unwrap_model
     if mode not in ('train', 'val') or rank not in (-1, 0):
         raise ValueError('This protocol supports single-device train/val loading only')
     stride = max(int(unwrap_model(trainer.model).stride.max()), 32)
-    data = build_yolo_dataset(trainer.args, path, batch_size, trainer.data,
-                              mode=mode, rect=False, stride=stride)
+    data = build_project_dataset(trainer.args, path, batch_size, trainer.data,
+                                 mode=mode, stride=stride)
     # Optional installed Albumentations must not silently add blur/CLAHE/etc.
     data.transforms.transforms = [t for t in data.transforms.transforms
                                   if type(t).__name__ != 'Albumentations']

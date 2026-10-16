@@ -98,6 +98,10 @@ def validator_class():
     from ultralytics.utils import nms
 
     class SingleLabelValidator(DetectionValidator):
+        def build_dataset(self, img_path, mode='val', batch=None):
+            from preprocessing import build_project_dataset
+            return build_project_dataset(self.args, img_path, batch, self.data, mode, self.stride)
+
         def postprocess(self, preds):
             outputs = nms.non_max_suppression(preds, self.args.conf, self.args.iou,
                         nc=self.nc, multi_label=False, agnostic=False, max_det=self.args.max_det)

@@ -1,6 +1,6 @@
 {
-  "checked_at": "2026-10-17T02:40:02.267537+10:00",
-  "unit_tests_passed": 28,
+  "checked_at": "2026-10-17T02:59:29.593391+10:00",
+  "unit_tests_passed": 32,
   "dependency_check": "pip check passed",
   "installed_upstream_source_files_matching_v8_3_221_tag": 8,
   "real_data_plan_counts": {
@@ -39,33 +39,170 @@
       }
     }
   },
-  "synthetic_evidence_path": "outputs/synthetic_integration_04",
+  "synthetic_evidence_path": "outputs/synthetic_integration_05",
   "new_ISIC_training_started": false,
   "new_ISIC_performance_results": false,
   "school_GPU_preflight_completed": false,
   "course_acceptance_confirmed": false,
-  "experiment_config_sha256": "511da529f970684f78502776917cebbd0530070cd6a39eba2217003e650ee09d",
+  "experiment_config_sha256": "7890293787b98902cadcf62878abd9e8f8c7396598f132e9437b590fe1650a5d",
   "full_training_gate": "draft; disabled",
   "validation_score_policy": "confidence > threshold; single-label class-aware NMS",
   "source_sha256": {
-    "recognition/YOLO_s4905914/test_plan_group_splits.py": "96a9f82b2109f9d1089b820d79f39c23cc70e9807c62dacc499986ea0cd5e494",
-    "recognition/YOLO_s4905914/smoke_test.py": "c219421ea74d311201537792562026097adc86d00fec4c1cb1a0acc3c1676ba3",
+    "recognition/YOLO_s4905914/dataset.py": "bcb250fa5617d6ffbc027ec63870131a0326b9c9598a94f53a4c45b753f33288",
+    "recognition/YOLO_s4905914/evaluation.py": "b123d75f1862ebcfae45d0eedbdb19c80628ec5e26608081b838a7a4236b204e",
     "recognition/YOLO_s4905914/fetch_weights.py": "5603c6081675b0b8d0362d245fceeb11c154e11bbf7c38d22ab95567b39e1976",
-    "recognition/YOLO_s4905914/prepare_dataset.py": "11af3363d41b02fe9233d377a7b7941d0343bef15e9506fbadcd671937bde295",
-    "recognition/YOLO_s4905914/evaluation.py": "309cd85534b9301bcc5e055a64e95fcf6a9e685ad7b90f71d68116d4352527f2",
-    "recognition/YOLO_s4905914/predict.py": "f46dd8d4013805e06837ac3a8115fdce88888b956e9d69db872a25e52a0bf20f",
-    "recognition/YOLO_s4905914/runtime.py": "4f2756749f897dfc240b760372d392de98adf6f6910939846a34baa50fc4b2c2",
-    "recognition/YOLO_s4905914/dataset.py": "1e332fef67c98802875d0de2b136e26c9bcc7a0d613a0be01536214ae13a633e",
+    "recognition/YOLO_s4905914/modules.py": "0af074132a4d7f5b323d9df7a2c25f7c4270f02aea64604fcda0cd59f993a359",
     "recognition/YOLO_s4905914/plan_group_splits.py": "a86a9d45b72808f84ae41b669fd9a734e3936763664748e4b65ac6932baa97f3",
+    "recognition/YOLO_s4905914/predict.py": "f46dd8d4013805e06837ac3a8115fdce88888b956e9d69db872a25e52a0bf20f",
+    "recognition/YOLO_s4905914/preflight.py": "ecf2af12d3a6423d53d102f9b28654467d7f42ea6be80992f996bdaf568b7eb3",
+    "recognition/YOLO_s4905914/prepare_dataset.py": "11af3363d41b02fe9233d377a7b7941d0343bef15e9506fbadcd671937bde295",
+    "recognition/YOLO_s4905914/preprocessing.py": "c86006c777015ab93f6be34acba442948cc20dd45a42fbcdecf0ff39addb1091",
+    "recognition/YOLO_s4905914/runtime.py": "e2d2696e8c8dcedfe610929a5b24d586e1d69b480189cbc79f311f0d39057ee4",
+    "recognition/YOLO_s4905914/smoke_test.py": "c219421ea74d311201537792562026097adc86d00fec4c1cb1a0acc3c1676ba3",
+    "recognition/YOLO_s4905914/test_plan_group_splits.py": "96a9f82b2109f9d1089b820d79f39c23cc70e9807c62dacc499986ea0cd5e494",
+    "recognition/YOLO_s4905914/test_preflight.py": "e8b61addbbcbf8940fd9943bd82eae1b233b9922222206230b0d2ed507fe7c1c",
     "recognition/YOLO_s4905914/test_prepare_dataset.py": "073c92895dd9bd2eebeccad074c7bb687262c116f6441ca3b4b390381de0cca6",
-    "recognition/YOLO_s4905914/train.py": "8a77d9264a7a97161082aae657a07c9664e6c409931502537ee681ea147cbd7b",
+    "recognition/YOLO_s4905914/test_preprocessing.py": "bbb215bf1466be7b179ff499afd558916a5a70a8bcd54b81939868f67882d564",
     "recognition/YOLO_s4905914/test_runtime_pipeline.py": "2ece3cd6be211c4c5cd3363f2feae9c85317ea967addad8e5f45323af4be2a4b",
-    "recognition/YOLO_s4905914/modules.py": "0af074132a4d7f5b323d9df7a2c25f7c4270f02aea64604fcda0cd59f993a359"
+    "recognition/YOLO_s4905914/train.py": "8a77d9264a7a97161082aae657a07c9664e6c409931502537ee681ea147cbd7b"
   },
   "verification_log_paths": [
-    "outputs/implementation_verification/unit_tests.log",
-    "outputs/implementation_verification/synthetic_integration.log"
+    "outputs/implementation_verification_v2/unit_tests.log",
+    "outputs/implementation_verification_v2/synthetic_integration.log",
+    "outputs/implementation_verification_v2/cpu_preflight.log",
+    "outputs/implementation_verification_v2/real_data_plan.json"
   ],
-  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected.",
-  "nonfunctional_cleanup_after_checks": "Removed trailing blank lines from four Python files; no behavior changed."
+  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected.",
+  "nonfunctional_cleanup_after_checks": "Normalized trailing whitespace at Python file ends; no behavior changed.",
+  "synthetic_CPU_preflight": {
+    "status": "completed",
+    "purpose": "synthetic_runtime_preflight",
+    "device": "cpu",
+    "runtime": {
+      "python": "3.13.13",
+      "platform": "macOS-26.3.1-arm64-arm-64bit-Mach-O",
+      "ultralytics": "8.3.221",
+      "torch": "2.8.0",
+      "torchvision": "0.23.0"
+    },
+    "torch_cuda_build": null,
+    "config_sha256": "7890293787b98902cadcf62878abd9e8f8c7396598f132e9437b590fe1650a5d",
+    "ISIC_images_used": 0,
+    "checkpoint_saved": false,
+    "clinical_performance_evidence": false,
+    "same_batch_and_resolution_as_experiment": false,
+    "full_trainer_memory_guaranteed": false,
+    "timing_scope": "Synthetic forward, loss, backward, AdamW update and verification; excludes data IO; not inference FPS",
+    "models": {
+      "n": {
+        "model": "n",
+        "nc": 2,
+        "parameters": 3011238,
+        "input_shape": [
+          2,
+          3,
+          128,
+          128
+        ],
+        "dtype": "float32",
+        "finite_forward_backward_and_update": true,
+        "optimizer_steps": 2,
+        "steps": [
+          {
+            "step": 1,
+            "loss_components": [
+              2.9701366424560547,
+              4.155297756195068,
+              2.520054578781128
+            ],
+            "seconds_including_verification": 0.6067097089253366
+          },
+          {
+            "step": 2,
+            "loss_components": [
+              4.530529022216797,
+              3.7666358947753906,
+              3.3866307735443115
+            ],
+            "seconds_including_verification": 0.05394029093440622
+          }
+        ],
+        "peak_cuda_allocated_bytes": null,
+        "peak_cuda_reserved_bytes": null,
+        "initial_weight_sha256": "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36"
+      },
+      "s": {
+        "model": "s",
+        "nc": 2,
+        "parameters": 11136374,
+        "input_shape": [
+          2,
+          3,
+          128,
+          128
+        ],
+        "dtype": "float32",
+        "finite_forward_backward_and_update": true,
+        "optimizer_steps": 2,
+        "steps": [
+          {
+            "step": 1,
+            "loss_components": [
+              2.721839666366577,
+              4.283989906311035,
+              2.338411808013916
+            ],
+            "seconds_including_verification": 0.12018012499902397
+          },
+          {
+            "step": 2,
+            "loss_components": [
+              2.9548439979553223,
+              9.530444145202637,
+              2.052417039871216
+            ],
+            "seconds_including_verification": 0.10345462500117719
+          }
+        ],
+        "peak_cuda_allocated_bytes": null,
+        "peak_cuda_reserved_bytes": null,
+        "initial_weight_sha256": "1f47a78bf100391c2a140b7ac73a1caae18c32779be7d310658112f7ac9aa78a"
+      }
+    }
+  },
+  "synthetic_CPU_preflight_path": "outputs/synthetic_preflight_cpu_01/preflight.json",
+  "previous_verification_snapshot": "outputs/implementation_verification_v2/previous_v1_verification.json",
+  "evaluation_preprocessing": {
+    "protocol": "single_letterbox_v1",
+    "before_evidence_path": "outputs/preprocessing_audit/before.json",
+    "before_result": "3 of 4 synthetic images had different actual validation/prediction input tensors",
+    "source_finding": "Default loader initially resizes using ceil; predictor uses a single round-based LetterBox",
+    "change": "Evaluation loader reads original pixels, applies one LetterBox and stores exact gain/padding",
+    "after_evidence": "test_validation_equals_prediction_and_boxes_return_to_original_pixels in unit_tests.log",
+    "tested_original_width_height": [
+      [
+        200,
+        133
+      ],
+      [
+        131,
+        257
+      ],
+      [
+        31,
+        19
+      ],
+      [
+        128,
+        128
+      ]
+    ],
+    "tested_square_resolutions": [
+      128,
+      640
+    ],
+    "passing_combinations": 8,
+    "assertion": "Actual float32 model input tensors are exactly equal; inverse boxes agree within absolute 0.0001 pixel",
+    "explains_previous_malignant_failures": "Not established; no ISIC performance experiment conducted"
+  }
 }
