@@ -4,6 +4,7 @@ Full training is gated while the cohort/course decisions are unresolved.
 Synthetic smoke runs test integration and cannot be reported as lesion results.
 """
 import argparse
+import json
 from copy import copy
 from pathlib import Path
 import subprocess
@@ -13,6 +14,7 @@ from dataset import get_dataloader, read_manifests, verify_staged
 from evaluation import collect_predictions, inference_args, score_records, select_threshold, validator_class
 from modules import build_detector, load_trained
 from runtime import check_runtime, digest, load_config, read_json, stage_content_digest, validate_lock, write_json
+from schedule import optimizer_snapshot, schedule_summary
 
 
 def release_check(cfg, rows):
@@ -29,8 +31,11 @@ def trainer_class():
     from ultralytics.models.yolo.detect import DetectionTrainer
     class ProjectTrainer(DetectionTrainer):
         def optimizer_step(self):
+            observed = optimizer_snapshot(self)
             super().optimizer_step()
             self.project_optimizer_steps = getattr(self, 'project_optimizer_steps', 0) + 1
+            with (self.save_dir / 'optimizer_steps.jsonl').open('a') as stream:
+                stream.write(json.dumps(observed, allow_nan=False)+'\n')
 
         def get_model(self, cfg=None, weights=None, verbose=True):
             model = build_detector(cfg, weights, verbose)
@@ -59,6 +64,8 @@ def plan(config, prepared):
             'models': cfg['models'], 'epochs_per_model': cfg['train']['epochs'],
             'training_batches_per_epoch': batches,
             'planned_optimizer_steps_per_model': batches * cfg['train']['epochs'],
+            'optimizer_step_count_means': 'Calls to optimizer.step, not a guarantee of changed parameters',
+            'learning_rate_schedule': schedule_summary(cfg, len(rows['train'])),
             'gradient_accumulation': 1, 'full_training_started': False,
             'image_decoding_and_GPU_preflight_still_required': True,
             'checkpoint_selection': cfg['checkpoint_selection']}
@@ -119,8 +126,17 @@ def fit(config, prepared, stage, weights_dir, model_size, output, device):
         best = output / 'fit/weights/best.pt'; last = output / 'fit/weights/last.pt'
         if not best.is_file() or not last.is_file():
             raise RuntimeError('Missing saved checkpoints')
+        trace_path = output / 'fit/optimizer_steps.jsonl'
+        trace = [json.loads(line) for line in trace_path.read_text().splitlines()]
+        planned = schedule_summary(cfg, len(rows['train']))
+        if len(trace) != planned['planned_optimizer_step_calls'] or len(trace) != model.trainer.project_optimizer_steps:
+            raise RuntimeError('Completed run has an unexpected optimizer-step budget')
         record.update(status='completed', elapsed_seconds=time.perf_counter()-started,
                       optimizer_steps=model.trainer.project_optimizer_steps,
+                      optimizer_step_count_means='Completed optimizer.step calls; some may have zero learning rate',
+                      optimizer_trace_sha256=digest(trace_path),
+                      zero_lr_optimizer_step_calls=sum(t['all_learning_rates_zero'] for t in trace),
+                      first_step_lrs=trace[0]['lr'], last_step_lrs=trace[-1]['lr'],
                       best_sha256=digest(best), last_sha256=digest(last),
                       parameters=sum(p.numel() for p in model.model.parameters()),
                       peak_cuda_allocated_bytes=(torch.cuda.max_memory_allocated(model.trainer.device) if model.trainer.device.type == 'cuda' else None))

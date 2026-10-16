@@ -26,7 +26,7 @@ data/ 和 sources.json 按项目规则不提交到 Git。因此只克隆仓库�
 python recognition/YOLO_s4905914/transfer.py build \
   --output outputs/transfer/comp3710_restart_preparation.zip
 
-同时产生 .zip.sha256 文件。相同文件内容生成相同压缩包；修改代码、
+同时产生 .zip.sha256 文件。同一工具环境下，相同文件内容生成相同压缩包；修改代码、
 配置或清单后，应生成一个新包，不覆盖旧版本。
 
 转移后的顺序

@@ -44,11 +44,16 @@ def make_fixture(base_config, output):
     return config, prepared
 
 
-def run_smoke(base_config, weights_dir, output):
+def run_smoke(base_config, weights_dir, output, warmup_epochs=0.0):
     import torch
     torch.set_num_threads(2)
     output = Path(output).resolve()
     config, prepared = make_fixture(base_config, output)
+    if not 0 <= warmup_epochs <= 3:
+        raise ValueError('Synthetic warmup probe must be between 0 and 3 epochs')
+    cfg = load_config(config)
+    cfg['train']['warmup_epochs'] = warmup_epochs
+    write_json(config, cfg)
     stage = output / 'staged'
     stage_dataset(prepared, config, stage)
     report = {'purpose': 'synthetic_smoke', 'ISIC_images_used': 0, 'clinical_or_lesion_performance_evidence': False,
@@ -56,6 +61,7 @@ def run_smoke(base_config, weights_dir, output):
     for size in ('n', 's'):
         trained = fit(config, prepared, stage, weights_dir, size, output / f'train_{size}', 'cpu')
         assert trained['optimizer_steps'] == 4
+        assert trained['zero_lr_optimizer_step_calls'] == (1 if warmup_epochs > 0 else 0)
         checkpoint = output / f'train_{size}/fit/weights/best.pt'
         model = load_trained(checkpoint)
         model.model.float().eval()
@@ -73,6 +79,10 @@ def run_smoke(base_config, weights_dir, output):
         predict(config, checkpoint, lock, image, output / f'predict_{size}', 'cpu')
         report['models'][size] = {'saved_and_reloaded': True, 'forward_640_shape': list(raw.shape),
                                  'optimizer_steps': trained['optimizer_steps'],
+                                 'warmup_epochs': warmup_epochs,
+                                 'zero_lr_optimizer_step_calls': trained['zero_lr_optimizer_step_calls'],
+                                 'first_step_lrs': trained['first_step_lrs'],
+                                 'last_step_lrs': trained['last_step_lrs'],
                                  'validation_selection_and_locked_reassessment_ran': True,
                                  'prediction_overlay_created': True}
     write_json(output / 'smoke_verification.json', report)
@@ -84,5 +94,6 @@ if __name__ == '__main__':
     p.add_argument('--base-config', required=True, type=Path)
     p.add_argument('--weights-dir', required=True, type=Path)
     p.add_argument('--output', required=True, type=Path)
+    p.add_argument('--warmup-epochs', type=float, default=0.0)
     a = p.parse_args()
-    print(run_smoke(a.base_config, a.weights_dir, a.output))
+    print(run_smoke(a.base_config, a.weights_dir, a.output, a.warmup_epochs))

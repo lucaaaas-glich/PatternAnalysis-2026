@@ -26,6 +26,7 @@ The original image-level pilot and its test results were already inspected. Repa
 | `predict.py` | Loads the selected saved checkpoint, predicts one image and writes an overlay and JSON. |
 | `evaluation.py` | Class-correct detection matching, separate image alerts, explicit IoU denominators, validation threshold selection, and consistent NMS policy. |
 | `preprocessing.py` | Uses one aspect-preserving letterbox transform for validation, matching prediction, and records gain/padding for inverse box coordinates. |
+| `schedule.py` | Projects the pinned learning-rate schedule and checks/records the actual AdamW groups at each optimizer-step call. |
 | `experiment.json` | Shared n/s experiment draft, data hashes, original-weight hashes and operating-point rules. |
 | `smoke_test.py` | Small synthetic end-to-end software check for both n and s. It produces no ISIC evidence. |
 | `preflight.py` | Two synthetic forward/backward/AdamW steps per model on an explicitly chosen device; records runtime and CUDA memory when available. |
@@ -36,7 +37,9 @@ The model builder and loader calls are recorded in each run's `project_model_int
 
 ## Experiment draft
 
-YOLOv8n is the predeclared primary model and YOLOv8s the comparator. Both use their own hash-verified original COCO initialization. They share 640-pixel inputs, batch 16, FP32, seed 3710, 60 epochs, AdamW (lr0=0.001, beta1=0.9, weight decay=0.0005), a linear learning-rate schedule ending at 1% of its initial value, and 3 warm-up epochs. Early stopping is disabled. Nominal batch size is also 16, giving one optimizer update per batch: 48 batches/epoch and 2,880 planned updates per model. Actual update counts are saved. This budget is not a claim of convergence.
+YOLOv8n is the predeclared primary model and YOLOv8s the comparator. Both use their own hash-verified original COCO initialization. They share 640-pixel inputs, batch 16, FP32, seed 3710, 60 epochs and AdamW (base lr0=0.001, betas=(0.9, 0.999), weight decay=0.0005 for ordinary weights; biases and normalization weights have no decay). The linear schedule uses lrf=0.01 and warmup_epochs=3.0. Early stopping is disabled. Nominal batch size is also 16, giving one optimizer-step call per batch: 48 batches/epoch and 2,880 planned calls per model. This budget is not a claim of convergence.
+
+The exact pinned schedule matters: its multiplier is `(1 - epoch_index / 60) * 0.99 + 0.01`, with epoch indices 0–59. The last training epoch therefore uses 0.0000265 (2.65% of lr0), not 0.00001. Warm-up interpolates through global batch index 144 inclusive, with its target following that epoch's scheduler value. All groups start at learning rate 0 under the current warmup_bias_lr setting. The first optimizer call can advance AdamW's internal state without changing trainable parameters; step counts do not prove that parameters changed on every call. The configuration's warmup_momentum does not change AdamW betas in this implementation, because the upstream warm-up branch only modifies optimizer groups with a `momentum` key. `train.py plan` reports the projected schedule. `optimizer_steps.jsonl` records actual learning rates, betas, decay and accumulation for every completed optimizer call; a schedule or budget mismatch fails the run. These checks observe the upstream optimizer rather than replacing its update rule.
 
 The initial augmentation policy is horizontal/vertical flips with probability 0.5 each. Mosaic, MixUp, CutMix, oversampling, color changes and affine distortion are off. Optional Albumentations is removed from the runtime transform list so installing it cannot silently add blur or CLAHE. Some disabled transform objects remain present in the library's composition with zero probability/gain. This conservative policy preserves color and whole-lesion context; no performance benefit has yet been demonstrated.
 
@@ -80,6 +83,8 @@ python recognition/YOLO_s4905914/smoke_test.py \
   --weights-dir weights/original_coco --output outputs/synthetic_smoke
 ```
 
+Add `--warmup-epochs 3` and choose another output path to exercise the warm-up branch on the same one-epoch artificial fixture. With four batches, the upstream minimum warm-up length is 100 batch intervals, so this is an interface check of the beginning of warm-up, not a reproduction of the complete 60-epoch schedule.
+
 The separate device preflight can run while the full-training gate remains closed. It uses no ISIC images, saves no checkpoint and does not select a model. For a small local CPU check, explicitly reduce the probe size:
 
 ```bash
@@ -114,7 +119,7 @@ python recognition/YOLO_s4905914/train.py fit \
   --output outputs/n_v1 --device 0
 ```
 
-Run s using the same command with `--model s --output outputs/s_v1`. Use the school's approved GPU allocation procedure; these commands do not request a scheduler allocation. They refuse to overwrite an existing run directory. Training saves `best.pt`, `last.pt`, `args.yaml`, `results.csv`, loss/metric plots, the environment, source/config/data hashes and runtime measurements. CUDA peak allocation is not total device memory. Library timing is not complete mobile application latency.
+Run s using the same command with `--model s --output outputs/s_v1`. Use the school's approved GPU allocation procedure; these commands do not request a scheduler allocation. They refuse to overwrite an existing run directory. Training saves `best.pt`, `last.pt`, `args.yaml`, `results.csv`, `optimizer_steps.jsonl`, loss/metric plots, the environment, source/config/data hashes and runtime measurements. The pinned trainer requests twice the training batch size for its internal validation loader (32 here); standalone evaluation requests 16. CUDA peak allocation is not total device memory. Library timing is not complete mobile application latency.
 
 Validate and select the operating point:
 
@@ -143,7 +148,7 @@ python recognition/YOLO_s4905914/predict.py \
 
 ## Checks completed locally
 
-35 unit tests passed, including the eight preprocessing combinations, the single-label/class-aware NMS regression, and transfer integrity checks. Both n and s completed a one-epoch CPU run on 8 synthetic training images, with 4 synthetic validation images and 4 synthetic reassessment images. Each run performed 4 optimizer steps; saved/reloaded two-class checkpoints; produced a finite (1, 6, 8400) decoded output for a 640×640 input; and completed validation selection, locked reassessment and prediction overlays. The separate CPU preflight also completed two synthetic AdamW steps per model at batch 2 / 128 pixels. These synthetic metrics are not ISIC results. `IMPLEMENTATION_VERIFICATION.json` at the restart project root records the evidence and outstanding checks. Eight installed upstream source files matched the downloaded v8.3.221 tag exactly.
+38 unit tests passed, including the eight preprocessing combinations, NMS, transfer integrity, actual upstream scheduler values over all 60 epoch indices, and AdamW group/zero-rate behavior. Both n and s completed a one-epoch CPU run on 8 synthetic training images, with 4 synthetic validation images and 4 synthetic reassessment images. Each run made 4 optimizer-step calls; saved/reloaded two-class checkpoints; produced a finite (1, 6, 8400) decoded output for a 640×640 input; and completed validation selection, locked reassessment and prediction overlays. The latest integration also exercised warm-up and recorded learning rates 0, 0.00001, 0.00002 and 0.00003 for both models. The separate CPU preflight previously completed two synthetic AdamW steps per model at batch 2 / 128 pixels. These synthetic metrics are not ISIC results. `IMPLEMENTATION_VERIFICATION.json` at the restart project root records the evidence and outstanding checks. Eight installed upstream source files matched the downloaded v8.3.221 tag exactly.
 
 ## Work still required for submission
 

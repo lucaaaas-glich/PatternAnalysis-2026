@@ -1,6 +1,6 @@
 {
-  "checked_at": "2026-10-17T03:12:41.431989+10:00",
-  "unit_tests_passed": 35,
+  "checked_at": "2026-10-17T03:32:54.229196+10:00",
+  "unit_tests_passed": 38,
   "dependency_check": "pip check passed",
   "installed_upstream_source_files_matching_v8_3_221_tag": 8,
   "real_data_plan_counts": {
@@ -23,6 +23,18 @@
           8400
         ],
         "optimizer_steps": 4,
+        "warmup_epochs": 3.0,
+        "zero_lr_optimizer_step_calls": 1,
+        "first_step_lrs": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "last_step_lrs": [
+          3.0000000000000004e-05,
+          3.0000000000000004e-05,
+          3.0000000000000004e-05
+        ],
         "validation_selection_and_locked_reassessment_ran": true,
         "prediction_overlay_created": true
       },
@@ -34,12 +46,24 @@
           8400
         ],
         "optimizer_steps": 4,
+        "warmup_epochs": 3.0,
+        "zero_lr_optimizer_step_calls": 1,
+        "first_step_lrs": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "last_step_lrs": [
+          3.0000000000000004e-05,
+          3.0000000000000004e-05,
+          3.0000000000000004e-05
+        ],
         "validation_selection_and_locked_reassessment_ran": true,
         "prediction_overlay_created": true
       }
     }
   },
-  "synthetic_evidence_path": "outputs/synthetic_integration_05",
+  "synthetic_evidence_path": "outputs/synthetic_integration_06_warmup",
   "new_ISIC_training_started": false,
   "new_ISIC_performance_results": false,
   "school_GPU_preflight_completed": false,
@@ -58,24 +82,25 @@
     "recognition/YOLO_s4905914/prepare_dataset.py": "11af3363d41b02fe9233d377a7b7941d0343bef15e9506fbadcd671937bde295",
     "recognition/YOLO_s4905914/preprocessing.py": "c86006c777015ab93f6be34acba442948cc20dd45a42fbcdecf0ff39addb1091",
     "recognition/YOLO_s4905914/runtime.py": "e2d2696e8c8dcedfe610929a5b24d586e1d69b480189cbc79f311f0d39057ee4",
-    "recognition/YOLO_s4905914/smoke_test.py": "c219421ea74d311201537792562026097adc86d00fec4c1cb1a0acc3c1676ba3",
+    "recognition/YOLO_s4905914/schedule.py": "ce34bc2a19979375b6d24bd255ef339ba74b644f23abfc15d9fac5aa2e1891df",
+    "recognition/YOLO_s4905914/smoke_test.py": "16427a09a0967f7418efc806880df8478e23c2801925bdb997b8aed3618a910e",
     "recognition/YOLO_s4905914/test_plan_group_splits.py": "96a9f82b2109f9d1089b820d79f39c23cc70e9807c62dacc499986ea0cd5e494",
     "recognition/YOLO_s4905914/test_preflight.py": "e8b61addbbcbf8940fd9943bd82eae1b233b9922222206230b0d2ed507fe7c1c",
     "recognition/YOLO_s4905914/test_prepare_dataset.py": "073c92895dd9bd2eebeccad074c7bb687262c116f6441ca3b4b390381de0cca6",
     "recognition/YOLO_s4905914/test_preprocessing.py": "bbb215bf1466be7b179ff499afd558916a5a70a8bcd54b81939868f67882d564",
     "recognition/YOLO_s4905914/test_runtime_pipeline.py": "2ece3cd6be211c4c5cd3363f2feae9c85317ea967addad8e5f45323af4be2a4b",
+    "recognition/YOLO_s4905914/test_schedule.py": "ac1ffee2c3bc27a4df541f59a480e5e6b99333026fb4850b9cfda45ba4b5b78d",
     "recognition/YOLO_s4905914/test_transfer.py": "fc5b3aecf1e633bdd65d831005f7509a41af987545dbb3d8eb940e9b79e8dfdd",
-    "recognition/YOLO_s4905914/train.py": "8a77d9264a7a97161082aae657a07c9664e6c409931502537ee681ea147cbd7b",
+    "recognition/YOLO_s4905914/train.py": "53ee7fbe557c5075b6dbcd918c47ff566602cef864e665aa122dfba837fdfeda",
     "recognition/YOLO_s4905914/transfer.py": "9f316e512e662626e207eda2ec05cc605040614a449d12b8ae2a3a74c063812a"
   },
   "verification_log_paths": [
-    "outputs/implementation_verification_v2/unit_tests.log",
-    "outputs/implementation_verification_v2/synthetic_integration.log",
-    "outputs/implementation_verification_v2/cpu_preflight.log",
-    "outputs/implementation_verification_v2/real_data_plan.json"
+    "outputs/schedule_audit_20261017/unit_tests.log",
+    "outputs/schedule_audit_20261017/synthetic_integration.log",
+    "outputs/schedule_audit_20261017/real_data_plan.json"
   ],
-  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected. Transfer tooling and its three tests were subsequently added; model training/evaluation behavior was unchanged and the full synthetic training was not repeated for this packaging-only change.",
-  "nonfunctional_cleanup_after_checks": "Normalized trailing whitespace at Python file ends; no behavior changed.",
+  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected. Transfer tooling and its three tests were subsequently added; model training/evaluation behavior was unchanged and the full synthetic training was not repeated for this packaging-only change. Subsequent optimizer logging checks the pinned schedule and fixed budget; a new complete synthetic pipeline run exercised warmup for n/s. Training hyperparameters are unchanged; documentation about the final LR and meaning of step counts was corrected.",
+  "nonfunctional_cleanup_after_checks": "Removed trailing blank lines from two new Python files; no behavior changed.",
   "synthetic_CPU_preflight": {
     "status": "completed",
     "purpose": "synthetic_runtime_preflight",
@@ -207,7 +232,7 @@
     "assertion": "Actual float32 model input tensors are exactly equal; inverse boxes agree within absolute 0.0001 pixel",
     "explains_previous_malignant_failures": "Not established; no ISIC performance experiment conducted"
   },
-  "latest_unit_test_log": "outputs/transfer/unit_tests.log",
+  "latest_unit_test_log": "outputs/schedule_audit_20261017/unit_tests.log",
   "transfer_implementation": {
     "script": "recognition/YOLO_s4905914/transfer.py",
     "scope": "Local bundle creation and file verification; no upload or training",
@@ -216,8 +241,32 @@
       "Unlisted ZIP entries rejected",
       "Escaping relative paths rejected"
     ],
-    "actual_bundle_verification_record": "outputs/transfer/TRANSFER_VERIFICATION.json",
-    "training_and_evaluation_code_changed_in_this_step": false,
-    "previous_synthetic_pipeline_evidence_remains_applicable": true
+    "actual_bundle_verification_record": "outputs/transfer_optimizer_audit/TRANSFER_VERIFICATION.json",
+    "introduced_in_commit": "c1399b7"
+  },
+  "optimizer_schedule_audit": "outputs/schedule_audit_20261017/schedule_verification.json",
+  "projected_learning_rate_schedule": {
+    "evidence": "projection_from_pinned_schedule_not_observed_full_training",
+    "batches_per_epoch": 48,
+    "planned_optimizer_step_calls": 2880,
+    "warmup_last_global_batch_index_inclusive": 144,
+    "planned_zero_lr_step_calls": 1,
+    "first_step_lrs": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "last_step_lrs": [
+      2.650000000000005e-05,
+      2.650000000000005e-05,
+      2.650000000000005e-05
+    ],
+    "maximum_lr": 0.0009602847222222222,
+    "AdamW_betas": [
+      0.9,
+      0.999
+    ],
+    "warmup_momentum_changes_AdamW_betas": false,
+    "positive_lr_does_not_guarantee_every_parameter_changes": true
   }
 }
