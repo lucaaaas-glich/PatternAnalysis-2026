@@ -1,0 +1,9 @@
+{
+  "checked_labels": 1098,
+  "label_class_and_coordinates_match_verified_sources": true,
+  "selected_ids_equal_complete_known_lesion_cohort": true,
+  "source_identifiers_preserved": true,
+  "unit_tests_passed": 12,
+  "trained_new_model": false,
+  "fresh_blind_test": false
+}

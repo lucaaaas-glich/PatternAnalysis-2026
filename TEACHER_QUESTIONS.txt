@@ -1,0 +1,74 @@
+Teacher questions — drafts only; not sent
+Prepared 17 October 2026 (Australia/Brisbane)
+
+1. Follow-up to the lesion_id reply — highest priority
+
+Hi,
+
+Thank you for clarifying that images of the same lesion should stay in one split.
+I checked lesion_id in the metadata matched to the 2,594 Task 1 training images:
+1,098 images have a lesion_id and 1,496 do not. The official Task 3 grouping CSV
+contains 10,015 images, but none of its image IDs match this Task 1 set.
+
+My proposed restart uses only the 1,098 images with recorded lesion IDs
+(824 benign and 274 malignant), excluding missing-ID images from every split.
+I would group by lesion_id and also keep known patient IDs together. The
+candidate split is 768 training / 165 validation / 165 supplementary evaluation.
+I would describe it as lesion-grouped, not fully patient-independent.
+
+Is this restricted-cohort approach acceptable for Project 3? If full-data use is
+expected instead, how should the 1,496 missing-lesion-ID images be handled?
+Is there additional Task 1 grouping metadata available?
+
+The earlier image-level pilot has already been evaluated. I will preserve that
+history, train fresh models for the new split, and not present regrouped,
+previously inspected data as a new blind test.
+
+Thank you!
+
+
+2. Separate technical clarification: model components and IoU target
+
+Hi,
+
+I would also like to clarify two Project 3 implementation/evaluation points.
+
+(a) The project allows pretrained YOLOv7 or newer, and the introductory lecture
+(page 29) says models may be reused rather than reimplemented. Section 4.1 of the
+assessment draft requires model-component source in modules.py. My current
+modules.py loads the Ultralytics YOLOv8 model; the actual PyTorch Conv/C2f/SPPF/
+Detect implementations are in the pinned library, not written by me.
+Is integrating the existing implementation, with explicit component descriptions,
+versioned source references and verification, sufficient? If local component
+implementation is required, which components are expected in our own source?
+
+(b) For the per-class test localisation IoU target of 0.8, should the average
+include all ground-truth lesions (with no class-correct prediction scored as 0),
+only matched true positives, or another specified matching/aggregation rule?
+These differ substantially when localisation is good but the predicted class
+is wrong. Is there a numerical classification-performance requirement beyond
+reporting classwise precision/recall and AP?
+
+Thank you!
+
+
+3. Course-record check — separate from the scientific questions
+
+Please confirm whether my required feasibility-review practical check-off is
+recorded as completed. If it is not, what approved make-up arrangement applies?
+
+Also check the current deadline and submission instructions in the course
+system. A newly written feasibility review or report PDF is not evidence of a
+previous check-off. No course-system record has been verified in this restart.
+
+
+Notes for the student
+
+- The existing teacher reply establishes lesion-based grouping guidance. It does
+  not explicitly approve missing IDs as unique lesions or the old image split.
+- We do not need to ask the same general grouping question again. Question 1
+  supplies the previously missing lesion_id counts and a concrete proposal.
+- These drafts have not been emailed, posted to Ed, or sent to another person.
+- Source pages: assessment draft pages 7, 11–13; introductory lecture page 29.
+  The local assessment filename is v2.3 but its cover says DRAFT / Version 2.2;
+  current teaching announcements take precedence if the specification changed.
