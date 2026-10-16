@@ -1,8 +1,9 @@
 YOLOv8 组件：源码核对与学习笔记
 核对版本：Ultralytics v8.3.221，2026-10-17
 
-范围：核对官方固定版本 YAML/Python 源码及旧项目调用关系；没有运行新
-checkpoint 的前向计算，也没有自行实现或改造 YOLO 的网络模块。
+范围：核对官方固定版本 YAML/Python 源码，并用人工测试图检查新代码
+实际调用模型/loader、两类训练、保存/重载和前向计算。没有自行实现
+YOLO 的网络模块；人工图验证不是 ISIC 效果证据。
 这份笔记提供可解释性和来源证据，不宣称已经解决课程组件提交要求。
 
 1. Backbone：提取特征
@@ -49,7 +50,11 @@ NMS 是推理后处理，不是 Backbone/Neck 的特征学习模块。
 旧 modules.py 只调用 ultralytics.YOLO 加载模型；旧 train.py 的项目
 trainer 子类实际调用 dataset.py 的 loader 接口，数据变换和训练主体
 仍由 Ultralytics 提供。不能说这些网络、loss 或训练引擎是学生原创。
-新项目的网络封装尚未实现；先让老师确认需要哪些本地组件源码。
+新项目 modules.build_detector 实际构造上游 DetectionModel(nc=2)，
+train.py 的 trainer 实际调用它和 dataset.get_dataloader，运行记录可核查。
+人工试跑保存的 n/s checkpoint 都检查了 names/nc；640 输入的解码
+输出形状为 (1, 6, 8400)：4 个框坐标 + 2 个类别分数，8400 个候选位置。
+这仍不等于学生自行实现了这些组件；需让老师确认需要哪些本地组件源码。
 不会为满足文件名要求而复制未使用的模块或改变已验证模型的计算。
 
 需要老师解释的两处文字
@@ -72,4 +77,4 @@ Loss：
 https://github.com/ultralytics/ultralytics/blob/v8.3.221/ultralytics/utils/loss.py
 
 源码哈希记录在 outputs/grouping_followup_20261017/upstream_source/manifest.json。
-以上是组件说明，不是运行性能结果或课程接受证明。
+以上是组件说明及软件接口验证，不是 ISIC 性能结果或课程接受证明。

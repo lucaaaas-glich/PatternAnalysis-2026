@@ -8,3 +8,7 @@ weights/
 *.zip
 sources.json
 .DS_Store
+
+.venv/
+*.cache
+runs/

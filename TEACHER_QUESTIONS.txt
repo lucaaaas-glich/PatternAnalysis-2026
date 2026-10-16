@@ -41,8 +41,10 @@ I would also like to clarify two Project 3 implementation/evaluation points.
 (a) The project allows pretrained YOLOv7 or newer, and the introductory lecture
 (page 29) says models may be reused rather than reimplemented. Section 4.1 of the
 assessment draft requires model-component source in modules.py. My current
-modules.py loads the Ultralytics YOLOv8 model; the actual PyTorch Conv/C2f/SPPF/
-Detect implementations are in the pinned library, not written by me.
+modules.py constructs the two-class Ultralytics DetectionModel and train.py
+actually uses it and the loader in dataset.py (checked on synthetic images).
+The PyTorch Conv/C2f/SPPF/Detect implementations remain in the pinned library,
+not written by me.
 Is integrating the existing implementation, with explicit component descriptions,
 versioned source references and verification, sufficient? If local component
 implementation is required, which components are expected in our own source?

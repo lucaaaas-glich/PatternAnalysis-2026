@@ -1,0 +1,71 @@
+{
+  "checked_at": "2026-10-17T02:40:02.267537+10:00",
+  "unit_tests_passed": 28,
+  "dependency_check": "pip check passed",
+  "installed_upstream_source_files_matching_v8_3_221_tag": 8,
+  "real_data_plan_counts": {
+    "train": 768,
+    "val": 165,
+    "reassessment": 165
+  },
+  "planned_training_batches_per_epoch": 48,
+  "planned_optimizer_steps_per_model": 2880,
+  "synthetic_integration": {
+    "purpose": "synthetic_smoke",
+    "ISIC_images_used": 0,
+    "clinical_or_lesion_performance_evidence": false,
+    "models": {
+      "n": {
+        "saved_and_reloaded": true,
+        "forward_640_shape": [
+          1,
+          6,
+          8400
+        ],
+        "optimizer_steps": 4,
+        "validation_selection_and_locked_reassessment_ran": true,
+        "prediction_overlay_created": true
+      },
+      "s": {
+        "saved_and_reloaded": true,
+        "forward_640_shape": [
+          1,
+          6,
+          8400
+        ],
+        "optimizer_steps": 4,
+        "validation_selection_and_locked_reassessment_ran": true,
+        "prediction_overlay_created": true
+      }
+    }
+  },
+  "synthetic_evidence_path": "outputs/synthetic_integration_04",
+  "new_ISIC_training_started": false,
+  "new_ISIC_performance_results": false,
+  "school_GPU_preflight_completed": false,
+  "course_acceptance_confirmed": false,
+  "experiment_config_sha256": "511da529f970684f78502776917cebbd0530070cd6a39eba2217003e650ee09d",
+  "full_training_gate": "draft; disabled",
+  "validation_score_policy": "confidence > threshold; single-label class-aware NMS",
+  "source_sha256": {
+    "recognition/YOLO_s4905914/test_plan_group_splits.py": "96a9f82b2109f9d1089b820d79f39c23cc70e9807c62dacc499986ea0cd5e494",
+    "recognition/YOLO_s4905914/smoke_test.py": "c219421ea74d311201537792562026097adc86d00fec4c1cb1a0acc3c1676ba3",
+    "recognition/YOLO_s4905914/fetch_weights.py": "5603c6081675b0b8d0362d245fceeb11c154e11bbf7c38d22ab95567b39e1976",
+    "recognition/YOLO_s4905914/prepare_dataset.py": "11af3363d41b02fe9233d377a7b7941d0343bef15e9506fbadcd671937bde295",
+    "recognition/YOLO_s4905914/evaluation.py": "309cd85534b9301bcc5e055a64e95fcf6a9e685ad7b90f71d68116d4352527f2",
+    "recognition/YOLO_s4905914/predict.py": "f46dd8d4013805e06837ac3a8115fdce88888b956e9d69db872a25e52a0bf20f",
+    "recognition/YOLO_s4905914/runtime.py": "4f2756749f897dfc240b760372d392de98adf6f6910939846a34baa50fc4b2c2",
+    "recognition/YOLO_s4905914/dataset.py": "1e332fef67c98802875d0de2b136e26c9bcc7a0d613a0be01536214ae13a633e",
+    "recognition/YOLO_s4905914/plan_group_splits.py": "a86a9d45b72808f84ae41b669fd9a734e3936763664748e4b65ac6932baa97f3",
+    "recognition/YOLO_s4905914/test_prepare_dataset.py": "073c92895dd9bd2eebeccad074c7bb687262c116f6441ca3b4b390381de0cca6",
+    "recognition/YOLO_s4905914/train.py": "8a77d9264a7a97161082aae657a07c9664e6c409931502537ee681ea147cbd7b",
+    "recognition/YOLO_s4905914/test_runtime_pipeline.py": "2ece3cd6be211c4c5cd3363f2feae9c85317ea967addad8e5f45323af4be2a4b",
+    "recognition/YOLO_s4905914/modules.py": "0af074132a4d7f5b323d9df7a2c25f7c4270f02aea64604fcda0cd59f993a359"
+  },
+  "verification_log_paths": [
+    "outputs/implementation_verification/unit_tests.log",
+    "outputs/implementation_verification/synthetic_integration.log"
+  ],
+  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected.",
+  "nonfunctional_cleanup_after_checks": "Removed trailing blank lines from four Python files; no behavior changed."
+}
