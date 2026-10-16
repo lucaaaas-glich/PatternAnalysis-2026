@@ -2,6 +2,12 @@
 
 This is an experimental implementation in preparation, not a completed assignment report. The real ISIC cohort has not been retrained or scored with this code. The code integrates Ultralytics 8.3.221; the YOLO network, loss and training engine are third-party implementations, not my own network design. Acceptance of this packaging under the course's `modules.py` requirement is still awaiting clarification.
 
+## Working principle
+
+YOLOv8 is a one-stage detector: convolutional backbone features are fused across scales, then separate head branches predict box distances and class scores. The pinned loss combines box regression (CIoU and distribution focal loss) with binary-cross-entropy classification. At inference, scores are filtered and class-aware NMS removes some overlapping predictions. Labels are boxes derived from masks; the model is not trained to output segmentation masks. The confidence score and the geometric accuracy of the box are separate quantities.
+
+![Candidate data, training and evaluation flow](assets/pipeline.svg)
+
 ## Data and evaluation boundary
 
 The candidate study uses all 1,098 Task 1 images with recorded lesion IDs: 824 benign and 274 malignant. The other 1,496 images are excluded from every phase. The single Indeterminate image is outside this cohort; it is not relabelled benign. The new head has exactly two classes, Benign=0 and Malignant=1.
@@ -15,6 +21,36 @@ The candidate study uses all 1,098 Task 1 images with recorded lesion IDs: 824 b
 `plan_group_splits.py` forms connected components from all recorded lesion and patient links before selecting the cohort. It then assigns whole groups, using seed 3710 and approximate 70/15/15 class and size balance. No missing medical IDs are imputed. There are no overlapping recorded lesion/patient IDs between these sets, but 708 selected images still lack patient IDs. Full patient independence is not established.
 
 The original image-level pilot and its test results were already inspected. Repartitioning or deleting old local artifacts does not undo that exposure. The new evaluation is supplementary reassessment, not a fresh blind test. Both models must start from the original COCO weights; old fitted checkpoints cannot be transferred into this comparison. The teacher has not yet confirmed whether the restricted cohort is acceptable.
+
+## Feasibility review (draft; check-off not verified)
+
+**Purpose and scope**
+
+This classroom prototype compares YOLOv8n (predeclared primary/baseline) with YOLOv8s for locating a dermoscopic lesion and classifying it as benign or malignant. The question is how much malignant detection recall can be retained while limiting benign-image alerts. Each image has one annotated lesion; this dataset does not establish performance in a multiple-lesion clinical scene. Alerts are workload proxies, not biopsy counts, and confidence scores are not cancer probabilities.
+
+**Data and model choice**
+
+The candidate cohort contains all 1,098 images with recorded lesion IDs from 2,594 ISIC2018 Task 1 images: 824 benign and 274 malignant. Whole groups connected by known lesion/patient IDs give train/validation/supplementary-reassessment sizes of 768/165/165. The other 1,496 images are excluded. Some 708 selected images lack patient IDs, so full patient independence is unproven. Instructor acceptance of this restricted cohort is pending. Boxes come from verified official binary masks; class labels come from matched metadata. Both detectors start from their own original COCO weights. Convolutional feature extraction, multiscale fusion, box/class losses and NMS connect the implementation to course concepts. Ultralytics supplies the network and trainer; this is integration and evaluation, not an original YOLO implementation.
+
+**Five testable acceptance criteria**
+
+1. Preserve the declared cohort and class counts, with zero overlapping recorded lesion/patient IDs; decode all selected images and verify dimensions and label coordinates before training.
+
+2. Run n and s on the same split with 60 epochs, 640-pixel input, batch 16, FP32, AdamW and flips only. Retain original-weight, data, configuration and checkpoint hashes.
+
+3. Report classwise AP, precision, recall, TP/FP/FN and localization IoU with explicit denominators. Check the course IoU target of 0.8 once its aggregation rule is clarified; do not claim it has already been met.
+
+4. Select the threshold on validation only: maximize malignant detection recall subject to at most 12 benign alerts among 124 benign images. This 10% budget is a classroom comparison rule, not a clinical standard. If no threshold qualifies, report no feasible operating point.
+
+5. Complete the A100 batch-16/640 preflight without nonfinite values or out-of-memory failure; record peak GPU memory, hardware, latency/FPS scope and training time. Use a planning cap of four GPU-hours for the two formal runs; the actual runtime remains unmeasured.
+
+**Evidence, risks and next decision**
+
+Local verification includes 40 unit tests, two one-epoch synthetic model pipelines, preprocessing equivalence checks and exact COCO initialization audits. Synthetic scores are not lesion-performance evidence. The main risks are missing grouping IDs, restricted-cohort selection bias, weak malignant classification and validation overuse. The earlier test was inspected; repartitioning cannot make the new reassessment blind. After instructor clarification and real-input/GPU checks, lock the protocol, train both models, select operating points using validation, then conduct one locked supplementary reassessment and document 3-5 failures. If the cohort is rejected, revise grouping before training. If resources or numerical checks fail, stop and revise both models' shared protocol before rerunning; do not silently change one model's budget.
+
+**Course and authorship notes**
+
+YOLOv8 is in the normal-difficulty option. Component packaging and the IoU denominator still need clarification. This draft does not certify a completed practical consultation. Codex assisted with code, audits and drafting; the student must review, correct and own the submitted explanation. Sources: supplied assessment draft, sections 2.3, 3 and 4; pinned Ultralytics 8.3.221; course Ed threads #136 and #147.
 
 ## Working code
 
@@ -30,6 +66,8 @@ The original image-level pilot and its test results were already inspected. Repa
 | `checkpoints.py` | Preserves the selected epoch/score before upstream checkpoint finalization removes metadata; inspects storage precision. |
 | `experiment.json` | Shared n/s experiment draft, data hashes, original-weight hashes and operating-point rules. |
 | `smoke_test.py` | Small synthetic end-to-end software check for both n and s. It produces no ISIC evidence. |
+| `audit_real_inputs.py` | Checks original image dimensions, full decoding, EXIF orientation, label staging and exact cross-split decoded duplicates without running a model. |
+| `readiness_a100.sh` | Schedules an isolated Linux environment, input audit, tests and synthetic A100 checks; never starts formal ISIC training. |
 | `preflight.py` | Two synthetic forward/backward/AdamW steps per model on an explicitly chosen device; records runtime and CUDA memory when available. |
 | `transfer.py` | Builds a local transfer ZIP with required code/data references and per-file checksums; verifies archive membership or extracted files without ML dependencies. |
 | `test_*.py` | Grouping, label, metric and experiment-boundary regression tests. |
@@ -71,7 +109,7 @@ python recognition/YOLO_s4905914/transfer.py verify --directory .
 ```
 
 ```bash
-python3 -m venv .venv
+python3.13 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r recognition/YOLO_s4905914/requirements.txt
 python recognition/YOLO_s4905914/fetch_weights.py --output weights/original_coco
@@ -167,9 +205,16 @@ python recognition/YOLO_s4905914/predict.py \
 
 ## Work still required for submission
 
-The new cohort's GPU preflight, real training, validation comparison, locked reassessment, failure-case analysis and final report are not complete. A local software smoke test does not establish the feasibility check-off hurdle. Check-off status, the current deadline, component packaging, cohort acceptance and IoU aggregation still need confirmation. A GitHub PR, final README/PDF and the later review response are also outstanding.
+
+All 1,098 candidate original photographs were copied unchanged from the school input directory and matched against independently computed server-side SHA-256 values. A complete local audit decoded every image, checked dimensions against the mask-box source and EXIF orientation, verified all staged labels/file hashes, and found no exact decoded-image duplicates across splits. No model was run on these real images. This establishes input integrity, not full patient independence. Evidence is recorded in `IMPLEMENTATION_VERIFICATION.json`.
+
+School readiness job 667499 stopped before model execution because a100-3 lacks `/cache`. The directory check was corrected and job 667532 is queued; no GPU success is claimed. The new cohort's GPU preflight, real training, validation comparison, locked reassessment, failure-case analysis and final report are not complete. A local software smoke test does not establish the feasibility check-off hurdle. Check-off status, the current deadline, component packaging, cohort acceptance and IoU aggregation still need confirmation. A GitHub PR, final README/PDF and the later review response are also outstanding.
 
 This repository records progressive local implementation work. It has not been pushed or submitted. The final report must describe actual results and the history of exposed data; this preparation README is not a substitute.
+
+## Artificial Intelligence Usage Disclosure
+
+OpenAI ChatGPT/Codex assisted with experimental planning, grouping and label-audit scripts, model/training/evaluation integration, diagnostic checks, tests, reproducibility records, documentation and concept explanations. The network, losses and training engine are provided by Ultralytics; they are not student-authored components. Checks include source inspection, actual tensor comparisons, synthetic end-to-end runs, unit tests and data/provenance audits. Passing these checks does not establish diagnostic accuracy or demonstrate that the student has reviewed every line. The student remains responsible for reviewing and correcting this draft and explaining the submitted work. No other AI tool use is inferred from this conversation.
 
 ## Sources and attribution
 
@@ -177,3 +222,15 @@ This repository records progressive local implementation work. It has not been p
 - [Pinned detection trainer](https://github.com/ultralytics/ultralytics/blob/v8.3.221/ultralytics/models/yolo/detect/train.py), [validator](https://github.com/ultralytics/ultralytics/blob/v8.3.221/ultralytics/models/yolo/detect/val.py), and [metrics](https://github.com/ultralytics/ultralytics/blob/v8.3.221/ultralytics/utils/metrics.py).
 - [Official original-weight assets](https://github.com/ultralytics/assets/releases/tag/v8.3.0). `weights_registry.json` records the downloaded SHA-256 values; these are locally recorded checksums, not publisher signatures.
 - Course assessment draft supplied by the student, pages 7 and 12–13. Local filename says v2.3; cover says Draft/Version 2.2. Latest teaching announcements take precedence.
+
+## School readiness command
+
+Use Python 3.13 for the pinned dependencies: SciPy 1.18.1 requires Python >=3.12. The existing school environment was inspected and has Python 3.11 / Torch 2.14.0 / torchvision 0.29.0, which is not the declared stack. Do not silently reuse it or install into it. A separate Python 3.13 interpreter is provisioned in the new school project; the readiness job installs the pinned ML stack into a private temporary directory selected from the actual compute-node paths, with at least 12 GiB free. The first school attempt failed before installation because `/cache` exists on the login node but not on a100-3. The corrected script checks `SLURM_TMPDIR`, `/cache`, `/scratch`, then `/tmp`; a successful rerun is still required. That temporary environment is not portable or permanent. Recheck it before any later job, and rebuild from the recorded requirements if unavailable.
+
+From the isolated school project root, with `.python313` and the hash-verified original weights present:
+
+```bash
+sbatch recognition/YOLO_s4905914/readiness_a100.sh
+```
+
+This requests one GPU, eight CPU cores and at most 40 minutes. It first installs and checks dependencies, then runs unit tests, decodes real input files, runs the synthetic GPU resource probe and the full synthetic CPU pipeline. It does not evaluate or train a model on ISIC. A missing `COMPLETED.txt` means the preparation job did not complete successfully; inspect its logs. Internet/package availability, cache headroom, CUDA compatibility and scheduler availability must all be verified by an actual run. The final formal experiment remains gated by the unresolved cohort/course decisions.

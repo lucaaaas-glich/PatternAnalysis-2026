@@ -45,9 +45,12 @@ def collect_files(root):
              'PROTOCOL.json', 'sources.json', 'MODEL_COMPONENTS_zh.txt',
              'TEACHER_QUESTIONS.txt', 'PREPARATION_VERIFICATION.json',
              'IMPLEMENTATION_VERIFICATION.json', 'CLEANUP_PLAN.txt')]
+    paths += [Path(name) for name in ('FEASIBILITY_REVIEW.txt', 'READINESS_STATUS_zh.txt',
+                                     'COURSE_REQUIREMENTS_AUDIT_zh.txt') if (root / name).is_file()]
     paths += [p.relative_to(root) for p in sorted((root / CODE).iterdir())
               if p.is_file() and not p.name.startswith('.')
-              and p.suffix in ('.py', '.json', '.txt', '.md')]
+              and p.suffix in ('.py', '.json', '.txt', '.md', '.sh')]
+    paths += [p.relative_to(root) for p in sorted((root / CODE / 'assets').glob('*.svg'))]
     snapshots = Path('data/source_snapshots')
     sources = json.loads((root / 'sources.json').read_text())
     for source in sources.values():

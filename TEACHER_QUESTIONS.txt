@@ -3,7 +3,7 @@ Prepared 17 October 2026 (Australia/Brisbane)
 
 Status: the student reports posting a follow-up to Ed #162 about the missing
 1,496 lesion IDs, the completed image-level pilot and whether to regroup a known-ID
-subset. No new instructor answer has been supplied yet. The alternative draft
+subset. Ed #176 was also refreshed and read on 17 October; no instructor answer was displayed. The alternative draft
 below has NOT been sent by the assistant; do not send a duplicate automatically.
 
 1. Alternative follow-up draft — retain for reference
@@ -61,12 +61,14 @@ Thank you!
 
 3. Course-record check — separate from the scientific questions
 
-Please confirm whether my required feasibility-review practical check-off is
-recorded as completed. If it is not, what approved make-up arrangement applies?
+Please confirm whether my feasibility-review practical check-off is recorded as
+completed. If it is not, I will bring my reviewed one-page draft to a practical
+before the applicable deadline, following the guidance in Ed #136 and #147.
 
 Also check the current deadline and submission instructions in the course
 system. A newly written feasibility review or report PDF is not evidence of a
-previous check-off. No course-system record has been verified in this restart.
+previous check-off. The general format and timing guidance have been verified
+in Ed #136 and #147; my individual completion record and exact deadline have not.
 
 
 Notes for the student
@@ -79,3 +81,8 @@ Notes for the student
 - Source pages: assessment draft pages 7, 11–13; introductory lecture page 29.
   The local assessment filename is v2.3 but its cover says DRAFT / Version 2.2;
   current teaching announcements take precedence if the specification changed.
+
+Read-only course audit: COURSE_REQUIREMENTS_AUDIT_zh.txt. Ed #137 allows the
+listed preprocessing/metrics packages and reaffirms YOLO pretraining, but does
+not explicitly resolve this project's Ultralytics component packaging. Do not
+repeat the now-resolved general check-off-format or folder-name questions.

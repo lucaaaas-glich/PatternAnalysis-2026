@@ -84,8 +84,8 @@ python recognition/YOLO_s4905914/transfer.py build \
    preflight.py。检查默认 batch=16、imgsz=640、FP32；明确记录设备。
    人工 preflight 不等于完整训练，也不验证真实图片解码。
 
-7. 老师确认适用队列与课程要求后，锁定配置，再通过 dataset.py 核查
-   真实照片并生成新的运行目录。源照片挂载位置不同可用 --image-root，
+7. 本轮已完整核查 1,098 张真实原图；以后正式运行前仍需通过 dataset.py
+   再查输入并创建新的运行目录。老师确认课程方案后再锁定配置。源照片挂载位置不同可用 --image-root，
    不需要为改图片路径而重新分组。完整命令见代码目录的 README.md。
 
 训练、阈值选择与补充评估的规则不因转移而改变。旧 test 暴露历史、

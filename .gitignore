@@ -12,3 +12,6 @@ sources.json
 .venv/
 *.cache
 runs/
+
+# Local PDF exports are separate from the source/figures submitted to Git.
+output/

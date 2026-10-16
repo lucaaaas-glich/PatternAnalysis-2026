@@ -1,0 +1,75 @@
+COMP3710 Project 3：课程要求与待办核对
+核查日期：2026-10-17。这里记录实际读到的要求，不代表老师已经验收项目。
+
+来源
+- 学生提供的 COMP3710_Report_2026_draft_v2.3.pdf，共 21 页。
+  封面实际写 DRAFT / Version 2.2；SHA-256：
+  581b5bbd0860914d53d5413488b304e6795ef3d4109ec25e80f3cf524af3eee5
+- Ed #136（Zhao Wang，截止/check-off/仓库说明）：
+  https://edstem.org/au/courses/38242/discussion/3613609
+- Ed #147（Zhao Wang，check-off 形式）：
+  https://edstem.org/au/courses/38242/discussion/3630767
+- Ed #137（Zhao Wang，ConvNeXt 问题中的通用文件/依赖说明）：
+  https://edstem.org/au/courses/38242/discussion/3615608
+- 学生的分组追问 #176，刷新后没有显示老师答复：
+  https://edstem.org/au/courses/38242/discussion/3647157
+以上 Ed 页面通过学生现有登录会话只读查看，没有发帖、评论或提交材料。
+
+P0：正式实验前必须明确的边界
+
+1. 分组：课程第 7 页写 patient-independent；老师已另行建议按 lesion_id。
+   已知病灶子集方案及缺失 ID 的处理，#176 尚无答复。当前可以证明
+   已记录病灶和患者 ID 无交叉，不能证明全部患者独立。
+2. modules.py：第 12 页要求模型组件源码。当前文件真实参与构建，但
+   Conv/C2f/SPPF/Detect 和 loss 仍来自 Ultralytics。预训练许可不自动
+   等于封装导入形式获准。#137 允许所列预处理/指标库，且重申 YOLO
+   可预训练；它没有直接批准本项目这种 Ultralytics 组件组织方式。
+3. 性能：第 7 页确有逐类定位 IoU >= 0.8 目标，并要求合适的分类效果。
+   不能说“老师没有效果要求”。尚未找到明确的分类数值下限，也没有
+   明确 IoU 的匹配方式和平均分母。当前保留三种 IoU 统计并等待澄清。
+   新实验尚无性能结果，不宣称达标。
+
+P1：不依赖训练结果的交付
+
+4. Feasibility review：第 11-12 页要求一页书面 review 和 practical check-off。
+   #136 的教师回复明确：check-off 截止与课程 profile 的最终报告截止相同，
+   可以提前做，建议参加自己的 practical，也允许其他场次；不要留到最后。
+   #147 确认展示一页 review 即可，计划需合理并体现自己的思考，不要求
+   现场演示或口试。已准备 FEASIBILITY_REVIEW.txt 及一页 PDF 草稿，
+   并纳入 README。学生仍须自行核对文字、参加 consultation 并确认登记。
+   没有看到学生个人的 check-off 完成记录，不能标记为完成。
+5. 截止日期：#136 的学生提问提到 30 October，但教师答复指向课程 profile。
+   不把提问中的日期或推测的时间当作已经核实的个人截止时间；仍需查看
+   最新课程 profile / Blackboard 的具体日期、时间及任何个人延期。
+6. README：需算法解释/图、feasibility、依赖与复现、输入输出、预处理与
+   划分理由、同划分 baseline 对照、资源表、3-5 个失败案例和工程建议。
+   当前已准备方法、流程图、复现命令及 review；正式结果、失败案例和
+   数据驱动建议必须待真实实验完成后填写。没有制造示例性能数字。
+7. AI disclosure：已按要求加入完整标题 Artificial Intelligence Usage Disclosure，
+   写明 Codex 在代码、核查、测试、文档和教学中的帮助，以及实际验证范围。
+   自动测试和 AI 解释不能替代学生审核，也不是原创网络的证明。
+
+P2：正式实验及最后提交
+
+8. YOLOv7 或更新版本属于 Normal difficulty。当前 YOLOv8 符合版本选项；
+   本地模型接口/测试通过不等于课程组件组织已获确认。按该草案，Normal
+   的 implementation 上限是 15/20，不应靠换更大 n/s 模型暗示变成 Hard。
+9. 需要实际新训练、同划分验证比较、锁定后的补充评估、定位/分类分开的
+   失败分析，以及有硬件和计时范围的参数量、显存、时间/吞吐表。
+   不能把 A100 推理速度当作手机完整流程速度，也不能把警报当作活检数。
+10. 课程要求 recognition/ 下独立目录，保留渐进 commit，并向上游
+    shakes76/PatternAnalysis-2026 的 topic-recognition 提交 PR，再将
+    README 的 PDF 导出提交 Turnitin。#137 重申 recognition/ 路径正确，
+    允许小型结果 JSON/CSV 和图，但数据集、模型权重不能提交 Git。
+    当前新项目只有本地历史，尚未接入课程 fork、推送或创建新 PR。
+11. PDF 第 15 页与 #137 对 code-review 后续 2 分的表述不同：PDF 说后续
+    回应反馈；#137 说该部分用于修复合并问题、不影响通过门槛。正式提交
+    后仍应查看并处理教师反馈；具体评分以课程最新正式解释为准。
+
+已解决与仍需确认
+
+已解决：check-off 的一般形式与相对截止规则、目录名、通用预处理/指标库
+可用、YOLO 可预训练、允许小型结果文件。无需把这些重复问老师。
+仍需确认：#176 的数据范围/缺失 ID；本项目 modules.py 的具体组织；
+IoU 分母和分类效果标准；个人 check-off 登记及准确截止时间。
+待发问题汇总在 TEACHER_QUESTIONS.txt；助手没有代为发送。

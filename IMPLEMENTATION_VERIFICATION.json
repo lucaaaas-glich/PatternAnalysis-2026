@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-17T03:42:36.223415+10:00",
+  "checked_at": "2026-10-17T04:58:09.576286+10:00",
   "unit_tests_passed": 40,
   "dependency_check": "pip check passed",
   "installed_upstream_source_files_matching_v8_3_221_tag": 8,
@@ -96,6 +96,8 @@
   "full_training_gate": "draft; disabled",
   "validation_score_policy": "confidence > threshold; single-label class-aware NMS",
   "source_sha256": {
+    "recognition/YOLO_s4905914/audit_initialization.py": "844c2f5224295e74d999054f574727246c5323d49cbfe6071ad49bfd12be1b60",
+    "recognition/YOLO_s4905914/audit_real_inputs.py": "4dd080daf1fa167f8fa39adb4493725157cf103c9445db0fc6a8e3385db9a397",
     "recognition/YOLO_s4905914/checkpoints.py": "fa6ab2849ab87ce562d22f7e2c3d09fa9a528bdabc06f63adc75f2b0105143c9",
     "recognition/YOLO_s4905914/dataset.py": "bcb250fa5617d6ffbc027ec63870131a0326b9c9598a94f53a4c45b753f33288",
     "recognition/YOLO_s4905914/evaluation.py": "b123d75f1862ebcfae45d0eedbdb19c80628ec5e26608081b838a7a4236b204e",
@@ -118,14 +120,14 @@
     "recognition/YOLO_s4905914/test_schedule.py": "ac1ffee2c3bc27a4df541f59a480e5e6b99333026fb4850b9cfda45ba4b5b78d",
     "recognition/YOLO_s4905914/test_transfer.py": "fc5b3aecf1e633bdd65d831005f7509a41af987545dbb3d8eb940e9b79e8dfdd",
     "recognition/YOLO_s4905914/train.py": "df12460b615371dc0fd758e9286650f8d1dd7143c83687dac3dc5c8079fcad76",
-    "recognition/YOLO_s4905914/transfer.py": "9f316e512e662626e207eda2ec05cc605040614a449d12b8ae2a3a74c063812a",
-    "recognition/YOLO_s4905914/audit_initialization.py": "844c2f5224295e74d999054f574727246c5323d49cbfe6071ad49bfd12be1b60"
+    "recognition/YOLO_s4905914/transfer.py": "9801d8b2a69b80f578c4e54dfcd7a65efa985de1aa4370c906515a6c281b94d8"
   },
   "verification_log_paths": [
     "outputs/checkpoint_audit_20261017/unit_tests.log",
-    "outputs/checkpoint_audit_20261017/synthetic_integration.log"
+    "outputs/checkpoint_audit_20261017/synthetic_integration.log",
+    "outputs/readiness_audit_20261017/unit_tests.log"
   ],
-  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected. Transfer tooling and its three tests were subsequently added; model training/evaluation behavior was unchanged and the full synthetic training was not repeated for this packaging-only change. Subsequent optimizer logging checks the pinned schedule and fixed budget; a new complete synthetic pipeline run exercised warmup for n/s. Training hyperparameters are unchanged; documentation about the final LR and meaning of step counts was corrected. Checkpoint provenance was then added without changing the optimizer or selection rule; 40 tests and a fresh n/s synthetic run verified selected-epoch history, EMA saves, FP16 storage and FP32 reload. Training-time validation scores are rounded to five decimal places upstream. A separate read-only initialization audit verified exact source-tensor transfer and unchanged fresh initialization for unmatched entries for both models. It records classification-branch differences without changing training behavior or drawing performance conclusions.",
+  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected. Transfer tooling and its three tests were subsequently added; model training/evaluation behavior was unchanged and the full synthetic training was not repeated for this packaging-only change. Subsequent optimizer logging checks the pinned schedule and fixed budget; a new complete synthetic pipeline run exercised warmup for n/s. Training hyperparameters are unchanged; documentation about the final LR and meaning of step counts was corrected. Checkpoint provenance was then added without changing the optimizer or selection rule; 40 tests and a fresh n/s synthetic run verified selected-epoch history, EMA saves, FP16 storage and FP32 reload. Training-time validation scores are rounded to five decimal places upstream. A separate read-only initialization audit verified exact source-tensor transfer and unchanged fresh initialization for unmatched entries for both models. It records classification-branch differences without changing training behavior or drawing performance conclusions. Real candidate photographs were copied unchanged and independently matched against school-side SHA-256 values. All 1098 were decoded, dimension/EXIF checked and staged with label/hash verification. The audit ran from a checksum-verified cache copy because iCloud placeholders delayed local reads; that interruption was not a dataset failure. A separate school Python 3.13.16 and a bounded synthetic-readiness job were prepared without changing old environments or enabling formal training.",
   "nonfunctional_cleanup_after_checks": "Removed trailing blank lines from the two new checkpoint Python files; no behavior changed.",
   "synthetic_CPU_preflight": {
     "status": "completed",
@@ -424,5 +426,75 @@
       }
     },
     "verification_scope": "New read-only audit executed on both original models. All previously recorded runtime/test source hashes and experiment configuration are unchanged; the prior 40-test and synthetic-training results were not rerun for this audit-only addition."
+  },
+  "previous_checked_at": "2026-10-17T03:42:36.223415+10:00",
+  "real_input_audit": {
+    "status": "passed",
+    "model_executed": false,
+    "images_modified": 0,
+    "patient_independence_proven": false,
+    "fresh_blind_test": false,
+    "config_sha256": "7890293787b98902cadcf62878abd9e8f8c7396598f132e9437b590fe1650a5d",
+    "manifest_sha256": {
+      "train": "8528722216b67d62078fe32632cb64128149053cc41ece6daec7399369126fca",
+      "val": "a4f6b6e9d8c7bbb476353f6789ec9e4d9170018564d04c70b855a2b10a125ff3",
+      "reassessment": "5264555d5de0ee5cbaa5b69e090d0b6e24c907b4efd50acc69cc32afd35a8df6"
+    },
+    "box_source_sha256": "19a56ef18ac91f1d07d2db8130fc2563ac51cff13fca2a0c25b9b2750e7ce482",
+    "runtime": {
+      "python": "3.13.13",
+      "host": "s4866165.vpn.uq.edu.au",
+      "Pillow": "11.3.0",
+      "PyYAML": "6.0.3"
+    },
+    "image_root_override": "/Users/jiangfu/.cache/comp3710-restart-20261017/school_images",
+    "counts": {
+      "train": 768,
+      "val": 165,
+      "reassessment": 165
+    },
+    "decoded_images": 1098,
+    "all_dimensions_match_box_source": true,
+    "exif_orientation_valid": true,
+    "cross_split_exact_decoded_duplicates": 0,
+    "same_split_exact_duplicate_groups": 0,
+    "staged_audit_sha256": "04f654a22b23463b52bbdfeace1681088e7e30d67a2fbd08de3c57fde0578da3",
+    "staging_directory": "/Users/jiangfu/.cache/comp3710-restart-20261017/readiness_work/outputs/local_inputs/staged"
+  },
+  "real_input_evidence_paths": [
+    "outputs/readiness_audit_20261017/real_input_audit.json",
+    "outputs/readiness_audit_20261017/real_input_staged_audit.json",
+    "outputs/readiness_audit_20261017/image_transfer.json",
+    "outputs/readiness_audit_20261017/remote_image_hashes.json"
+  ],
+  "real_input_transfer": {
+    "independent_remote_local_sha256_match": 1098,
+    "bytes": 2628943206,
+    "original_images_modified": false,
+    "model_executed": false
+  },
+  "latest_local_tests": {
+    "passed": 40,
+    "log": "outputs/readiness_audit_20261017/unit_tests.log",
+    "scope": "Includes updated transfer file selection; real-input helper additionally checked by integration on all 1098 candidate images."
+  },
+  "school_readiness": {
+    "job_id": 667532,
+    "status": "pending_retry",
+    "reason": "QOSMaxJobsPerUserLimit",
+    "formal_training": false,
+    "new_project": "/home/Student/s4905914/comp3710-restart-20261017",
+    "isolated_base_python": "3.13.16",
+    "unrelated_jobs_modified": false,
+    "previous_attempt": {
+      "job_id": 667499,
+      "state": "FAILED",
+      "exit_code": "1:0",
+      "elapsed_seconds": 1,
+      "cause": "Compute node a100-3 has no /cache directory; failed before environment installation or model execution.",
+      "log": "outputs/readiness_audit_20261017/school_readiness_667499.err"
+    },
+    "fix": "Select an existing writable temporary directory with at least 12 GiB free; do not assume login-node paths exist on compute nodes. Shell syntax checked; compute-node run pending.",
+    "readiness_script_sha256": "9160f8b2fc66291abe572af970faf4aaa539498645041af10b82cca7abd3a71f"
   }
 }
