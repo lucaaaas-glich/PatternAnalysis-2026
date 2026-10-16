@@ -118,13 +118,14 @@
     "recognition/YOLO_s4905914/test_schedule.py": "ac1ffee2c3bc27a4df541f59a480e5e6b99333026fb4850b9cfda45ba4b5b78d",
     "recognition/YOLO_s4905914/test_transfer.py": "fc5b3aecf1e633bdd65d831005f7509a41af987545dbb3d8eb940e9b79e8dfdd",
     "recognition/YOLO_s4905914/train.py": "df12460b615371dc0fd758e9286650f8d1dd7143c83687dac3dc5c8079fcad76",
-    "recognition/YOLO_s4905914/transfer.py": "9f316e512e662626e207eda2ec05cc605040614a449d12b8ae2a3a74c063812a"
+    "recognition/YOLO_s4905914/transfer.py": "9f316e512e662626e207eda2ec05cc605040614a449d12b8ae2a3a74c063812a",
+    "recognition/YOLO_s4905914/audit_initialization.py": "844c2f5224295e74d999054f574727246c5323d49cbfe6071ad49bfd12be1b60"
   },
   "verification_log_paths": [
     "outputs/checkpoint_audit_20261017/unit_tests.log",
     "outputs/checkpoint_audit_20261017/synthetic_integration.log"
   ],
-  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected. Transfer tooling and its three tests were subsequently added; model training/evaluation behavior was unchanged and the full synthetic training was not repeated for this packaging-only change. Subsequent optimizer logging checks the pinned schedule and fixed budget; a new complete synthetic pipeline run exercised warmup for n/s. Training hyperparameters are unchanged; documentation about the final LR and meaning of step counts was corrected. Checkpoint provenance was then added without changing the optimizer or selection rule; 40 tests and a fresh n/s synthetic run verified selected-epoch history, EMA saves, FP16 storage and FP32 reload. Training-time validation scores are rounded to five decimal places upstream.",
+  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected. Transfer tooling and its three tests were subsequently added; model training/evaluation behavior was unchanged and the full synthetic training was not repeated for this packaging-only change. Subsequent optimizer logging checks the pinned schedule and fixed budget; a new complete synthetic pipeline run exercised warmup for n/s. Training hyperparameters are unchanged; documentation about the final LR and meaning of step counts was corrected. Checkpoint provenance was then added without changing the optimizer or selection rule; 40 tests and a fresh n/s synthetic run verified selected-epoch history, EMA saves, FP16 storage and FP32 reload. Training-time validation scores are rounded to five decimal places upstream. A separate read-only initialization audit verified exact source-tensor transfer and unchanged fresh initialization for unmatched entries for both models. It records classification-branch differences without changing training behavior or drawing performance conclusions.",
   "nonfunctional_cleanup_after_checks": "Removed trailing blank lines from the two new checkpoint Python files; no behavior changed.",
   "synthetic_CPU_preflight": {
     "status": "completed",
@@ -302,5 +303,126 @@
     "finalized_epoch_field": -1,
     "loader_parameter_dtype": "float32",
     "precision_lost_during_storage_restored_on_load": false
+  },
+  "initialization_audit": {
+    "evidence": "outputs/initialization_audit_20261017/initialization.json",
+    "evidence_sha256": "61af35e373a212d11cf3c9b548c8cb094e2fa1a80b086503218e9461af4de0a8",
+    "status": "completed",
+    "ISIC_images_used": 0,
+    "optimizer_steps": 0,
+    "counting_note": "State entries include buffers; counts are not parameter percentages.",
+    "models": {
+      "n": {
+        "source_classes": 80,
+        "target_classes": 2,
+        "state_entries": 355,
+        "transferred_state_entries": 319,
+        "retained_fresh_state_entries": 36,
+        "parameter_elements": 3011238,
+        "transferred_parameter_elements": 2641440,
+        "trainable_parameter_elements": 3011222,
+        "frozen_parameter_elements_by_name": {
+          "model.22.dfl.conv.weight": 16
+        },
+        "classification_hidden_channels": {
+          "source": 80,
+          "target": 64
+        },
+        "regions": {
+          "backbone": {
+            "state_entries": 162,
+            "transferred_state_entries": 162,
+            "parameter_elements": 1272656,
+            "transferred_parameter_elements": 1272656
+          },
+          "neck": {
+            "state_entries": 108,
+            "transferred_state_entries": 108,
+            "parameter_elements": 986880,
+            "transferred_parameter_elements": 986880
+          },
+          "box_branch": {
+            "state_entries": 42,
+            "transferred_state_entries": 42,
+            "parameter_elements": 381888,
+            "transferred_parameter_elements": 381888
+          },
+          "class_branch": {
+            "state_entries": 42,
+            "transferred_state_entries": 6,
+            "parameter_elements": 369798,
+            "transferred_parameter_elements": 0
+          },
+          "fixed_DFL": {
+            "state_entries": 1,
+            "transferred_state_entries": 1,
+            "parameter_elements": 16,
+            "transferred_parameter_elements": 16
+          }
+        },
+        "checks": {
+          "all_matching_tensors_equal_original": true,
+          "all_unmatched_tensors_equal_fresh_initialization": true,
+          "all_backbone_neck_and_box_state_transferred": true,
+          "only_fixed_DFL_parameters_frozen_at_construction": true
+        }
+      },
+      "s": {
+        "source_classes": 80,
+        "target_classes": 2,
+        "state_entries": 355,
+        "transferred_state_entries": 349,
+        "retained_fresh_state_entries": 6,
+        "parameter_elements": 11136374,
+        "transferred_parameter_elements": 11135600,
+        "trainable_parameter_elements": 11136358,
+        "frozen_parameter_elements_by_name": {
+          "model.22.dfl.conv.weight": 16
+        },
+        "classification_hidden_channels": {
+          "source": 128,
+          "target": 128
+        },
+        "regions": {
+          "backbone": {
+            "state_entries": 162,
+            "transferred_state_entries": 162,
+            "parameter_elements": 5079712,
+            "transferred_parameter_elements": 5079712
+          },
+          "neck": {
+            "state_entries": 108,
+            "transferred_state_entries": 108,
+            "parameter_elements": 3939840,
+            "transferred_parameter_elements": 3939840
+          },
+          "box_branch": {
+            "state_entries": 42,
+            "transferred_state_entries": 42,
+            "parameter_elements": 639936,
+            "transferred_parameter_elements": 639936
+          },
+          "class_branch": {
+            "state_entries": 42,
+            "transferred_state_entries": 36,
+            "parameter_elements": 1476870,
+            "transferred_parameter_elements": 1476096
+          },
+          "fixed_DFL": {
+            "state_entries": 1,
+            "transferred_state_entries": 1,
+            "parameter_elements": 16,
+            "transferred_parameter_elements": 16
+          }
+        },
+        "checks": {
+          "all_matching_tensors_equal_original": true,
+          "all_unmatched_tensors_equal_fresh_initialization": true,
+          "all_backbone_neck_and_box_state_transferred": true,
+          "only_fixed_DFL_parameters_frozen_at_construction": true
+        }
+      }
+    },
+    "verification_scope": "New read-only audit executed on both original models. All previously recorded runtime/test source hashes and experiment configuration are unchanged; the prior 40-test and synthetic-training results were not rerun for this audit-only addition."
   }
 }

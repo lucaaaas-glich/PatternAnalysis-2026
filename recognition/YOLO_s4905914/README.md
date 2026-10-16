@@ -80,6 +80,16 @@ python recognition/YOLO_s4905914/train.py plan \
   --config recognition/YOLO_s4905914/experiment.json --prepared data/known_lesion_v1
 ```
 
+Read-only initialization audit (no images, optimizer steps or saved checkpoints):
+
+```bash
+python recognition/YOLO_s4905914/audit_initialization.py \
+  --config recognition/YOLO_s4905914/experiment.json \
+  --weights-dir weights/original_coco --output outputs/initialization_audit
+```
+
+The audit constructs two-class models through the project factory with identical random states, then checks every loaded tensor against the original COCO state and every unmatched tensor against fresh initialization. In this pinned setup, n transfers 319/355 state entries and s transfers 349/355. These counts include buffers, not just parameters. Both transfer all backbone, neck and box-regression state. For n, classification hidden width changes from 80 to 64, so no learnable classification-branch parameters transfer (six BatchNorm counters do). For s, hidden width stays 128 and only the final class-output weights/biases at three scales are newly initialized. This is a real initialization difference to disclose in the n/s comparison, not evidence that either model performs better. With `freeze=null`, backbone, neck and prediction branches remain trainable; only the 16 fixed DFL integral coordinates stay frozen. Pretrained initialization does not mean frozen feature extraction. The local evidence is `outputs/initialization_audit_20261017/initialization.json`.
+
 Small CPU integration check (synthetic images only; choose an unused output path):
 
 ```bash
