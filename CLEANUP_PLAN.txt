@@ -1,0 +1,44 @@
+旧实验清理清单（待范围确认）
+日期：2026-10-17（布里斯班）
+
+拟从当前工作区移入系统废纸篓，不做永久抹除。
+仅限本机此项目；学校服务器、GitHub、Downloads 中用户提供的资料不在此范围。
+保留新项目、课程文件，以及新项目必需的来源快照和数据曝光记录。
+
+合计 35 项，12213 个文件，约 478.7 MB。
+
+output/pdf  (5.25 MB)
+outputs/label_group_audit_20261015  (5.30 MB)
+outputs/label_group_audit_20261015.zip  (2.63 MB)
+outputs/loader_interface_check_20261015  (0.13 MB)
+outputs/loader_interface_delivery_20261015  (1.13 MB)
+outputs/loader_interface_delivery_20261015.zip  (0.60 MB)
+outputs/oversampling_validation_trial_20261015  (32.35 MB)
+outputs/oversampling_validation_trial_20261015.zip  (24.94 MB)
+outputs/oversampling_validation_trial_20261015.zip.sha256  (0.00 MB)
+outputs/reproduction_check_20261015  (0.21 MB)
+outputs/reproduction_delivery_20261015  (1.16 MB)
+outputs/reproduction_delivery_20261015.zip  (0.74 MB)
+outputs/submission_completion_20261015  (16.61 MB)
+outputs/submission_completion_20261015.zip  (16.28 MB)
+outputs/validation_diagnosis_661469  (0.71 MB)
+outputs/validation_diagnosis_661469.zip  (0.19 MB)
+outputs/validation_full_scores_nms_661730  (83.43 MB)
+outputs/validation_full_scores_nms_661730.zip  (81.96 MB)
+outputs/validation_three_case_walkthrough  (7.05 MB)
+tmp/pdfs  (31.98 MB)
+work/diagnose_validation.py  (0.01 MB)
+work/handoff_review  (3.82 MB)
+work/label_group_audit  (6.61 MB)
+work/learning  (0.02 MB)
+work/loader_integration  (0.00 MB)
+work/loader_unit_tests.log  (0.01 MB)
+work/nms_diagnostic  (83.22 MB)
+work/oversampling_trial  (52.28 MB)
+work/rangpur-session  (0.00 MB)
+work/reproduction_unit_tests.log  (0.01 MB)
+work/submission_completion  (1.60 MB)
+work/submission_repo  (7.47 MB)
+work/validation_661469  (0.66 MB)
+work/validation_cases  (10.24 MB)
+work/validation_reproduction_check  (0.10 MB)

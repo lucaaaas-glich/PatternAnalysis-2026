@@ -3,7 +3,10 @@
   "label_class_and_coordinates_match_verified_sources": true,
   "selected_ids_equal_complete_known_lesion_cohort": true,
   "source_identifiers_preserved": true,
-  "unit_tests_passed": 12,
+  "unit_tests_passed": 13,
   "trained_new_model": false,
-  "fresh_blind_test": false
+  "fresh_blind_test": false,
+  "preparation_replayed_after_source_migration": true,
+  "preparation_replayed_identical_files": 1101,
+  "active_sources_inside_project": true
 }

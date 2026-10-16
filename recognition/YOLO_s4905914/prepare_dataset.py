@@ -48,6 +48,8 @@ def prepare(source_file, protocol_file, output):
         raise ValueError('Restart requires the declared two-class mapping')
     paths = {name: Path(sources[name]['path']) for name in
              ('official_metadata', 'official_mask_boxes', 'candidate_manifest')}
+    paths = {name: (path if path.is_absolute() else source_file.resolve().parent / path)
+             for name, path in paths.items()}
     for name, path in paths.items():
         if output.resolve().is_relative_to(path.parent.resolve()):
             raise ValueError('Keep outputs outside source directories')

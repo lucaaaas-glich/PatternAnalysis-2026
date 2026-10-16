@@ -71,5 +71,5 @@ https://github.com/ultralytics/ultralytics/blob/v8.3.221/ultralytics/nn/modules/
 Loss：
 https://github.com/ultralytics/ultralytics/blob/v8.3.221/ultralytics/utils/loss.py
 
-源码哈希记录在 ../../outputs/grouping_followup_20261017/upstream_source/manifest.json。
+源码哈希记录在 outputs/grouping_followup_20261017/upstream_source/manifest.json。
 以上是组件说明，不是运行性能结果或课程接受证明。

@@ -2,7 +2,8 @@ COMP3710 Project 3：重新设计的实验版本
 建立日期：2026-10-17（布里斯班）
 
 当前阶段：数据准备已完成；尚未开始新训练，也没有新性能结果。
-这是新实验的工作目录，不是已完成的提交包。原项目、模型和报告保留。
+这是新实验的工作目录，不是已完成的提交包。用户已要求清理旧工作；
+新版本的必需来源已独立保存，具体清理范围待确认，见 CLEANUP_PLAN.txt。
 
 为什么重做
 
@@ -65,14 +66,17 @@ reassessment 的 165 张中，122 张曾在旧 train。所以：
 - 重放分组：清单与 ID 文件逐字节一致，JSON 摘要内容一致。
 - 新准备流程生成 1,098 个两类 YOLO 标签，查验来源哈希、类别、坐标、
   整体子集覆盖与分组交集。原输入哈希保持不变。
-- 新工作目录的 12 项单元测试通过。测试验证代码约束，不证明模型准确。
+- 新工作目录的 13 项单元测试通过。测试验证代码约束，不证明模型准确。
+- 清理准备中使用项目内部来源重放：1,098 个标签和 3 个 manifest 逐字节
+  一致；分组也可由内部快照重建，不再读取旧实验目录。
 - 这里只生成标签与服务器图片路径引用，尚未在服务器核实这些新清单的
   每张图片都能读取，也未创建训练运行目录或启动 GPU 作业。
 
 目录说明
 
 PROTOCOL.json：任务、分组、评估边界及尚需锁定的训练选择。
-sources.json：本机来源路径和 SHA-256；移机时需重新配置路径并验证哈希。
+sources.json：相对本项目的来源路径和 SHA-256；来源在 data/source_snapshots/。
+原来的绝对路径仅存于历史溯源记录，不是当前程序的输入路径。
 data/known_lesion_v1/：新 manifest、标签和验证摘要，不是照片副本。
 recognition/YOLO_s4905914/：分组与标签准备源码、测试。
 MODEL_COMPONENTS_zh.txt：固定版本模型源码核对和组件学习说明。
@@ -104,4 +108,4 @@ https://forum.isic-archive.com/t/task-3-supplemental-information/430
 官方数据索引：
 https://challenge.isic-archive.com/data/
 具体外部数据哈希和核对结果：
-../../outputs/grouping_followup_20261017/external_metadata_audit.json
+outputs/grouping_followup_20261017/external_metadata_audit.json

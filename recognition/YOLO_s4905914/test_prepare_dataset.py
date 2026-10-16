@@ -37,6 +37,16 @@ def replace_input(source, name, transform):
 
 
 class PrepareTests(unittest.TestCase):
+    def test_relative_sources_resolve_from_manifest_location(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); s, p = fixture(root)
+            sources = json.loads(s.read_text())
+            for entry in sources.values():
+                entry['path'] = str(Path(entry['path']).relative_to(root))
+            s.write_text(json.dumps(sources))
+            summary = prepare(s, p, root / 'prepared')
+            self.assertEqual(summary['counts']['train']['images'], 6)
+
     def test_labels_sources_and_nonoverwrite(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d); s, p = fixture(root)
