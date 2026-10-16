@@ -29,6 +29,7 @@ The original image-level pilot and its test results were already inspected. Repa
 | `experiment.json` | Shared n/s experiment draft, data hashes, original-weight hashes and operating-point rules. |
 | `smoke_test.py` | Small synthetic end-to-end software check for both n and s. It produces no ISIC evidence. |
 | `preflight.py` | Two synthetic forward/backward/AdamW steps per model on an explicitly chosen device; records runtime and CUDA memory when available. |
+| `transfer.py` | Builds a local transfer ZIP with required code/data references and per-file checksums; verifies archive membership or extracted files without ML dependencies. |
 | `test_*.py` | Grouping, label, metric and experiment-boundary regression tests. |
 
 The model builder and loader calls are recorded in each run's `project_model_interface.json` and `project_loader_calls.jsonl`. These show actual integration; matching required filenames alone does not establish course compliance. Model internals and upstream source locations are explained in the project-level `MODEL_COMPONENTS_zh.txt`.
@@ -54,6 +55,12 @@ AP uses the low-score sweep, not the chosen operating threshold. At the operatin
 ## Running from the restart project root
 
 The examples below assume `recognition/YOLO_s4905914/`, `data/known_lesion_v1/` and the source snapshots have been transferred together. Data and weights are ignored by Git; reproduce or separately supply the audited manifests and source snapshots. Do not commit them. The local macOS environment snapshot is recorded in `tested-environment-macos-py313.txt`. Linux/CUDA compatibility, GPU memory and timing still need a school-host preflight.
+
+`TRANSFER_GUIDE_zh.txt` at the project root explains the local transfer bundle. It includes the required manifests, labels and provenance missing from a plain Git clone. It does not contain images, masks, checkpoints or the full local test logs. Its manifest checks file integrity, not scientific correctness. Building the bundle does not upload files or start training. After extraction, verify before installing ML dependencies:
+
+```bash
+python recognition/YOLO_s4905914/transfer.py verify --directory .
+```
 
 ```bash
 python3 -m venv .venv
@@ -136,7 +143,7 @@ python recognition/YOLO_s4905914/predict.py \
 
 ## Checks completed locally
 
-32 unit tests passed, including the eight preprocessing combinations and the single-label/class-aware NMS regression. Both n and s completed a one-epoch CPU run on 8 synthetic training images, with 4 synthetic validation images and 4 synthetic reassessment images. Each run performed 4 optimizer steps; saved/reloaded two-class checkpoints; produced a finite (1, 6, 8400) decoded output for a 640×640 input; and completed validation selection, locked reassessment and prediction overlays. The separate CPU preflight also completed two synthetic AdamW steps per model at batch 2 / 128 pixels. These synthetic metrics are not ISIC results. `IMPLEMENTATION_VERIFICATION.json` at the restart project root records the evidence and outstanding checks. Eight installed upstream source files matched the downloaded v8.3.221 tag exactly.
+35 unit tests passed, including the eight preprocessing combinations, the single-label/class-aware NMS regression, and transfer integrity checks. Both n and s completed a one-epoch CPU run on 8 synthetic training images, with 4 synthetic validation images and 4 synthetic reassessment images. Each run performed 4 optimizer steps; saved/reloaded two-class checkpoints; produced a finite (1, 6, 8400) decoded output for a 640×640 input; and completed validation selection, locked reassessment and prediction overlays. The separate CPU preflight also completed two synthetic AdamW steps per model at batch 2 / 128 pixels. These synthetic metrics are not ISIC results. `IMPLEMENTATION_VERIFICATION.json` at the restart project root records the evidence and outstanding checks. Eight installed upstream source files matched the downloaded v8.3.221 tag exactly.
 
 ## Work still required for submission
 

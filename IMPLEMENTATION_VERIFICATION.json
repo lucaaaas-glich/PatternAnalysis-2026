@@ -1,6 +1,6 @@
 {
-  "checked_at": "2026-10-17T02:59:29.593391+10:00",
-  "unit_tests_passed": 32,
+  "checked_at": "2026-10-17T03:12:41.431989+10:00",
+  "unit_tests_passed": 35,
   "dependency_check": "pip check passed",
   "installed_upstream_source_files_matching_v8_3_221_tag": 8,
   "real_data_plan_counts": {
@@ -64,7 +64,9 @@
     "recognition/YOLO_s4905914/test_prepare_dataset.py": "073c92895dd9bd2eebeccad074c7bb687262c116f6441ca3b4b390381de0cca6",
     "recognition/YOLO_s4905914/test_preprocessing.py": "bbb215bf1466be7b179ff499afd558916a5a70a8bcd54b81939868f67882d564",
     "recognition/YOLO_s4905914/test_runtime_pipeline.py": "2ece3cd6be211c4c5cd3363f2feae9c85317ea967addad8e5f45323af4be2a4b",
-    "recognition/YOLO_s4905914/train.py": "8a77d9264a7a97161082aae657a07c9664e6c409931502537ee681ea147cbd7b"
+    "recognition/YOLO_s4905914/test_transfer.py": "fc5b3aecf1e633bdd65d831005f7509a41af987545dbb3d8eb940e9b79e8dfdd",
+    "recognition/YOLO_s4905914/train.py": "8a77d9264a7a97161082aae657a07c9664e6c409931502537ee681ea147cbd7b",
+    "recognition/YOLO_s4905914/transfer.py": "9f316e512e662626e207eda2ec05cc605040614a449d12b8ae2a3a74c063812a"
   },
   "verification_log_paths": [
     "outputs/implementation_verification_v2/unit_tests.log",
@@ -72,7 +74,7 @@
     "outputs/implementation_verification_v2/cpu_preflight.log",
     "outputs/implementation_verification_v2/real_data_plan.json"
   ],
-  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected.",
+  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected. Transfer tooling and its three tests were subsequently added; model training/evaluation behavior was unchanged and the full synthetic training was not repeated for this packaging-only change.",
   "nonfunctional_cleanup_after_checks": "Normalized trailing whitespace at Python file ends; no behavior changed.",
   "synthetic_CPU_preflight": {
     "status": "completed",
@@ -204,5 +206,18 @@
     "passing_combinations": 8,
     "assertion": "Actual float32 model input tensors are exactly equal; inverse boxes agree within absolute 0.0001 pixel",
     "explains_previous_malignant_failures": "Not established; no ISIC performance experiment conducted"
+  },
+  "latest_unit_test_log": "outputs/transfer/unit_tests.log",
+  "transfer_implementation": {
+    "script": "recognition/YOLO_s4905914/transfer.py",
+    "scope": "Local bundle creation and file verification; no upload or training",
+    "regressions": [
+      "Changed/missing labels rejected",
+      "Unlisted ZIP entries rejected",
+      "Escaping relative paths rejected"
+    ],
+    "actual_bundle_verification_record": "outputs/transfer/TRANSFER_VERIFICATION.json",
+    "training_and_evaluation_code_changed_in_this_step": false,
+    "previous_synthetic_pipeline_evidence_remains_applicable": true
   }
 }
