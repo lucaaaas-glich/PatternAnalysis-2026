@@ -1,6 +1,6 @@
 {
-  "checked_at": "2026-10-17T03:32:54.229196+10:00",
-  "unit_tests_passed": 38,
+  "checked_at": "2026-10-17T03:42:36.223415+10:00",
+  "unit_tests_passed": 40,
   "dependency_check": "pip check passed",
   "installed_upstream_source_files_matching_v8_3_221_tag": 8,
   "real_data_plan_counts": {
@@ -35,6 +35,18 @@
           3.0000000000000004e-05,
           3.0000000000000004e-05
         ],
+        "checkpoint_selection": {
+          "best_epoch": 1,
+          "completed_epochs": 1,
+          "selection_validation_mAP50_95": 0.02479,
+          "last_epoch_validation_mAP50_95": 0.02479,
+          "weight_source": "EMA",
+          "tie_rule": "later epoch wins exact ties",
+          "score_scope": "Training-time validation of in-memory EMA before FP16 serialization",
+          "finalized_file_epoch_is_not_selection_epoch": true
+        },
+        "stored_parameter_dtype": "float16",
+        "loaded_parameter_dtype": "float32",
         "validation_selection_and_locked_reassessment_ran": true,
         "prediction_overlay_created": true
       },
@@ -58,12 +70,24 @@
           3.0000000000000004e-05,
           3.0000000000000004e-05
         ],
+        "checkpoint_selection": {
+          "best_epoch": 1,
+          "completed_epochs": 1,
+          "selection_validation_mAP50_95": 0.26811,
+          "last_epoch_validation_mAP50_95": 0.26811,
+          "weight_source": "EMA",
+          "tie_rule": "later epoch wins exact ties",
+          "score_scope": "Training-time validation of in-memory EMA before FP16 serialization",
+          "finalized_file_epoch_is_not_selection_epoch": true
+        },
+        "stored_parameter_dtype": "float16",
+        "loaded_parameter_dtype": "float32",
         "validation_selection_and_locked_reassessment_ran": true,
         "prediction_overlay_created": true
       }
     }
   },
-  "synthetic_evidence_path": "outputs/synthetic_integration_06_warmup",
+  "synthetic_evidence_path": "outputs/synthetic_integration_07_checkpoints",
   "new_ISIC_training_started": false,
   "new_ISIC_performance_results": false,
   "school_GPU_preflight_completed": false,
@@ -72,6 +96,7 @@
   "full_training_gate": "draft; disabled",
   "validation_score_policy": "confidence > threshold; single-label class-aware NMS",
   "source_sha256": {
+    "recognition/YOLO_s4905914/checkpoints.py": "fa6ab2849ab87ce562d22f7e2c3d09fa9a528bdabc06f63adc75f2b0105143c9",
     "recognition/YOLO_s4905914/dataset.py": "bcb250fa5617d6ffbc027ec63870131a0326b9c9598a94f53a4c45b753f33288",
     "recognition/YOLO_s4905914/evaluation.py": "b123d75f1862ebcfae45d0eedbdb19c80628ec5e26608081b838a7a4236b204e",
     "recognition/YOLO_s4905914/fetch_weights.py": "5603c6081675b0b8d0362d245fceeb11c154e11bbf7c38d22ab95567b39e1976",
@@ -83,7 +108,8 @@
     "recognition/YOLO_s4905914/preprocessing.py": "c86006c777015ab93f6be34acba442948cc20dd45a42fbcdecf0ff39addb1091",
     "recognition/YOLO_s4905914/runtime.py": "e2d2696e8c8dcedfe610929a5b24d586e1d69b480189cbc79f311f0d39057ee4",
     "recognition/YOLO_s4905914/schedule.py": "ce34bc2a19979375b6d24bd255ef339ba74b644f23abfc15d9fac5aa2e1891df",
-    "recognition/YOLO_s4905914/smoke_test.py": "16427a09a0967f7418efc806880df8478e23c2801925bdb997b8aed3618a910e",
+    "recognition/YOLO_s4905914/smoke_test.py": "c1543e4e7fd11f8bb024279cf9107d55d11cb6eb8129f7a1315a97a747a6f1ca",
+    "recognition/YOLO_s4905914/test_checkpoints.py": "a463fa76dee9791a4290b7190368c1ec001e2bf58aac0760f243b81102a5258c",
     "recognition/YOLO_s4905914/test_plan_group_splits.py": "96a9f82b2109f9d1089b820d79f39c23cc70e9807c62dacc499986ea0cd5e494",
     "recognition/YOLO_s4905914/test_preflight.py": "e8b61addbbcbf8940fd9943bd82eae1b233b9922222206230b0d2ed507fe7c1c",
     "recognition/YOLO_s4905914/test_prepare_dataset.py": "073c92895dd9bd2eebeccad074c7bb687262c116f6441ca3b4b390381de0cca6",
@@ -91,16 +117,15 @@
     "recognition/YOLO_s4905914/test_runtime_pipeline.py": "2ece3cd6be211c4c5cd3363f2feae9c85317ea967addad8e5f45323af4be2a4b",
     "recognition/YOLO_s4905914/test_schedule.py": "ac1ffee2c3bc27a4df541f59a480e5e6b99333026fb4850b9cfda45ba4b5b78d",
     "recognition/YOLO_s4905914/test_transfer.py": "fc5b3aecf1e633bdd65d831005f7509a41af987545dbb3d8eb940e9b79e8dfdd",
-    "recognition/YOLO_s4905914/train.py": "53ee7fbe557c5075b6dbcd918c47ff566602cef864e665aa122dfba837fdfeda",
+    "recognition/YOLO_s4905914/train.py": "df12460b615371dc0fd758e9286650f8d1dd7143c83687dac3dc5c8079fcad76",
     "recognition/YOLO_s4905914/transfer.py": "9f316e512e662626e207eda2ec05cc605040614a449d12b8ae2a3a74c063812a"
   },
   "verification_log_paths": [
-    "outputs/schedule_audit_20261017/unit_tests.log",
-    "outputs/schedule_audit_20261017/synthetic_integration.log",
-    "outputs/schedule_audit_20261017/real_data_plan.json"
+    "outputs/checkpoint_audit_20261017/unit_tests.log",
+    "outputs/checkpoint_audit_20261017/synthetic_integration.log"
   ],
-  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected. Transfer tooling and its three tests were subsequently added; model training/evaluation behavior was unchanged and the full synthetic training was not repeated for this packaging-only change. Subsequent optimizer logging checks the pinned schedule and fixed budget; a new complete synthetic pipeline run exercised warmup for n/s. Training hyperparameters are unchanged; documentation about the final LR and meaning of step counts was corrected.",
-  "nonfunctional_cleanup_after_checks": "Removed trailing blank lines from two new Python files; no behavior changed.",
+  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected. Transfer tooling and its three tests were subsequently added; model training/evaluation behavior was unchanged and the full synthetic training was not repeated for this packaging-only change. Subsequent optimizer logging checks the pinned schedule and fixed budget; a new complete synthetic pipeline run exercised warmup for n/s. Training hyperparameters are unchanged; documentation about the final LR and meaning of step counts was corrected. Checkpoint provenance was then added without changing the optimizer or selection rule; 40 tests and a fresh n/s synthetic run verified selected-epoch history, EMA saves, FP16 storage and FP32 reload. Training-time validation scores are rounded to five decimal places upstream.",
+  "nonfunctional_cleanup_after_checks": "Removed trailing blank lines from the two new checkpoint Python files; no behavior changed.",
   "synthetic_CPU_preflight": {
     "status": "completed",
     "purpose": "synthetic_runtime_preflight",
@@ -232,7 +257,7 @@
     "assertion": "Actual float32 model input tensors are exactly equal; inverse boxes agree within absolute 0.0001 pixel",
     "explains_previous_malignant_failures": "Not established; no ISIC performance experiment conducted"
   },
-  "latest_unit_test_log": "outputs/schedule_audit_20261017/unit_tests.log",
+  "latest_unit_test_log": "outputs/checkpoint_audit_20261017/unit_tests.log",
   "transfer_implementation": {
     "script": "recognition/YOLO_s4905914/transfer.py",
     "scope": "Local bundle creation and file verification; no upload or training",
@@ -241,7 +266,7 @@
       "Unlisted ZIP entries rejected",
       "Escaping relative paths rejected"
     ],
-    "actual_bundle_verification_record": "outputs/transfer_optimizer_audit/TRANSFER_VERIFICATION.json",
+    "actual_bundle_verification_record": "outputs/transfer_checkpoint_audit/TRANSFER_VERIFICATION.json",
     "introduced_in_commit": "c1399b7"
   },
   "optimizer_schedule_audit": "outputs/schedule_audit_20261017/schedule_verification.json",
@@ -268,5 +293,14 @@
     ],
     "warmup_momentum_changes_AdamW_betas": false,
     "positive_lr_does_not_guarantee_every_parameter_changes": true
+  },
+  "checkpoint_selection_audit": "outputs/checkpoint_audit_20261017/checkpoint_verification.json",
+  "checkpoint_storage_and_selection_findings": {
+    "training_validation_weights": "EMA",
+    "training_validation_score_rounding_decimal_places": 5,
+    "save_source": "FP16 copy of EMA",
+    "finalized_epoch_field": -1,
+    "loader_parameter_dtype": "float32",
+    "precision_lost_during_storage_restored_on_load": false
   }
 }

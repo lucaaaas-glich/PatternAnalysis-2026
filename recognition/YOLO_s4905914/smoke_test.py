@@ -62,8 +62,12 @@ def run_smoke(base_config, weights_dir, output, warmup_epochs=0.0):
         trained = fit(config, prepared, stage, weights_dir, size, output / f'train_{size}', 'cpu')
         assert trained['optimizer_steps'] == 4
         assert trained['zero_lr_optimizer_step_calls'] == (1 if warmup_epochs > 0 else 0)
+        assert trained['checkpoint_selection']['best_epoch'] == 1
+        assert trained['best_checkpoint_storage']['epoch_field'] == -1
+        assert trained['best_checkpoint_storage']['parameter_dtypes'] == ['torch.float16']
         checkpoint = output / f'train_{size}/fit/weights/best.pt'
         model = load_trained(checkpoint)
+        assert {p.dtype for p in model.model.parameters()} == {torch.float32}
         model.model.float().eval()
         with torch.no_grad():
             raw = model.model(torch.zeros(1, 3, 640, 640))[0]
@@ -83,6 +87,8 @@ def run_smoke(base_config, weights_dir, output, warmup_epochs=0.0):
                                  'zero_lr_optimizer_step_calls': trained['zero_lr_optimizer_step_calls'],
                                  'first_step_lrs': trained['first_step_lrs'],
                                  'last_step_lrs': trained['last_step_lrs'],
+                                 'checkpoint_selection': trained['checkpoint_selection'],
+                                 'stored_parameter_dtype': 'float16', 'loaded_parameter_dtype': 'float32',
                                  'validation_selection_and_locked_reassessment_ran': True,
                                  'prediction_overlay_created': True}
     write_json(output / 'smoke_verification.json', report)

@@ -47,6 +47,13 @@ NMS 是推理后处理，不是 Backbone/Neck 的特征学习模块。
 
 当前项目与第三方代码的边界
 
+训练辅助机制 EMA（Exponential Moving Average，指数移动平均）由
+上游 ModelEMA 实现。它维护训练模型浮点状态的移动平均副本，供训练
+期间验证和 checkpoint 保存使用，属于训练与权重管理。当前内存中
+训练/EMA 参数是 FP32；上游序列化 EMA 时使用 FP16，加载时恢复为
+FP32 张量。保存精度与计算精度要分别描述。新代码记录选择轮次和
+实际分数，没有自行重写 EMA 算法；详见代码目录内的 EXPERIMENT_NOTES_zh.txt。
+
 旧 modules.py 只调用 ultralytics.YOLO 加载模型；旧 train.py 的项目
 trainer 子类实际调用 dataset.py 的 loader 接口，数据变换和训练主体
 仍由 Ultralytics 提供。不能说这些网络、loss 或训练引擎是学生原创。

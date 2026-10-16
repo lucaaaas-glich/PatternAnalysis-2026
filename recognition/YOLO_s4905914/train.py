@@ -15,6 +15,7 @@ from evaluation import collect_predictions, inference_args, score_records, selec
 from modules import build_detector, load_trained
 from runtime import check_runtime, digest, load_config, read_json, stage_content_digest, validate_lock, write_json
 from schedule import optimizer_snapshot, schedule_summary
+from checkpoints import checkpoint_event, inspect_saved_checkpoint, selection_summary
 
 
 def release_check(cfg, rows):
@@ -30,6 +31,12 @@ def release_check(cfg, rows):
 def trainer_class():
     from ultralytics.models.yolo.detect import DetectionTrainer
     class ProjectTrainer(DetectionTrainer):
+        def save_model(self):
+            event = checkpoint_event(self)
+            super().save_model()
+            with (self.save_dir / 'checkpoint_history.jsonl').open('a') as stream:
+                stream.write(json.dumps(event, allow_nan=False)+'\n')
+
         def optimizer_step(self):
             observed = optimizer_snapshot(self)
             super().optimizer_step()
@@ -131,12 +138,19 @@ def fit(config, prepared, stage, weights_dir, model_size, output, device):
         planned = schedule_summary(cfg, len(rows['train']))
         if len(trace) != planned['planned_optimizer_step_calls'] or len(trace) != model.trainer.project_optimizer_steps:
             raise RuntimeError('Completed run has an unexpected optimizer-step budget')
+        history_path = output / 'fit/checkpoint_history.jsonl'
+        selection = selection_summary(history_path)
+        if selection['completed_epochs'] != cfg['train']['epochs']:
+            raise RuntimeError('Checkpoint history does not cover the complete epoch budget')
         record.update(status='completed', elapsed_seconds=time.perf_counter()-started,
                       optimizer_steps=model.trainer.project_optimizer_steps,
                       optimizer_step_count_means='Completed optimizer.step calls; some may have zero learning rate',
                       optimizer_trace_sha256=digest(trace_path),
                       zero_lr_optimizer_step_calls=sum(t['all_learning_rates_zero'] for t in trace),
                       first_step_lrs=trace[0]['lr'], last_step_lrs=trace[-1]['lr'],
+                      checkpoint_selection=selection,
+                      checkpoint_history_sha256=digest(history_path),
+                      best_checkpoint_storage=inspect_saved_checkpoint(best),
                       best_sha256=digest(best), last_sha256=digest(last),
                       parameters=sum(p.numel() for p in model.model.parameters()),
                       peak_cuda_allocated_bytes=(torch.cuda.max_memory_allocated(model.trainer.device) if model.trainer.device.type == 'cuda' else None))
@@ -184,6 +198,7 @@ def evaluate(config, prepared, stage, checkpoint, output, device, split='val', l
     report = {'purpose': cfg['purpose'], 'split': split, 'fresh_blind_test': False,
               'config_sha256': digest(config), 'checkpoint_sha256': digest(checkpoint),
               'training_run_sha256': digest(Path(checkpoint).resolve().parents[2] / 'run.json'),
+              'checkpoint_selection': training.get('checkpoint_selection'),
               'evaluator_source_sha256': digest(Path(__file__).with_name('evaluation.py')),
               'manifest_sha256': hashes, 'ap': ap,
               'mAP50': float(metrics.box.map50), 'mAP50_95': float(metrics.box.map),
