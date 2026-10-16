@@ -8,5 +8,11 @@
   "fresh_blind_test": false,
   "preparation_replayed_after_source_migration": true,
   "preparation_replayed_identical_files": 1101,
-  "active_sources_inside_project": true
+  "active_sources_inside_project": true,
+  "local_old_experiment_cleanup_completed": true,
+  "preparation_replayed_after_old_paths_removed": true,
+  "post_cleanup_identical_files": 1101,
+  "post_cleanup_group_manifest_identical": true,
+  "cleanup_scope": "local approved old experiment paths only; moved using Trash; no permanent erase",
+  "verification_details": "outputs/cleanup/post_cleanup_verification.json"
 }

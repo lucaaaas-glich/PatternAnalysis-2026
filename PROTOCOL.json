@@ -45,7 +45,7 @@
   "reuse": {
     "binary_masks_and_box_coordinates": "reuse verified original-mask preparation",
     "old_trained_checkpoints": "prohibited as initialisation in regrouped comparison",
-    "old_results": "retain as exploratory history; do not overwrite"
+    "old_results": "historical exposure and provenance retained; local old experiment artifacts removed from workspace via Trash at user request; school server and GitHub unchanged"
   },
   "models": {
     "baseline": "YOLOv8n",

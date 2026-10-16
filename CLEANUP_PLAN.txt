@@ -1,7 +1,8 @@
-旧实验清理清单（待范围确认）
+旧实验清理清单（已完成）
 日期：2026-10-17（布里斯班）
 
-拟从当前工作区移入系统废纸篓，不做永久抹除。
+按用户确认范围，已从当前工作区清理以下旧实验文件。
+采用系统废纸篓操作；未永久抹除，也未清空废纸篓。
 仅限本机此项目；学校服务器、GitHub、Downloads 中用户提供的资料不在此范围。
 保留新项目、课程文件，以及新项目必需的来源快照和数据曝光记录。
 
@@ -42,3 +43,8 @@ work/submission_repo  (7.47 MB)
 work/validation_661469  (0.66 MB)
 work/validation_cases  (10.24 MB)
 work/validation_reproduction_check  (0.10 MB)
+
+实际结果：35 项原路径均已不存在；学校服务器和 GitHub 未改动。
+系统不允许列出废纸篓，因此未逐项核实恢复位置；操作记录保留此限制。
+执行日志：outputs/cleanup/cleanup_result.json。
+来源迁移与数据重放证据：outputs/cleanup/。
