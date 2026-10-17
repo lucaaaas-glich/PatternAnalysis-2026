@@ -1,10 +1,11 @@
 COMP3710 Project 3：重新设计的实验版本
 建立日期：2026-10-17（布里斯班）
 
-当前阶段：数据准备、代码与学校 A100 检查已完成；作业 669143 的 n/s
-各 60 轮训练及 validation 对照均完成。详细结果见 READINESS_STATUS_zh.txt
-及 output/pdf/COMP3710_Validation_Comparison.pdf；课程接受情况未确认，
-补充评估未运行。
+当前阶段：新 n/s 各 60 轮训练、validation、固定模型/阈值的补充评估、
+资源测试、五个失败案例与完整实验报告均完成。主报告为
+recognition/YOLO_s4905914/README.md；11 页 PDF 为
+output/pdf/COMP3710_Project3_Report.pdf。详细结果见 READINESS_STATUS_zh.txt。
+课程接受、个人 check-off 与截止时间仍未确认；GitHub/Turnitin 未提交。
 这是新实验的工作目录，不是已完成的提交包。按用户确认范围，本机旧
 实验的 35 项文件/目录已移出工作区，采用废纸篓方式，未清空废纸篓。
 学校服务器上的旧项目、GitHub、原始数据和课程资料未改动。另已在学校
@@ -60,13 +61,13 @@ reassessment 的 165 张中，122 张曾在旧 train。所以：
 4. reassessment 只在方案锁定后评估，明确是补充、回顾性评估，不是新盲测。
 5. 新旧实验不能直接用 Recall 的差值证明模型进步，因为样本和分组都变了。
 
-保留的成果与需要重跑的内容
+保留的来源与已完成的重跑
 
 保留：学校源照片、官方二值 mask、已验证的框坐标、元数据来源和旧划分
 曝光记录。旧实验的本机代码、结果和报告已按清单移入废纸篓；服务器
 及 GitHub 上的旧工作未改动。新标签复用原框坐标，没有重画标注。
-重做：分组、适用于两类的新训练/推理配置、同划分 n/s 对照、验证阈值
-选择与最终补充评估。先做小流程检查，再提交完整训练，避免重复耗费 GPU。
+已重做并完成：分组、两类训练/推理配置、同划分 n/s 对照、验证阈值
+选择与锁定补充评估。完整训练前已做小流程和真实输入检查。
 还没有认定两类模型会更好；类别定义改变本身也是实验差异。
 
 已完成的验证
@@ -101,7 +102,8 @@ reassessment 的 165 张中，122 张曾在旧 train。所以：
 - 从学校源目录取得全部 1,098 张候选原图，服务器独立 SHA-256 与本机
   副本逐一相同。每张完整解码、尺寸与框来源核对、EXIF 方向核对、
   标签与清单核对均通过；没有完全相同的解码图像跨集合。图片未修改，
-  初次输入审计未做模型推理；后续训练和 validation 已完成。去重不能证明患者独立。
+  初次输入审计未做模型推理；后续训练、validation 和锁定补充评估均已完成。
+  去重不能证明患者独立。
 - 已核对课程 PDF 及 Ed #136/#137/#147，准备一页 feasibility PDF、
   README 原理图和更明确的待确认清单。学生个人 check-off 尚无完成证据。
 
@@ -112,8 +114,9 @@ sources.json：相对本项目的来源路径和 SHA-256；来源在 data/source
 原来的绝对路径仅存于历史溯源记录，不是当前程序的输入路径。
 data/known_lesion_v1/：新 manifest、标签和验证摘要，不是照片副本。
 recognition/YOLO_s4905914/：分组、标签、训练、评估、预测源码和测试。
-该目录的 README.md 是运行说明；experiment.json 是尚未开放完整训练的
-配置草案；EXPERIMENT_NOTES_zh.txt 是配套中文学习笔记。
+该目录的 README.md 是完整实验报告；RUNBOOK.md 保留早期运行说明。
+experiment.json 仍是禁用的原草案；实际运行使用已锁定的
+experiment_provisional.json。EXPERIMENT_NOTES_zh.txt 是配套中文学习笔记。
 MODEL_COMPONENTS_zh.txt：固定版本模型源码核对和组件学习说明。
 TEACHER_QUESTIONS.txt：已由学生反馈发送的分组追问，以及尚未发送的其他问题草稿。
 COURSE_REQUIREMENTS_AUDIT_zh.txt：课程材料逐项核对及官方答复来源。
@@ -131,7 +134,8 @@ TRANSFER_GUIDE_zh.txt：带逐文件校验值的本机转移包说明。只克�
    n/s validation 已独立复核。第三方实现边界见模型说明和 README。
 3. 已锁定并完成 60 轮 AdamW 翻转增强对照。原草案保留；实际使用的
    experiment_provisional.json 未修改，主模型 n、对照 s 的阈值已锁定。
-4. 验证后锁定方案，再做一次明确标记的补充评估，最后完成报告与提交。
+4. 锁定后的补充评估及完整报告已完成。下一步是学生审阅、课程问题确认，
+   然后按课程要求整合 fork、提交 PR 和 README 的 PDF。
 
 参考来源
 

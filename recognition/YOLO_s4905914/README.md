@@ -1,297 +1,299 @@
-# COMP3710 Project 3 restart: YOLOv8 lesion detection
+# Lesion detection and classification with YOLOv8
 
-This is a provisional restricted-cohort study, not a completed assignment submission. Both real ISIC training runs and validation comparisons are complete (school job 669143); supplementary reassessment has not been model-evaluated. The code integrates Ultralytics 8.3.221; the YOLO network, loss and training engine are third-party implementations, not my own network design. Acceptance of this packaging under the course's `modules.py` requirement is still awaiting clarification.
+COMP3710 Assignment 3, Project 3 | s4905914 | 17 October 2026
 
-## Working principle
+This report compares YOLOv8n, the predeclared primary/baseline, with YOLOv8s on a restricted ISIC2018 Task 1 cohort. The engineering question is how malignant detection changes as benign-image false alerts are limited. The completed experiment includes data auditing, two fresh 60-epoch training runs, validation-only checkpoint/threshold selection, one locked supplementary reassessment per model, resource measurements and five actual failure examples.
 
-YOLOv8 is a one-stage detector: convolutional backbone features are fused across scales, then separate head branches predict box distances and class scores. The pinned loss combines box regression (CIoU and distribution focal loss) with binary-cross-entropy classification. At inference, scores are filtered and class-aware NMS removes some overlapping predictions. Labels are boxes derived from masks; the model is not trained to output segmentation masks. The confidence score and the geometric accuracy of the box are separate quantities.
+On supplementary reassessment, n has mAP50:95 0.3619 and detects 10/41 malignant lesions at confidence 0.50; s has mAP50:95 0.3527 and detects 6/41 at 0.80. n generates malignant alerts on 16/124 benign images, exceeding the 10% budget that was satisfied on validation. Neither model demonstrates adequate malignant screening sensitivity. n remains the primary by the original protocol, and neither its threshold nor the model policy was changed after reassessment.
 
-![Candidate data, training and evaluation flow](assets/pipeline.svg)
+Course acceptance of the restricted cohort and third-party component packaging remains unconfirmed. Personal practical check-off has not been verified. These are experimental results, not a claim that all assessment requirements have been accepted or that the prototype is clinically safe.
 
-## Data and evaluation boundary
+## Data and scope
 
-The candidate study uses all 1,098 Task 1 images with recorded lesion IDs: 824 benign and 274 malignant. The other 1,496 images are excluded from every phase. The single Indeterminate image is outside this cohort; it is not relabelled benign. The new head has exactly two classes, Benign=0 and Malignant=1.
+The source consists of 2,594 school-provided dermoscopic photographs. Bounding boxes are the smallest axis-aligned rectangles around the corresponding official binary masks, resized to photo dimensions with nearest-neighbour interpolation. The verified coordinates are reused in this restart. Class labels come from official metadata matched by image ID, not from the masks. The school source photos and masks were not altered. The official dataset and metadata sources are listed in References [1,2].
 
-| Split | Benign | Malignant | Total |
-| --- | ---: | ---: | ---: |
-| Training | 576 | 192 | 768 |
-| Validation | 124 | 41 | 165 |
-| Supplementary reassessment | 124 | 41 | 165 |
+The full metadata contains 2,074 Benign, 519 Malignant and one Indeterminate image. Only 1,098 have a recorded lesion_id. All and only those images enter this study; the other 1,496 are excluded from every phase. The Indeterminate image is outside the selected cohort, not relabelled as benign. The two outputs are Benign=0 and Malignant=1. Each image has one annotated lesion, so this experiment does not establish performance on genuinely multi-lesion scenes.
 
-`plan_group_splits.py` forms connected components from all recorded lesion and patient links before selecting the cohort. It then assigns whole groups, using seed 3710 and approximate 70/15/15 class and size balance. No missing medical IDs are imputed. There are no overlapping recorded lesion/patient IDs between these sets, but 708 selected images still lack patient IDs. Full patient independence is not established.
+| Split | Benign / Malignant | Images |
+| --- | --- | --- |
+| Train | 576 / 192 | 768 |
+| Validation | 124 / 41 | 165 |
+| Supplementary reassessment | 124 / 41 | 165 |
 
-The original image-level pilot and its test results were already inspected. Repartitioning or deleting old local artifacts does not undo that exposure. The new evaluation is supplementary reassessment, not a fresh blind test. Both models must start from the original COCO weights; old fitted checkpoints cannot be transferred into this comparison. The teacher has not yet confirmed whether the restricted cohort is acceptable.
+![Data and experiment flow](assets/pipeline.png)
 
-## Feasibility review (draft; check-off not verified)
+Groups are connected components of all recorded lesion/patient links before cohort filtering. With seed 3710, recorded lesion and patient IDs do not cross splits. There are 1,083 distinct recorded lesions and 1,043 assignment groups; groups are not fabricated patient IDs. The cohort still has 708 images without patient_id. Full patient independence is therefore unproven.
 
-**Purpose and scope**
+<!-- pagebreak -->
 
+## One-page feasibility review
+
+The following is the pre-training written plan prepared on 17 October. It is retained as a dated planning record. Its statements about unmeasured runtime refer to that stage; actual results appear later. A written review does not establish that tutor check-off was completed.
+
+### Purpose and scope
 This classroom prototype compares YOLOv8n (predeclared primary/baseline) with YOLOv8s for locating a dermoscopic lesion and classifying it as benign or malignant. The question is how much malignant detection recall can be retained while limiting benign-image alerts. Each image has one annotated lesion; this dataset does not establish performance in a multiple-lesion clinical scene. Alerts are workload proxies, not biopsy counts, and confidence scores are not cancer probabilities.
 
-**Data and model choice**
-
+### Data and model choice
 The candidate cohort contains all 1,098 images with recorded lesion IDs from 2,594 ISIC2018 Task 1 images: 824 benign and 274 malignant. Whole groups connected by known lesion/patient IDs give train/validation/supplementary-reassessment sizes of 768/165/165. The other 1,496 images are excluded. Some 708 selected images lack patient IDs, so full patient independence is unproven. Instructor acceptance of this restricted cohort is pending. Boxes come from verified official binary masks; class labels come from matched metadata. Both detectors start from their own original COCO weights. Convolutional feature extraction, multiscale fusion, box/class losses and NMS connect the implementation to course concepts. Ultralytics supplies the network and trainer; this is integration and evaluation, not an original YOLO implementation.
 
-**Five testable acceptance criteria**
-
+### Five testable acceptance criteria
 1. Preserve the declared cohort and class counts, with zero overlapping recorded lesion/patient IDs; decode all selected images and verify dimensions and label coordinates before training.
-
 2. Run n and s on the same split with 60 epochs, 640-pixel input, batch 16, FP32, AdamW and flips only. Retain original-weight, data, configuration and checkpoint hashes.
-
 3. Report classwise AP, precision, recall, TP/FP/FN and localization IoU with explicit denominators. Check the course IoU target of 0.8 once its aggregation rule is clarified; do not claim it has already been met.
-
 4. Select the threshold on validation only: maximize malignant detection recall subject to at most 12 benign alerts among 124 benign images. This 10% budget is a classroom comparison rule, not a clinical standard. If no threshold qualifies, report no feasible operating point.
-
 5. Complete the A100 batch-16/640 preflight without nonfinite values or out-of-memory failure; record peak GPU memory, hardware, latency/FPS scope and training time. Use a planning cap of four GPU-hours for the two formal runs; the actual runtime remains unmeasured.
 
-**Evidence, risks and next decision**
+### Evidence, risks and next decision
+Local verification includes 40 unit tests, two one-epoch synthetic model pipelines, preprocessing equivalence checks and exact COCO initialization audits. Synthetic scores are not lesion-performance evidence. The main risks are missing grouping IDs, restricted-cohort selection bias, weak malignant classification and validation overuse. The earlier test was inspected; repartitioning cannot make the new reassessment blind. After instructor clarification and real-input/GPU checks, lock the protocol, train both models, select operating points using validation, then conduct one locked supplementary reassessment and document 3-5 failures. If the cohort is rejected, revise grouping before training. If resources or numerical checks fail, stop and revise both models' shared protocol before rerunning; do not silently change one model's budget.
 
-Local verification includes 40 unit tests, two one-epoch synthetic model pipelines, preprocessing equivalence checks and exact COCO initialization audits. Synthetic scores are not lesion-performance evidence. The main risks are missing grouping IDs, restricted-cohort selection bias, weak malignant classification and validation overuse. The earlier test was inspected; repartitioning cannot make the new reassessment blind. The provisional protocol was locked after real-input/GPU checks and both models have completed training and validation. Instructor acceptance remains unconfirmed. Preserve the selected operating points for one supplementary reassessment and document 3-5 failures. If the cohort is rejected, review the required grouping changes and rerun affected experiments. If resources or numerical checks fail, stop and revise both models' shared protocol before rerunning; do not silently change one model's budget.
-
-**Course and authorship notes**
-
+### Course and authorship notes
 YOLOv8 is in the normal-difficulty option. Component packaging and the IoU denominator still need clarification. This draft does not certify a completed practical consultation. Codex assisted with code, audits and drafting; the student must review, correct and own the submitted explanation. Sources: supplied assessment draft, sections 2.3, 3 and 4; pinned Ultralytics 8.3.221; course Ed threads #136 and #147.
 
-## Working code
+<!-- pagebreak -->
 
-| File | Responsibility |
-| --- | --- |
-| `modules.py` | Constructs the actual two-class PyTorch DetectionModel using the pinned upstream implementation; checks loaded class mapping. |
-| `dataset.py` | Checks manifest hashes, labels and known groups; verifies image decoding; stages image links and label copies; supplies the loader actually called by the trainer. |
-| `train.py` | Produces a plan, trains and saves models, validates, and runs locked supplementary reassessment. |
-| `predict.py` | Loads the selected saved checkpoint, predicts one image and writes an overlay and JSON. |
-| `evaluation.py` | Class-correct detection matching, separate image alerts, explicit IoU denominators, validation threshold selection, and consistent NMS policy. |
-| `preprocessing.py` | Uses one aspect-preserving letterbox transform for validation, matching prediction, and records gain/padding for inverse box coordinates. |
-| `schedule.py` | Projects the pinned learning-rate schedule and checks/records the actual AdamW groups at each optimizer-step call. |
-| `checkpoints.py` | Preserves the selected epoch/score before upstream checkpoint finalization removes metadata; inspects storage precision. |
-| `experiment.json` | Shared n/s experiment draft, data hashes, original-weight hashes and operating-point rules. |
-| `smoke_test.py` | Small synthetic end-to-end software check for both n and s. It produces no ISIC evidence. |
-| `audit_real_inputs.py` | Checks original image dimensions, full decoding, EXIF orientation, label staging and exact cross-split decoded duplicates without running a model. |
-| `readiness_a100.sh` | Schedules an isolated Linux environment, input audit, tests and synthetic A100 checks; never starts formal ISIC training. |
-| `preflight.py` | Two synthetic forward/backward/AdamW steps per model on an explicitly chosen device; records runtime and CUDA memory when available. |
-| `transfer.py` | Builds a local transfer ZIP with required code/data references and per-file checksums; verifies archive membership or extracted files without ML dependencies. |
-| `test_*.py` | Grouping, label, metric and experiment-boundary regression tests. |
+## Model and implementation
 
-The model builder and loader calls are recorded in each run's `project_model_interface.json` and `project_loader_calls.jsonl`. These show actual integration; matching required filenames alone does not establish course compliance. Model internals and upstream source locations are explained in the project-level `MODEL_COMPONENTS_zh.txt`.
+YOLOv8 is a one-stage detector. A convolutional backbone extracts spatial features; the neck combines information across scales; the detection head predicts box distances and class scores at three resolutions. In the pinned implementation, Conv blocks combine convolution, normalization and activation, C2f blocks combine feature branches, and SPPF pools features at multiple effective scales. Box and class prediction branches are separate. These are upstream PyTorch implementations, not original components written for this assignment [3]. YOLOv7 provides background on real-time detection and the accuracy-speed trade-off [4]; the models trained here are YOLOv8n and YOLOv8s.
 
-## Experiment draft
+The loss combines CIoU box regression, distribution focal loss (DFL) for box distances, and binary-cross-entropy class loss. DFL is a localization component, so a lower dfl_loss alone is not evidence of better malignant classification. The score is not a calibrated malignancy probability. After inference, single-label class-aware NMS removes some overlapping same-class boxes; it does not enforce one prediction per image.
 
-YOLOv8n is the predeclared primary model and YOLOv8s the comparator. Both use their own hash-verified original COCO initialization. They share 640-pixel inputs, batch 16, FP32, seed 3710, 60 epochs and AdamW (base lr0=0.001, betas=(0.9, 0.999), weight decay=0.0005 for ordinary weights; biases and normalization weights have no decay). The linear schedule uses lrf=0.01 and warmup_epochs=3.0. Early stopping is disabled. Nominal batch size is also 16, giving one optimizer-step call per batch: 48 batches/epoch and 2,880 planned calls per model. This budget is not a claim of convergence.
+`modules.py` constructs the actual two-class DetectionModel and loads trained models. `dataset.py` supplies the loader used by `train.py`. `train.py` performs fitting and evaluation, saves provenance and checkpoints, and records losses and metrics. `predict.py` loads a saved checkpoint with its validation selection lock and saves JSON plus a prediction overlay. Helpers implement grouping, audits, preprocessing, scoring and reporting. The course's acceptance of integrating Conv/C2f/SPPF/Detect from Ultralytics rather than including local implementations remains unresolved.
 
-The exact pinned schedule matters: its multiplier is `(1 - epoch_index / 60) * 0.99 + 0.01`, with epoch indices 0–59. The last training epoch therefore uses 0.0000265 (2.65% of lr0), not 0.00001. Warm-up interpolates through global batch index 144 inclusive, with its target following that epoch's scheduler value. All groups start at learning rate 0 under the current warmup_bias_lr setting. The first optimizer call can advance AdamW's internal state without changing trainable parameters; step counts do not prove that parameters changed on every call. The configuration's warmup_momentum does not change AdamW betas in this implementation, because the upstream warm-up branch only modifies optimizer groups with a `momentum` key. `train.py plan` reports the projected schedule. `optimizer_steps.jsonl` records actual learning rates, betas, decay and accumulation for every completed optimizer call; a schedule or budget mismatch fails the run. These checks observe the upstream optimizer rather than replacing its update rule.
+### Fixed training protocol
 
-The initial augmentation policy is horizontal/vertical flips with probability 0.5 each. Mosaic, MixUp, CutMix, oversampling, color changes and affine distortion are off. Optional Albumentations is removed from the runtime transform list so installing it cannot silently add blur or CLAHE. Some disabled transform objects remain present in the library's composition with zero probability/gain. This conservative policy preserves color and whole-lesion context; no performance benefit has yet been demonstrated.
+| Setting | YOLOv8n | YOLOv8s |
+| --- | --- | --- |
+| Initial weights | Original COCO n | Original COCO s |
+| Library | Ultralytics 8.3.221 | Same |
+| Epochs / completed optimizer calls | 60 / 2,880 | 60 / 2,880 |
+| Image size / batch / nominal batch | 640 / 16 / 16 | Same |
+| Seed / arithmetic | 3710 / FP32 | Same |
+| Optimizer | AdamW | Same |
+| Initial LR / weight decay | 0.001 / 0.0005 | Same |
+| Warm-up / LR schedule | 3 epochs / linear | Same |
+| Augmentation | Horizontal/vertical flips, p=0.5 each | Same |
+| Mosaic / MixUp / oversampling | Off / off / none | Same |
+| Early stopping / resumed training | Disabled / no | Same |
+| Selected epoch by macro mAP50:95 | 32 | 42 |
 
-Both training validation and prediction use square, aspect-preserving preprocessing and class-aware NMS at 0.7, maximum 300 detections, and a score floor of 0.001. Unlike the library's default multi-label validation, our validator retains only the highest-scoring class per candidate, matching ordinary prediction. This is an explicit new protocol choice, so the resulting AP is not directly interchangeable with old default-validation results.
+The whole backbone, neck and prediction branches remain trainable; the fixed DFL integral coordinates do not. The first optimizer call has zero LR and the final epoch uses LR 0.0000265 under the pinned upstream schedule. Each recorded optimizer call is checked against that schedule. Equal batch and nominal batch avoid differing gradient-accumulation budgets.
 
-The v2 draft also uses `single_letterbox_v1` for evaluation. An actual tensor comparison found differences on 3 of 4 synthetic images between the original validation loader and predictor: the loader initially resizes with `ceil`, whereas the predictor's letterbox uses `round`. The adapter removes the loader's initial evaluation resize and uses the predictor's single letterbox operation, including upscaling small images. It records the correct gain and padding for returning boxes to original-image coordinates. This is evidence of a software-path difference, not evidence that it caused the old malignant errors. Training augmentation remains unchanged. Regression tests compare actual input tensors on landscape, portrait, small and square images at 128 and 640 pixels, and check inverse box coordinates within 0.0001 pixel on those fixtures.
+Initialization is not identical across sizes: n transfers 319/355 state entries and s 349/355. Counts include buffers. n's classification hidden width changes from 80 to 64, whereas s retains width 128 and replaces the final outputs. Both transfer backbone, neck and box-regression state. This difference belongs in the comparison; the experiment cannot attribute outcomes solely to parameter count.
 
-`best.pt` is selected by maximum validation macro mAP50:95 over the fixed budget; the pinned training validator first rounds its returned scores to five decimal places. The trainer retains the later epoch on an exact tie at that precision. That rule is the same for n and s. The final model is not selected after comparing supplementary reassessment results.
+<!-- pagebreak -->
 
-Training-time validation uses an exponential moving average (EMA) of the training model's weights. The raw training model and EMA are FP32 under this protocol, but the upstream saver serializes a copy of EMA in FP16. Finalization moves EMA into the checkpoint's `model` field, clears optimizer state, and sets its `epoch` field to -1. Loading restores FP32 tensors; it cannot restore precision already lost during FP16 storage. This is upstream behavior, not a new precision experiment. Saved-checkpoint validation scores need not equal training-time scores exactly because the execution paths include serialization and other numerical differences; an observed difference does not by itself isolate a cause.
+## Evaluation and selection rules
 
-`checkpoint_history.jsonl` records each epoch, the actual score used for selection, whether `best.pt` was replaced, EMA update count and in-memory parameter dtypes. `run.json` separately preserves the selected epoch, score and checkpoint storage properties, and the evaluation report carries that selection record. Do not infer the selected epoch from the finalized checkpoint's -1 field or assume that `last.pt` is the best model. Completed `best.pt`/`last.pt` files have no optimizer state and are not exact resume snapshots; this experiment already requires fresh starts. EMA may smooth weight fluctuations, but its performance benefit has not been established on this cohort.
+Evaluation uses one aspect-preserving letterbox resize to 640, followed by padding; it does not stretch images. The custom validation loader and ordinary predictor were checked for identical input pixels on synthetic shapes. Scores use a 0.001 floor, single-label class-aware NMS at IoU 0.7 and at most 300 boxes. This differs from default multi-label validation, so AP should not be mixed with results from a different validation policy.
 
-The operating threshold is selected only on validation using the fixed grid in `experiment.json`. The provisional classroom budget allows malignant alerts on at most 10% of benign validation images (at most 12 of 124). It has no established clinical justification. Within that budget, select maximum malignant **detection** recall, then precision, fewer benign alerts, and finally the higher threshold. If no grid point is feasible, report that fact and do not issue a selection lock. Do not expand the grid after looking at reassessment results.
+The best checkpoint maximizes validation macro mAP50:95 over 60 epochs. Upstream training scores are rounded to five decimal places; the later epoch wins exact ties. Validation uses EMA weights. Upstream saves EMA in FP16 and reloads to FP32. The selected training-time score and the subsequently reloaded-checkpoint score need not be numerically identical. Internal training validation uses batch 32; standalone evaluation requests batch 16. Those are execution differences, not a controlled explanation for score discrepancies.
 
-All score filtering uses `confidence > threshold`, matching the upstream NMS boundary. A detection TP additionally needs the correct class and IoU ≥ 0.5. Each GT can match at most one prediction. Wrong-class or badly located predictions can produce both an FP and an FN. Image-alert sensitivity does not require IoU and does not count actual biopsies.
+A TP needs the correct class, confidence strictly above the operating threshold, and IoU >= 0.5. Each GT matches at most one prediction, choosing the highest-confidence eligible candidate. Every remaining prediction is FP for its predicted class. An unmatched GT is FN. A wrong-class or badly located box can therefore contribute both FP and FN. An image-level malignant alert requires any retained malignant box, without an IoU condition. These alerts are not actual biopsy counts.
 
-AP uses the low-score sweep, not the chosen operating threshold. At the operating point, per-class IoU is reported separately for all GT with the best class-correct box (missing prediction=0), all GT ignoring class, and matched TPs only. The teacher's intended denominator for the IoU ≥ 0.8 course target remains unresolved. Confidence is not a calibrated probability of cancer.
+AP50 and AP50:95 use the low-score sweep. Macro mAP weights the two classes equally. The operating threshold instead maximizes malignant detection recall subject to malignant alerts on at most 10% of benign validation images: at most 12 of 124. Ties use precision, fewer benign alerts, then higher threshold. The grid, fixed before training, is 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90 and 0.95. This is a classroom budget, not a clinically established standard.
 
-## Running from the restart project root
+![Validation threshold trade-off](assets/threshold_tradeoff.png)
 
-The examples below assume `recognition/YOLO_s4905914/`, `data/known_lesion_v1/` and the source snapshots have been transferred together. Data and weights are ignored by Git; reproduce or separately supply the audited manifests and source snapshots. Do not commit them. The local macOS environment snapshot is recorded in `tested-environment-macos-py313.txt`. School readiness and full training have now completed; the recorded Linux/A100 environment is in `requirements-linux-a100.lock.txt`.
+Markers are the 14 evaluated thresholds; connecting lines do not imply that intermediate thresholds were selected. n selected 0.50 and s selected 0.80. At the shared threshold 0.50, s detects 22 malignant validation cases but alerts on 28 benign cases, exceeding the budget. At 0.70 it has 14 malignant TP and 14 benign alerts, still exceeding the budget. The grid was not refined after seeing these results.
 
-`TRANSFER_GUIDE_zh.txt` at the project root explains the local transfer bundle. It includes the required manifests, labels and provenance missing from a plain Git clone. It does not contain images, masks, checkpoints or the full local test logs. Its manifest checks file integrity, not scientific correctness. Building the bundle does not upload files or start training. After extraction, verify before installing ML dependencies:
+![Training history](assets/training_curves.png)
+
+Classification loss on validation uses a logarithmic axis to show early spikes and later detail. All logged scalar values are finite; the cause of early spikes was not isolated. Completing 60 epochs does not prove convergence, and selecting an earlier best checkpoint does not by itself prove overfitting.
+
+<!-- pagebreak -->
+
+## Quantitative results
+
+Validation and supplementary reassessment each contain 124 benign and 41 malignant images, but they are different image sets. Reassessment used the already selected best checkpoints and thresholds once per model. No reassessment threshold sweep, checkpoint search or model replacement was performed.
+
+| AP measure | n validation / reassessment | s validation / reassessment |
+| --- | --- | --- |
+| Macro mAP50 | 0.5874 / 0.5432 | 0.5975 / 0.5291 |
+| Macro mAP50:95 | 0.4055 / 0.3619 | 0.3926 / 0.3527 |
+| Benign AP50 | 0.8157 / 0.7883 | 0.7898 / 0.7722 |
+| Benign AP50:95 | 0.5598 / 0.5540 | 0.5436 / 0.5434 |
+| Malignant AP50 | 0.3591 / 0.2980 | 0.4052 / 0.2860 |
+| Malignant AP50:95 | 0.2511 / 0.1698 | 0.2416 / 0.1621 |
+
+### Locked operating points on supplementary reassessment
+
+| Measure | YOLOv8n | YOLOv8s |
+| --- | --- | --- |
+| Confidence | 0.5 | 0.8 |
+| Malignant TP / FP / FN | 10 / 20 / 31 | 6 / 5 / 35 |
+| Malignant precision | 33.33% | 54.55% |
+| Malignant detection recall | 10/41 (24.39%) | 6/41 (14.63%) |
+| Benign TP / FP / FN | 93 / 33 / 31 | 61 / 10 / 63 |
+| Benign precision / recall | 73.81% / 75.00% | 85.92% / 49.19% |
+| Malignant image alerts | 14/41 (34.15%) | 8/41 (19.51%) |
+| Benign image false alerts | 16/124 (12.90%) | 3/124 (2.42%) |
+
+n's validation malignant detection recall was 13/41 (31.71%) with 11/124 benign alerts; s's was 11/41 (26.83%) with 7/124 benign alerts. On reassessment these detection counts fall to 10 and 6. n's 16 benign false alerts exceed the validation budget, while s's three remain below it. The budget was a selection constraint on validation, not a guarantee for another sample. The locks were retained despite this result.
+
+Of the 41 malignant reassessment images, both models detect five, n alone detects five, s alone detects one, and both miss 30. n has higher AP and recall here; s has higher operating-point precision and fewer false alerts. One seed and small class counts do not establish a general or statistically significant winner. Comparing these values with the old image-level pilot would confound changes in data, grouping and evaluation protocol.
+
+### Localization on supplementary reassessment
+
+| Mean IoU at locked operating points | YOLOv8n | YOLOv8s |
+| --- | --- | --- |
+| Benign: all GT, correct class | 0.6512 (N=124) | 0.4282 (N=124) |
+| Benign: all GT, ignore class | 0.7474 (N=124) | 0.4489 (N=124) |
+| Benign: matched TP only | 0.8523 (N=93) | 0.8704 (N=61) |
+| Malignant: all GT, correct class | 0.2272 (N=41) | 0.1321 (N=41) |
+| Malignant: all GT, ignore class | 0.6388 (N=41) | 0.3524 (N=41) |
+| Malignant: matched TP only | 0.7792 (N=10) | 0.7875 (N=6) |
+
+All-GT means use the best retained box under the stated class condition, with missing predictions scored zero. TP-only excludes misses and has a different denominator. Even malignant TP-only means are below 0.8 for both models here; no reported malignant mean establishes the course localization target. The teaching team's intended aggregation rule remains unconfirmed.
+
+<!-- pagebreak -->
+
+## Resource measurements and scope
+
+Training ran on an A100 host in job 669143. Locked reassessment and a separately declared resource test ran on NVIDIA A100-PCIE-40GB in job 669815. The latter used validation images only, without labels for selection, with FP32, 640-pixel input and serial batch-one calls. Ten warm-up calls preceded three passes over all 165 validation paths, giving 495 timed calls per model. CUDA synchronization bracketed each wall-time measurement.
+
+| Measurement | YOLOv8n | YOLOv8s |
+| --- | --- | --- |
+| Training parameters | 3,011,238 | 11,136,374 |
+| Training-call elapsed time | 8.05 min | 9.55 min |
+| Peak training PyTorch CUDA allocation | 4.17 GiB | 6.12 GiB |
+| Library inference-stage mean | 6.82 ms | 5.75 ms |
+| File-to-prediction wall mean | 54.89 ms | 47.61 ms |
+| File-to-prediction median / p95 | 41.85 / 97.86 ms | 35.60 / 81.95 ms |
+| Serial file-to-prediction throughput | 18.22 images/s | 21.00 images/s |
+| Peak inference PyTorch CUDA allocation | 35.03 MiB | 78.57 MiB |
+
+The wall measurement includes file reading and decoding, preprocessing, device transfer, model execution, NMS, filtering at the locked threshold and copying retained predictions to CPU. It excludes model startup, warm-up, drawing overlays, saving output and application UI. The library inference stage excludes the surrounding pipeline. Throughput is 1,000 divided by mean wall milliseconds for this serial workload, not reciprocal median latency or batched peak FPS.
+
+Models were timed sequentially in n-then-s order, and repeated paths may benefit from operating-system or network file caches. GPU clocks, kernel execution and order effects were not independently controlled. s happened to have lower measured latency here; that is an observation of this run, not proof that a larger model is generally faster. Neither the library-stage timing nor the full measured call represents mobile-device or complete clinic-application speed. Peak allocated tensor memory is not total GPU memory usage.
+
+### Verification
+
+The initial preparation passed 40 unit tests, complete synthetic n/s pipelines, an exact initialization-transfer audit and a real-input audit. All 1,098 photos were decoded and matched to school-side SHA-256 values; dimensions, orientation and label coordinates were checked. No exact decoded-image duplicates crossed splits. That check does not prove missing patient identities are independent.
+
+The completed validation audit independently reproduced all 28 declared threshold points with a NumPy matcher. The supplementary audit reproduced both locked operating points, including TP/FP/FN, image alerts and IoU means, from saved predictions. It checked image membership and GT coordinates, configuration, manifests, checkpoint and selection-lock hashes. AP remains the fixed Ultralytics implementation's output; it was not independently recomputed.
+
+All training/evaluation source files needed by reassessment matched the completed training records. The local transfer packager was revised separately, outside that import path. Checkpoint and threshold files were not changed. The resource audit checked all 495 wall observations per model and recomputed the reported means and serial throughput. These checks support software and record consistency; they do not validate every diagnosis label or turn development evidence into a blinded clinical study.
+
+<!-- pagebreak -->
+
+## Five supplementary failure cases
+
+Cases are selected by the lowest image ID satisfying each stated failure category, without reusing an image. They illustrate mechanisms in the saved output and are not a random sample. Dashed outlines show GT; solid outlines show every prediction retained at the model's locked threshold. B and M mean predicted Benign and Malignant. The photos retain their original aspect ratios. Visible artefacts are not treated as causal explanations without a controlled experiment.
+
+### Case 1: Localized benign prediction on malignant GT
+
+ISIC_0012989; GT: Malignant.
+
+![Case 1: ISIC_0012989](assets/reassessment_case_1.png)
+
+The GT is malignant. n retains a benign prediction with confidence 0.737 and IoU 0.676, so localization alone does not produce a malignant TP. It contributes a benign FP and a malignant FN. s retains no prediction at 0.80; its low-score cache contains a localized malignant candidate at 0.427. That candidate is excluded by the already selected threshold. This does not establish why the models assigned different scores.
+
+### Case 2: Malignant false alert on benign GT
+
+ISIC_0013114; GT: Benign.
+
+![Case 2: ISIC_0013114](assets/reassessment_case_2.png)
+
+The GT is benign. n predicts Malignant with confidence 0.758 and IoU 0.857. It is a malignant FP and a benign FN despite good spatial overlap. s retains no box at 0.80, avoiding the malignant alert but still leaving the benign GT undetected. It is therefore inaccurate to describe s as a correct benign detection on this image.
+
+<!-- pagebreak -->
+
+### Case 3: Malignant alert with insufficient localization
+
+ISIC_0014072; GT: Malignant.
+
+![Case 3: ISIC_0014072](assets/reassessment_case_3.png)
+
+The GT is malignant. n retains a malignant box with confidence 0.610 and IoU 0.436; s retains one at confidence 0.876 and IoU 0.220. Both trigger image alerts, but both boxes fail the IoU 0.5 matching rule and each produces a malignant FP and FN. The larger confidence of the s box does not imply better localization.
+
+### Case 4: Additional same-class prediction after a TP
+
+ISIC_0013000; GT: Benign.
+
+![Case 4: ISIC_0013000](assets/reassessment_case_4.png)
+
+The GT is benign. n retains two benign boxes at confidence 0.635/0.546 and GT IoU 0.623/0.627. The first eligible, higher-confidence box is the TP; the other is FP because one GT can match only once. Their pairwise IoU is 0.663, below the NMS threshold 0.7, so their survival is consistent with that NMS setting. Lowering NMS might remove this duplicate, but could affect other cases; no such change was selected from reassessment. s retains no box at 0.80.
+
+<!-- pagebreak -->
+
+### Case 5: No retained box; low-score malignant candidate exists
+
+ISIC_0013198; GT: Malignant.
+
+![Case 5: ISIC_0013198](assets/reassessment_case_5.png)
+
+The GT is malignant and neither model retains a prediction at its operating point. The post-NMS cache contains a localized malignant candidate at score 0.00531 for n and 0.01192 for s. These outputs are below 0.50/0.80. This supports a score-filtering description of the miss, not a claim that the image was never localized internally. Lowering thresholds for this particular case after seeing the supplementary result would violate the fixed evaluation protocol.
+
+## Engineering recommendation
+
+Retain n as the predeclared primary for the coursework prototype and s as its comparator. The results do not justify automatic benign clearance or automated biopsy decisions. A demonstration can highlight malignant predictions for human review, but an absent alert or a benign label must not be presented as ruling out malignancy. The dataset cannot estimate actual biopsy workload or validate a clinical multi-tier policy.
+
+The main observed limitation is malignant detection under the declared false-alert constraint. Validation showed that relaxing thresholds increases detections and benign alerts together; reassessment showed that even the validation false-alert budget did not reliably transfer. A larger n-to-s model did not resolve this problem. Do not retune the selected threshold on these reassessment cases.
+
+For a future, separately declared study, prioritize trustworthy grouping/diagnostic provenance and a new evaluation plan. On development data, compare one factor at a time: a fixed augmentation schedule with a longer update budget; then class-balanced sampling with measured actual sampling frequencies. A localization-plus-classification design could be investigated because well-located wrong-class boxes exist, but its value is unproven and it must retain a qualifying YOLO detector or obtain course approval. A controlled artefact-removal or crop experiment is needed before attributing errors to hair, rulers or lesion size. None of these future experiments is claimed as completed here.
+
+<!-- pagebreak -->
+
+## Reproducibility and use
+
+The completed training/validation run is `outputs/provisional_20261017_669143`; the locked supplementary/resource run is `outputs/reassessment_20261017_669815`. Raw outputs and weights are intentionally excluded from Git. Small aggregate JSON files and report figures are included. The previous preparation README is preserved as `RUNBOOK.md` for detailed historical checks and commands; this README is the report prose source for the submitted PDF.
+
+### Environment and inputs
+
+The school run used Python 3.13.16, PyTorch 2.8.0, torchvision 0.23.0 and Ultralytics 8.3.221. `requirements.txt` pins the ML packages and `requirements-linux-a100.lock.txt` records the tested Linux environment. The report exporter uses a separate environment defined by `requirements-report.txt`. The precise configuration is `experiment_provisional.json`; `experiment.json` remains the original disabled draft.
+
+Restore the audited manifests and labels under `data/known_lesion_v1`, the recorded source snapshots and unchanged school images. A plain Git checkout intentionally omits data and trained weights. The local preparation transfer utility includes manifests, labels and provenance but not photographs, masks or weights. It validates package integrity, not scientific correctness. Use `prepare_dataset.py` with `sources.json` and `PROTOCOL.json` if rebuilding labels into a new directory; it verifies input hashes and refuses to overwrite existing outputs.
+
+In a separate Python 3.13 environment, install the fixed packages, fetch the recorded original weights, and run checks. Use an allocated GPU for real training, not a login node:
 
 ```bash
-python recognition/YOLO_s4905914/transfer.py verify --directory .
-```
-
-```bash
-python3.13 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r recognition/YOLO_s4905914/requirements.txt
+python -m pip install -r recognition/YOLO_s4905914/requirements.txt \
+  -c recognition/YOLO_s4905914/requirements-linux-a100.lock.txt
 python recognition/YOLO_s4905914/fetch_weights.py --output weights/original_coco
 python -m unittest discover -s recognition/YOLO_s4905914 -p 'test_*.py' -v
 python recognition/YOLO_s4905914/train.py plan \
-  --config recognition/YOLO_s4905914/experiment.json --prepared data/known_lesion_v1
+  --config recognition/YOLO_s4905914/experiment_provisional.json \
+  --prepared data/known_lesion_v1
 ```
 
-Read-only initialization audit (no images, optimizer steps or saved checkpoints):
+`dataset.py` stages symlinks to the declared original photographs and copied labels without modifying source images. The direct fit/evaluate commands are documented in `RUNBOOK.md`; use `experiment_provisional.json` for this study. Original school launchers record the historical jobs and expect that project's existing evidence paths. For a fresh machine, perform input and GPU checks and use the documented direct commands within a new GPU allocation rather than assuming those historical paths exist.
+
+### Saved-model example
+
+With the completed checkpoint and validation lock restored, the following creates JSON and an image overlay. The input path is a user-supplied dermoscopic photograph; output scores are not cancer probabilities.
 
 ```bash
-python recognition/YOLO_s4905914/audit_initialization.py \
-  --config recognition/YOLO_s4905914/experiment.json \
-  --weights-dir weights/original_coco --output outputs/initialization_audit
-```
-
-The audit constructs two-class models through the project factory with identical random states, then checks every loaded tensor against the original COCO state and every unmatched tensor against fresh initialization. In this pinned setup, n transfers 319/355 state entries and s transfers 349/355. These counts include buffers, not just parameters. Both transfer all backbone, neck and box-regression state. For n, classification hidden width changes from 80 to 64, so no learnable classification-branch parameters transfer (six BatchNorm counters do). For s, hidden width stays 128 and only the final class-output weights/biases at three scales are newly initialized. This is a real initialization difference to disclose in the n/s comparison, not evidence that either model performs better. With `freeze=null`, backbone, neck and prediction branches remain trainable; only the 16 fixed DFL integral coordinates stay frozen. Pretrained initialization does not mean frozen feature extraction. The local evidence is `outputs/initialization_audit_20261017/initialization.json`.
-
-Small CPU integration check (synthetic images only; choose an unused output path):
-
-```bash
-python recognition/YOLO_s4905914/smoke_test.py \
-  --base-config recognition/YOLO_s4905914/experiment.json \
-  --weights-dir weights/original_coco --output outputs/synthetic_smoke
-```
-
-Add `--warmup-epochs 3` and choose another output path to exercise the warm-up branch on the same one-epoch artificial fixture. With four batches, the upstream minimum warm-up length is 100 batch intervals, so this is an interface check of the beginning of warm-up, not a reproduction of the complete 60-epoch schedule.
-
-The separate device preflight can run while the full-training gate remains closed. It uses no ISIC images, saves no checkpoint and does not select a model. For a small local CPU check, explicitly reduce the probe size:
-
-```bash
-python recognition/YOLO_s4905914/preflight.py \
-  --config recognition/YOLO_s4905914/experiment.json \
-  --weights-dir weights/original_coco --output outputs/preflight_cpu \
-  --device cpu --batch 2 --imgsz 128
-```
-
-On the school host, first obtain a GPU allocation using the school's procedure, then run the default batch 16 / 640-pixel / FP32 probe on the allocated device:
-
-```bash
-python recognition/YOLO_s4905914/preflight.py \
-  --config recognition/YOLO_s4905914/experiment.json \
-  --weights-dir weights/original_coco --output outputs/preflight_gpu --device 0
-```
-
-An unavailable GPU is an error; the script does not silently switch to CPU or reduce the batch. `preflight.json` records the environment, device, original-weight hashes, finite loss/gradients/parameters, and CUDA peak allocation/reservation when applicable. The throwaway optimizer exercises AdamW state allocation but does not reproduce the full trainer's parameter groups, EMA, loader workers or validation. Passing this probe therefore does not guarantee that complete training fits in GPU memory. Recorded step times include verification and are not inference FPS. The school GPU probe passed as job 669120; the full n/s training and validation job 669143 also completed.
-
-For the provisional study, the separate `experiment_provisional.json` was locked with `status="locked_before_training"` and `ready_for_full_training=true`, while `course_acceptance_confirmed=false`. The original disabled draft was not changed. Course questions remain unresolved; progress does not imply instructor approval. A different approved cohort requires new manifests, hashes, counts and a new configuration version; do not bypass the checks.
-
-On the school host, stage the declared images and verify all files decode. The default uses the paths in the manifests. `--image-root /actual/image/directory` is available when the same source files are mounted elsewhere. Images are symlinked, never edited; labels/cache go in the new staging directory.
-
-```bash
-python recognition/YOLO_s4905914/dataset.py \
-  --prepared data/known_lesion_v1 --config recognition/YOLO_s4905914/experiment.json \
-  --output data/runtime_v1
-
-python recognition/YOLO_s4905914/train.py fit \
-  --config recognition/YOLO_s4905914/experiment.json --prepared data/known_lesion_v1 \
-  --stage data/runtime_v1 --weights-dir weights/original_coco --model n \
-  --output outputs/n_v1 --device 0
-```
-
-Run s using the same command with `--model s --output outputs/s_v1`. Use the school's approved GPU allocation procedure; these commands do not request a scheduler allocation. They refuse to overwrite an existing run directory. Training saves `best.pt`, `last.pt`, `args.yaml`, `results.csv`, `optimizer_steps.jsonl`, `checkpoint_history.jsonl`, loss/metric plots, the environment, source/config/data hashes and runtime measurements. The pinned trainer requests twice the training batch size for its internal validation loader (32 here); standalone evaluation requests 16. CUDA peak allocation is not total device memory. Library timing is not complete mobile application latency.
-
-Validate and select the operating point:
-
-```bash
-python recognition/YOLO_s4905914/train.py evaluate \
-  --config recognition/YOLO_s4905914/experiment.json --prepared data/known_lesion_v1 \
-  --stage data/runtime_v1 --checkpoint outputs/n_v1/fit/weights/best.pt \
-  --split val --output outputs/n_v1_validation --device 0
-```
-
-Review validation, confirm the declared comparison is complete, and only then run supplementary reassessment with the generated lock. This command cannot sweep thresholds and checks the checkpoint, configuration, membership and recorded training provenance:
-
-```bash
-python recognition/YOLO_s4905914/train.py evaluate \
-  --config recognition/YOLO_s4905914/experiment.json --prepared data/known_lesion_v1 \
-  --stage data/runtime_v1 --checkpoint outputs/n_v1/fit/weights/best.pt \
-  --split reassessment --lock outputs/n_v1_validation/selection_lock.json \
-  --output outputs/n_v1_reassessment --device 0
-
 python recognition/YOLO_s4905914/predict.py \
-  --config recognition/YOLO_s4905914/experiment.json \
-  --checkpoint outputs/n_v1/fit/weights/best.pt \
-  --lock outputs/n_v1_validation/selection_lock.json \
-  --image /path/to/example.jpg --output outputs/example_prediction --device 0
+  --config recognition/YOLO_s4905914/experiment_provisional.json \
+  --checkpoint outputs/provisional_20261017_669143/train_n/fit/weights/best.pt \
+  --lock outputs/provisional_20261017_669143/val_n/selection_lock.json \
+  --image /path/to/image.jpg --output outputs/new_prediction --device 0
 ```
 
-## Checks completed locally
+To audit archived results without retraining or predicting again, use `compare_validation.py` and `analyse_reassessment.py`. `benchmark_inference.py` measures the declared resource workload; it does not select a threshold. `build_final_report.py` assembles this README from the audited records. `export_readme_pdf.py` exports the same Markdown prose, tables and figures into the plain PDF; the export provenance records source and figure hashes. Reproducing numerical results can still be sensitive to platform and library execution details despite the fixed seed.
 
-40 unit tests passed, including preprocessing, NMS, transfer integrity, the pinned scheduler, AdamW, and actual upstream checkpoint saving/stripping. A controlled four-epoch score sequence checks that a later tied best survives a worse final epoch, is saved from EMA, and retains its selected epoch in the external history after finalization. Both n and s completed a one-epoch CPU run on 8 synthetic training images, with 4 synthetic validation images and 4 synthetic reassessment images. Each run made 4 optimizer-step calls; saved/reloaded two-class checkpoints; produced a finite (1, 6, 8400) decoded output for a 640×640 input; and completed validation selection, locked reassessment and prediction overlays. The latest integration also checked warm-up, selected-epoch records, FP16 checkpoint storage and FP32 loaded parameters. The separate CPU preflight previously completed two synthetic AdamW steps per model at batch 2 / 128 pixels. These synthetic metrics are not ISIC results. `IMPLEMENTATION_VERIFICATION.json` at the restart project root records the evidence and outstanding checks. Eight installed upstream source files matched the downloaded v8.3.221 tag exactly.
+<!-- pagebreak -->
 
-All 1,098 candidate original photographs were copied unchanged from the school input directory and matched against independently computed server-side SHA-256 values. A complete local audit decoded every image, checked dimensions against the mask-box source and EXIF orientation, verified all staged labels/file hashes, and found no exact decoded-image duplicates across splits. No model was run on these real images. This establishes input integrity, not full patient independence. Evidence is recorded in `IMPLEMENTATION_VERIFICATION.json`.
+## Limitations and course status
 
-## Work still required for submission
+The most important limitation is identity information. A complete recheck of the official CSV and all 26 API pages found 2,594 matched image IDs but still 1,496 missing lesion IDs and 2,204 missing patient IDs. The 2018 Task 3 grouping IDs do not intersect this Task 1 set; checked 2019/2020 metadata did not fill the missing lesion links. This does not prove every possible external source has been exhausted. The selected cohort has recorded lesion independence and constraints on known patient links, not proven complete patient independence. Restricting data to known IDs may change the case mix; the excluded cases cannot be assumed equivalent.
 
-School readiness job 669120 completed successfully on a100-7: dependency checks, 40 tests, all 1,098 real input checks, n/s batch-16/640 FP32 CUDA probes, and full synthetic CPU pipelines passed. Earlier attempts 667499 and 667532 failed during temporary-directory selection, before model execution; the corrected selector uses scheduler `TMPDIR`. The GPU probe is not a full-training memory guarantee or evidence of lesion accuracy. The provisional real training/validation study completed as job 669143 (exit 0:0). Independent validation replay and two illustrated validation failures are complete. Supplementary reassessment and the final coursework report remain incomplete. A local software smoke test does not establish the feasibility check-off hurdle. Check-off status, the current deadline, component packaging, cohort acceptance and IoU aggregation still need confirmation. A GitHub PR, final README/PDF and the later review response are also outstanding.
+The prior image-level pilot and its test failures were inspected. Of the new validation images, 120 were in the old training set, 22 in old validation and 23 in old test. Of the new reassessment images, 122 were in old training, 22 in old validation and 21 in old test. Both new models started from original COCO weights rather than old fitted checkpoints, but this cannot remove the researcher's historical exposure. This is retrospective supplementary evaluation, not a restored blind test. It is now fully exposed and must not be reused to choose further models or thresholds while retaining an independent-evaluation claim.
 
-This repository records progressive local implementation work. It has not been pushed or submitted. The final report must describe actual results and the history of exposed data; this preparation README is not a substitute.
+Only one training seed and 41 malignant images per evaluation split were used. Diagnostic classes were taken from metadata and were not independently clinically adjudicated. There is no evidence here isolating imbalance, insufficient training, augmentation or visible artefacts as the cause of errors. There is no mobile-device test, calibrated malignancy probability, real referral/biopsy count or clinical safety demonstration. The course's intended IoU aggregation and classification performance criterion remain unresolved; the results do not demonstrate the stated malignant localization target under the reported means.
+
+YOLOv8 meets the listed version option and Normal difficulty band. The report discloses rather than resolves the pending acceptance of the known-lesion cohort and imported model components. Personal feasibility check-off and the exact submission deadline must be confirmed in the course system. This local report and code have not been submitted through a new course PR or Turnitin. The student must review the final report before submission. Subsequent teacher feedback may require changes; no retrospective approval is assumed.
 
 ## Artificial Intelligence Usage Disclosure
 
-OpenAI ChatGPT/Codex assisted with experimental planning, grouping and label-audit scripts, model/training/evaluation integration, diagnostic checks, tests, reproducibility records, documentation and concept explanations. The network, losses and training engine are provided by Ultralytics; they are not student-authored components. Checks include source inspection, actual tensor comparisons, synthetic end-to-end runs, unit tests and data/provenance audits. Passing these checks does not establish diagnostic accuracy or demonstrate that the student has reviewed every line. The student remains responsible for reviewing and correcting this draft and explaining the submitted work. No other AI tool use is inferred from this conversation.
+OpenAI ChatGPT/Codex assisted with planning, metadata and grouping checks, mask-box provenance checks, training/evaluation integration, diagnostic scripts, tests, resource measurement, figures, report drafting and concept explanations. The YOLO architecture, layers, losses, trainer and AP implementation are supplied by Ultralytics 8.3.221; they are not student-authored network components. No other AI tool usage is inferred.
 
-## Sources and attribution
+Verification included fixed-source inspection, hash checks, actual preprocessing tensor comparisons, original-weight transfer checks, 40 unit tests, synthetic end-to-end n/s runs, real-photo integrity audits, independent operating-point matching and inspection of the rendered report. AP itself was not independently implemented or recomputed. These checks do not prove every clinical label or all scientific claims correct. The student remains responsible for reading, correcting and explaining all submitted code and results; this assistance must not be represented as entirely unaided work.
 
-- [Pinned Ultralytics source, v8.3.221](https://github.com/ultralytics/ultralytics/tree/v8.3.221). The network, losses, datasets, training engine and AP implementation remain upstream AGPL-3.0 components.
-- [Pinned detection trainer](https://github.com/ultralytics/ultralytics/blob/v8.3.221/ultralytics/models/yolo/detect/train.py), [validator](https://github.com/ultralytics/ultralytics/blob/v8.3.221/ultralytics/models/yolo/detect/val.py), and [metrics](https://github.com/ultralytics/ultralytics/blob/v8.3.221/ultralytics/utils/metrics.py).
-- [Official original-weight assets](https://github.com/ultralytics/assets/releases/tag/v8.3.0). `weights_registry.json` records the downloaded SHA-256 values; these are locally recorded checksums, not publisher signatures.
-- Course assessment draft supplied by the student, pages 7 and 12–13. Local filename says v2.3; cover says Draft/Version 2.2. Latest teaching announcements take precedence.
+## References
 
-## School readiness command
-
-Use Python 3.13 for the pinned dependencies: SciPy 1.18.1 requires Python >=3.12. The existing school environment was inspected and has Python 3.11 / Torch 2.14.0 / torchvision 0.29.0, which is not the declared stack. Do not silently reuse it or install into it. A separate Python 3.13 interpreter is provisioned in the new school project; the readiness job installs the pinned ML stack into a private temporary directory selected from the actual compute-node paths, with at least 12 GiB free. The first school attempt failed before installation because `/cache` exists on the login node but not on a100-3. The corrected script checks `SLURM_TMPDIR`, the scheduler-provided `TMPDIR`, `/cache`, `/scratch`, then `/tmp`; job 669120 has now passed with this correction. That temporary environment is not portable or permanent. Recheck it before any later job, and rebuild from the recorded requirements if unavailable.
-
-From the isolated school project root, with `.python313` and the hash-verified original weights present:
-
-```bash
-sbatch recognition/YOLO_s4905914/readiness_a100.sh
-```
-
-This requests one GPU, eight CPU cores and at most 40 minutes. It first installs and checks dependencies, then runs unit tests, decodes real input files, runs the synthetic GPU resource probe and the full synthetic CPU pipeline. It does not evaluate or train a model on ISIC. A missing `COMPLETED.txt` means the preparation job did not complete successfully; inspect its logs. Internet/package availability, cache headroom, CUDA compatibility and scheduler availability must all be verified by an actual run. The original draft remains gated. A separately locked provisional study may proceed after runtime checks while course acceptance remains explicitly unconfirmed; experimental progress is not instructor approval. The current teacher questions remain relevant to the final coursework submission.
-
-## Provisional study released 17 October 2026
-
-`experiment_provisional.json` locks the existing cohort, 60-epoch n/s budget, preprocessing, optimizer and validation-selection rules unchanged. `course_acceptance_confirmed=false` explicitly separates a runnable candidate study from instructor approval. The original `experiment.json` remains an unmodified disabled draft. The missing-ID recheck is documented in `ID_RECHECK_zh.txt`.
-
-`provisional_a100.sh` provisions an isolated Python 3.13 environment using `requirements.txt` constrained by `requirements-linux-a100.lock.txt` (the successful Linux/A100 environment), rechecks inputs/resources, trains both original COCO starts, and evaluates validation only. It requests at most four GPU-hours. It does not run supplementary reassessment or change the threshold rule based on results. Job 669143 completed on a100-4 in 21 minutes 15 seconds, including setup, two 60-epoch training runs and both validation evaluations. Future coursework acceptance or new identity metadata may require revised experiments.
-
-```bash
-sbatch recognition/YOLO_s4905914/provisional_a100.sh
-```
-
-Do not rerun this completed comparison merely to improve a reported score. Outputs are under `outputs/provisional_20261017_669143/`; its `COMPLETED.txt` confirms that both training and validation commands succeeded.
-
-
-## Completed validation comparison (job 669143)
-
-Both models used the same 165 validation images (124 benign, 41 malignant), original COCO starts, 60 epochs and 2,880 optimizer-step calls. The predeclared primary remains n; s is a comparator. These validation results were used for checkpoint/threshold selection, so they are development evidence, not a fresh blind test.
-
-| Validation measure | YOLOv8n | YOLOv8s |
-| --- | ---: | ---: |
-| mAP50 | 0.5874 | 0.5975 |
-| mAP50:95 | 0.4055 | 0.3926 |
-| Benign AP50 | 0.8157 | 0.7898 |
-| Malignant AP50 | 0.3591 | 0.4052 |
-| Malignant AP50:95 | 0.2511 | 0.2416 |
-| Selected confidence | 0.50 | 0.80 |
-| Malignant TP / FP / FN | 13 / 13 / 28 | 11 / 8 / 30 |
-| Malignant precision | 50.00% | 57.89% |
-| Malignant detection recall | 31.71% | 26.83% |
-| Benign-image malignant false alerts | 11/124 (8.87%) | 7/124 (5.65%) |
-| Malignant-image alerts, no IoU condition | 15/41 | 11/41 |
-| Selected epoch | 32 | 42 |
-| Parameters | 3,011,238 | 11,136,374 |
-| Training-call elapsed time on A100 | 8.05 min | 9.55 min |
-| Peak PyTorch CUDA allocation | 4.17 GiB | 6.12 GiB |
-
-AP sweeps scores from 0.001 and is separate from the selected operating point. Each model's threshold follows the same fixed 14-point grid and at-most-12/124 benign false-alert rule. At a shared threshold of 0.50, s detects 22 malignant images but alerts on 28 benign images, exceeding the budget. At 0.70, s has 14 malignant TP and 14 benign alerts, also exceeding it. The grid was not refined after looking at these results.
-
-n has better macro mAP50:95 and recall under the declared operating rule; s has better malignant AP50 and selected-point precision. Neither dominates all measures. At their selected thresholds, 5 malignant images are TP for both, 8 only for n, 6 only for s, and 22 for neither. The net difference of two TP on 41 malignant images and one seed is not evidence of a stable population advantage. Training-call time is not inference latency; allocated CUDA memory is not total device memory.
-
-Among n's 28 malignant FN, 19 have a localized malignant prediction in the low-score cache that falls below the operating threshold, 7 have only localized benign candidates, and 2 have no candidate reaching IoU 0.5. For s, these counts are 21, 8 and 1. The cache is post-NMS and has already applied the 0.001 floor. These categories describe available outputs; they do not identify imbalance, augmentation, NMS or image artefacts as causal explanations. Two illustrated validation cases are in the PDF; complete paired results are in the local evidence directory.
-
-At the selected operating points, mean malignant IoU over all 41 GT using the best correct-class prediction (missing=0) is 0.2870 for n and 0.2118 for s. Ignoring class yields 0.7236 and 0.4362; TP-only means are 0.8571 over 13 matches and 0.7895 over 11. Those denominators are not interchangeable and do not establish compliance with the unresolved course IoU target.
-
-`compare_validation.py` independently replayed all 28 operating points with NumPy and verified GT/manifest/config/checkpoint hashes, original-weight identities, actual arguments, epoch and update histories, selected thresholds and finite logged scalars. AP is the pinned library output, not independently recomputed. All recorded n/s source hashes agree with each other; only the packaging-only `transfer.py` differs from the current local copy, outside the training/evaluation import path. The full audit is saved with the raw results and a compact tracked copy is `validation_results_669143.json`.
-
-Reproduce the read-only comparison after restoring the raw result directory:
-
-```bash
-python recognition/YOLO_s4905914/compare_validation.py \
-  --run-dir outputs/provisional_20261017_669143 \
-  --output outputs/validation_comparison_20261017 \
-  --image-root /path/to/unchanged/school_images
-```
-
-Omit `--image-root` to skip example figures. Reproducing the PDF additionally requires ReportLab and the generated figures; the PDF dependency is separate from the pinned training environment:
-
-```bash
-python recognition/YOLO_s4905914/build_validation_report.py
-```
-
-The plain four-page PDF is `output/pdf/COMP3710_Validation_Comparison.pdf`; the concise Chinese result summary is `VALIDATION_COMPARISON_zh.txt`. Raw checkpoints/results and generated figures are local ignored artifacts, not part of a plain Git clone or the old preparation transfer bundle. Validation has now been inspected; its results must not be described as an untouched evaluation. The supplementary set has not been model-evaluated, and its historical exposure still prevents a fresh-blind-test claim.
+1. ISIC. [Official challenge datasets and ground-truth downloads](https://challenge.isic-archive.com/data/). Task 1 photographs/masks are the source of the lesion images and box geometry used here.
+2. ISIC Archive. [Collection 63](https://api.isic-archive.com/collections/63/). Official image metadata and locally preserved CSV/API responses supply diagnosis and recorded identity fields. The audit and its coverage limits are documented in `ID_RECHECK_zh.txt`.
+3. Ultralytics. [Version 8.3.221 source](https://github.com/ultralytics/ultralytics/tree/v8.3.221), particularly nn/tasks.py, nn/modules, models/yolo/detect, utils/loss.py and utils/metrics.py. Upstream code is attributed under its AGPL-3.0 terms. `MODEL_COMPONENTS_zh.txt` at the project root records the component and initialization audit.
+4. Wang, C.-Y., Bochkovskiy, A., and Liao, H.-Y. M. (2022). [YOLOv7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors](https://arxiv.org/abs/2207.02696). Background reference for real-time object detection; the present runs use YOLOv8.
+5. COMP3710/COMP7710 assessment specification supplied by the student, filename `COMP3710_Report_2026_draft_v2.3.pdf`, cover marked DRAFT / Version 2.2. Project 3 and submission requirements are on pages 6-7 and 11-16. Previously checked Ed guidance is recorded in `COURSE_REQUIREMENTS_AUDIT_zh.txt`; later official course clarifications take precedence.

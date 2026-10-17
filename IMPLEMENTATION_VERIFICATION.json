@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-17T21:43:12.265732+10:00",
+  "checked_at": "2026-10-17T22:46:22.504876+10:00",
   "unit_tests_passed": 40,
   "dependency_check": "pip check passed",
   "installed_upstream_source_files_matching_v8_3_221_tag": 8,
@@ -126,7 +126,8 @@
     "outputs/checkpoint_audit_20261017/unit_tests.log",
     "outputs/checkpoint_audit_20261017/synthetic_integration.log",
     "outputs/readiness_audit_20261017/unit_tests.log",
-    "outputs/validation_comparison_20261017/comparison.json"
+    "outputs/validation_comparison_20261017/comparison.json",
+    "recognition/YOLO_s4905914/reassessment_results_669815.json"
   ],
   "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected. Transfer tooling and its three tests were subsequently added; model training/evaluation behavior was unchanged and the full synthetic training was not repeated for this packaging-only change. Subsequent optimizer logging checks the pinned schedule and fixed budget; a new complete synthetic pipeline run exercised warmup for n/s. Training hyperparameters are unchanged; documentation about the final LR and meaning of step counts was corrected. Checkpoint provenance was then added without changing the optimizer or selection rule; 40 tests and a fresh n/s synthetic run verified selected-epoch history, EMA saves, FP16 storage and FP32 reload. Training-time validation scores are rounded to five decimal places upstream. A separate read-only initialization audit verified exact source-tensor transfer and unchanged fresh initialization for unmatched entries for both models. It records classification-branch differences without changing training behavior or drawing performance conclusions. Real candidate photographs were copied unchanged and independently matched against school-side SHA-256 values. All 1098 were decoded, dimension/EXIF checked and staged with label/hash verification. The audit ran from a checksum-verified cache copy because iCloud placeholders delayed local reads; that interruption was not a dataset failure. A separate school Python 3.13.16 and a bounded synthetic-readiness job were prepared without changing old environments or enabling formal training. A complete current CSV and 26-page public API audit reconfirmed missing IDs, with no added matches from 2020. School readiness 669120 passed 40 tests, real-input audit, batch16/640 FP32 A100 n/s probes, and the synthetic CPU pipelines. A later train.py edit only clarifies the gate docstring/error text; gate logic and training behavior are unchanged. A separate fixed candidate configuration was released without asserting instructor acceptance; its launcher is limited to training and validation.",
   "nonfunctional_cleanup_after_checks": "Removed trailing blank lines from the two new checkpoint Python files; no behavior changed.",
@@ -750,7 +751,7 @@
     "actual_model_training_started": true,
     "release_commit": "3cd0386",
     "completed_comparison": true,
-    "reassessment_model_evaluation_started": false,
+    "reassessment_model_evaluation_started": true,
     "remote_output": "/home/Student/s4905914/comp3710-restart-20261017/outputs/provisional_20261017_669143",
     "observed_n_completed_epochs": 60,
     "observed_n_optimizer_step_calls": 2880,
@@ -769,7 +770,82 @@
     "checkpoints": {
       "n": "fcb51c9524a66df34318065f7c24a797f3fd59418c97dc0e3b6addf5a67ac59c",
       "s": "c0a93dab2e63d02b9c12e860ed9cc575de0ff74190527e464057a789f3c86c54"
-    }
+    },
+    "reassessment_completed_in_separate_job": 669815
   },
-  "new_ISIC_performance_results_scope": "Preliminary training-time validation only; candidate n/s comparison is not complete."
+  "new_ISIC_performance_results_scope": "Preliminary training-time validation only; candidate n/s comparison is not complete.",
+  "supplementary_evaluation": {
+    "job_id": 669815,
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed_seconds": 215,
+    "node": "a100-3",
+    "split_counts": {
+      "Benign": 124,
+      "Malignant": 41
+    },
+    "fixed_thresholds": {
+      "n": 0.5,
+      "s": 0.8
+    },
+    "fresh_blind_test": false,
+    "independent_matching_audit": "passed",
+    "source": "recognition/YOLO_s4905914/reassessment_results_669815.json",
+    "resource_benchmark": {
+      "split": "val",
+      "warmup": 10,
+      "repeats": 3,
+      "timed_calls_per_model": 495,
+      "no_metric_selection": true
+    },
+    "failure_example_ids": [
+      "ISIC_0012989",
+      "ISIC_0013114",
+      "ISIC_0014072",
+      "ISIC_0013000",
+      "ISIC_0013198"
+    ],
+    "report": "output/pdf/COMP3710_Project3_Report.pdf",
+    "report_pages": 11,
+    "course_acceptance_confirmed": false
+  },
+  "delivery_verification": {
+    "checked_at": "2026-10-17T22:46:22.504876+10:00",
+    "status": "passed",
+    "configuration_checkpoint_selection_lock_hashes_unchanged": true,
+    "assessment_raw_file_hashes_match_independent_audit": true,
+    "analysis_and_benchmark_sources_match_recorded_hashes": true,
+    "models": [
+      "n",
+      "s"
+    ],
+    "fixed_thresholds": {
+      "n": 0.5,
+      "s": 0.8
+    },
+    "benchmark_observations_each": 495,
+    "unique_failure_cases": 5,
+    "report_pdf_pages": 11,
+    "report_pdf_sha256": "5df8762751eac74df4a6a1c5958b2871f9457e0030d1bc5899595f5f9a726da0",
+    "readme_sha256": "771d108a7e6d5ba94c1b69f02f35e9e78af55441e9926d4699adc92cb6f22918",
+    "report_figure_hashes_match": 8,
+    "report_expected_metrics_and_case_ids_found": true,
+    "rendered_pages_visually_reviewed": 11,
+    "packaging_tests_passed": 3,
+    "new_or_changed_python_syntax_checks": 5,
+    "bash_syntax_check": "passed",
+    "model_performance_pass_claim": false,
+    "fresh_blind_test": false,
+    "evidence": "outputs/reassessment_20261017_669815/final_verification.json",
+    "scope": "Final report, frozen experimental files and packaging checks; no new training or threshold selection."
+  },
+  "source_sha256_note": "Historical implementation audit snapshot. New report/benchmark/analysis and transfer edits are recorded separately under delivery_source_sha256; this does not replace run-time source hashes.",
+  "delivery_source_sha256": {
+    "recognition/YOLO_s4905914/analyse_reassessment.py": "d209b42309591c1828827d10d93fb9ca9e8d4a98d488f5f43b6afe56fadd5d83",
+    "recognition/YOLO_s4905914/benchmark_inference.py": "6d6d72fa4fe54677890229bc6ae8e97a73e3e9ba00bec046c1e3062ca028c8a3",
+    "recognition/YOLO_s4905914/build_final_report.py": "77daaaf865f8f71cf155767eb7b167e790564f04ee6efb9dd69137656826b41f",
+    "recognition/YOLO_s4905914/export_readme_pdf.py": "1a49cdeb66b2b31ed06dea565b557bc8dfaf92e446c76e5a417df35a9feb0411",
+    "recognition/YOLO_s4905914/reassessment_a100.sh": "ffc253722f6fb07758ef7bb4c700d55077c7ff8c93ff643d3e25e36cf47d8ab4",
+    "recognition/YOLO_s4905914/transfer.py": "00e77583cddfcbae49fff8852102c709f71d69b82d53c318505233352615dac9"
+  }
 }

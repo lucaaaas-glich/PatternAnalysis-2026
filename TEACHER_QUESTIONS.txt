@@ -1,6 +1,12 @@
 Teacher questions — remaining drafts; status updated 17 October 2026
 Prepared 17 October 2026 (Australia/Brisbane)
 
+Latest project status: fresh n/s training, validation, locked supplementary evaluation
+and the complete experimental README/PDF are now finished. No new teacher answer
+is assumed. The proposal wording below is retained as a draft/history, not a message
+sent after completion. Cohort/component/metric acceptance and personal check-off
+remain unresolved.
+
 Status: the student reports posting a follow-up to Ed #162 about the missing
 1,496 lesion IDs, the completed image-level pilot and whether to regroup a known-ID
 subset. Ed #176 was also refreshed and read on 17 October; no instructor answer was displayed. The alternative draft

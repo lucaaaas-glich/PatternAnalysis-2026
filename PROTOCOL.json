@@ -1,6 +1,6 @@
 {
   "version": "restart-20261017-v1",
-  "status": "provisional_training_validation_completed",
+  "status": "provisional_study_completed_course_acceptance_pending",
   "task": "one lesion bounding box plus Benign/Malignant classification",
   "proposal": "known-lesion supplementary study, subject to course acceptance of restricted cohort",
   "cohort": {
@@ -95,6 +95,15 @@
       "n": 0.5,
       "s": 0.8
     },
-    "reassessment_model_evaluated": false
+    "reassessment_model_evaluated": true
+  },
+  "supplementary_evaluation": {
+    "job_id": 669815,
+    "completed": true,
+    "plan": "recognition/YOLO_s4905914/reassessment_plan.json",
+    "results": "recognition/YOLO_s4905914/reassessment_results_669815.json",
+    "fresh_blind_test": false,
+    "thresholds_changed": false,
+    "model_policy_changed": false
   }
 }

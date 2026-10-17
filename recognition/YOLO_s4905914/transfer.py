@@ -1,7 +1,7 @@
 """Build and verify a local project transfer bundle; never upload or train.
 
-The archive contains code, configuration, labels and provenance, not photographs,
-masks or weights. SHA-256 checks detect changed bytes, not scientific validity
+The archive contains code, configuration, labels, provenance and report figures,
+not the source photograph/mask collection or model weights. SHA-256 checks detect changed bytes, not scientific validity
 or authenticity against an attacker who also replaces the manifest.
 """
 import argparse
@@ -51,6 +51,7 @@ def collect_files(root):
               if p.is_file() and not p.name.startswith('.')
               and p.suffix in ('.py', '.json', '.txt', '.md', '.sh')]
     paths += [p.relative_to(root) for p in sorted((root / CODE / 'assets').glob('*.svg'))]
+    paths += [p.relative_to(root) for p in sorted((root / CODE / 'assets').glob('*.png'))]
     snapshots = Path('data/source_snapshots')
     sources = json.loads((root / 'sources.json').read_text())
     for source in sources.values():
@@ -76,7 +77,8 @@ def build_bundle(root, output):
         raise ValueError('Choose an unused .zip output and checksum path')
     payload = {name: regular_file(root, name).read_bytes() for name in collect_files(root)}
     manifest = {'format_version': 1, 'purpose': 'project_transfer_not_final_submission',
-                'contains_images_masks_or_weights': False,
+                'contains_source_dataset_images_masks_or_weights': False,
+                'contains_report_figures': True,
                 'starts_training_or_uploads': False,
                 'files': {name: {'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data)}
                           for name, data in payload.items()}}

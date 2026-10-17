@@ -1,92 +1,77 @@
-COMP3710 新项目转移说明
+COMP3710 新项目本地复现包说明
 
-这是正式训练前的工作包，不是最终提交包。当前配置仍为草案，完整真实
-训练保持关闭。打包、解压和验证本身都不会连接服务器或启动训练。
+当前 n/s 训练、validation、锁定补充评估、五个失败案例、资源统计和完整
+报告已完成。此包用于本地转移和复核，不是向课程公开仓库提交的数据包。
+打包、解压和核验不会连接服务器或启动训练。课程接受与个人 check-off
+仍未确认，GitHub / Turnitin 尚未提交。
 
 包含的内容
 
-代码、实验配置、依赖版本、1,098 张图片对应的标签、三个分组清单、
-官方元数据快照、已验证的框坐标、旧集合成员记录以及项目说明。
-旧集合成员记录仅保存曝光历史，不是复用旧训练结果。
+代码、依赖版本、原禁用草案 experiment.json、实际锁定配置
+experiment_provisional.json、评估计划、汇总结果、README / RUNBOOK、
+报告插图、1,098 张图片对应的标签、三个分组清单、官方元数据快照、
+框坐标和旧集合成员记录。旧集合记录用于披露曝光历史，不是旧权重。
 
-照片、mask 和模型权重另行提供。服务器已有原始照片时，通过路径引用
-使用；COCO 初始权重由 fetch_weights.py 获取并校验。原始 mask 到框的
-转换依据此前已核实的 annotations.csv；此包能从该表重建标签，并不
-包含从原始 mask 重新转换所需的全部原材料。完整本机测试日志留在本机
-outputs/，摘要在 IMPLEMENTATION_VERIFICATION.json。
+不包含完整照片/mask 数据集、COCO 或训练后权重，也不包含完整原始日志。
+少量报告失败案例图包含照片内容，并明确与原始数据集区分。原始照片与
+模型权重需按 README 的说明另行恢复。完整原始运行结果及权重仍保留在
+本机 outputs/ 与学校独立新项目目录。PDF 单独位于：
+output/pdf/COMP3710_Project3_Report.pdf。
 
-为什么不只用 Git
+annotations.csv 是此前核验过的 mask-to-box 结果；本包可从该表重建
+标签，不包含从原始 mask 重新转换所需的全部原材料。data/ 与 sources.json
+不进入 Git，因此只克隆 Git 不能得到全部运行输入。不要把此复现包上传
+至公开课程仓库。
 
-data/ 和 sources.json 按项目规则不提交到 Git。因此只克隆仓库会缺少
-运行所需的清单与来源。这份包用明确的文件列表补齐它们，不递归收集
-整个工作目录。它不是供公开仓库上传的数据包。
-
-打包命令（在新项目根目录执行；输出必须尚不存在）
+构建命令（项目根目录；输出必须尚不存在）
 
 python recognition/YOLO_s4905914/transfer.py build \
-  --output outputs/transfer/comp3710_restart_preparation.zip
+  --output outputs/transfer_final_20261017/comp3710_project3_reproducibility.zip
 
-同时产生 .zip.sha256 文件。同一工具环境下，相同文件内容生成相同压缩包；修改代码、
-配置或清单后，应生成一个新包，不覆盖旧版本。
+同时生成 .zip.sha256。同一工具环境、相同内容生成相同 ZIP 字节；改动后
+使用新路径，不覆盖历史包。包内每个文件都有大小与 SHA-256，不能据此
+证明标签科学正确，也不构成发布者数字签名。
 
-转移后的顺序
+转移与复核
 
-1. 在目标机器校验整个压缩包。Linux 可在压缩包所在目录运行：
+1. 在压缩包目录校验整个包：
+   sha256sum -c comp3710_project3_reproducibility.zip.sha256
+   macOS 使用 shasum -a 256 -c。
 
-   sha256sum -c comp3710_restart_preparation.zip.sha256
-
-   macOS 的对应命令是 shasum -a 256 -c。校验值用于识别传输损坏或
-   内容变化；它不能证明标签正确，也不是发布者的数字签名。
-
-2. 解压到一个新的项目目录。进入解压后的根目录，使用 Python 标准库
-   即可核查包内列出的每个文件，无需先安装 PyTorch：
-
+2. 解压到新目录，在根目录使用 Python 标准库核查：
    python recognition/YOLO_s4905914/transfer.py verify --directory .
+   压缩包核验拒绝未列入清单的条目；解压目录核验仅检查清单内文件，
+   允许之后产生 outputs/。改动已有文件会使原清单核验失败，应记录新版本。
 
-   压缩包检查会拒绝未列入清单的文件；解压目录检查只检查清单内文件，
-   允许之后产生独立的 outputs/。修改了代码或配置会导致原清单检查失败，
-   此时应记录为新版本，而不是忽略差异。
-
-3. 检查配置和数据清单。该命令只做计划，不读取服务器照片或训练：
-
+3. 阅读 README、READINESS_STATUS_zh.txt 和评估汇总。只做计划的命令：
    python recognition/YOLO_s4905914/train.py plan \
-     --config recognition/YOLO_s4905914/experiment.json \
+     --config recognition/YOLO_s4905914/experiment_provisional.json \
      --prepared data/known_lesion_v1
+   应为 train=768、val=165、reassessment=165。原 experiment.json 的
+   训练开关仍关闭；实际候选配置已锁定，不能把它误当成教师批准。
 
-   应为 train=768、val=165、reassessment=165；ready_for_full_training=false。
-   路径变化不应改变分组。来源记录里的旧绝对路径属于历史记录；实际
-   prepare_dataset.py 的来源通过 sources.json 内的相对路径读取。
-
-4. 若要从来源重放标签，使用新的输出目录：
-
+4. 可从来源重放标签到新目录：
    python recognition/YOLO_s4905914/prepare_dataset.py \
      --sources sources.json --protocol PROTOCOL.json \
      --output outputs/replayed_labels
-
-   三个 CSV 和 1,098 个标签应逐字节一致。summary.json 会记录当前机器
-   的绝对路径，不能要求其路径字符串也与原机器完全一致。
-
-   若要进一步重建分组本身，而不只复用已保存的成员清单：
-
+   三个 CSV 与 1,098 个标签应逐字节一致。summary.json 中机器路径可不同。
+   重放分组：
    python recognition/YOLO_s4905914/plan_group_splits.py \
      --metadata data/source_snapshots/collection_63_metadata.csv \
      --historical-splits data/source_snapshots/historical_splits \
      --output outputs/replayed_groups --seed 3710
-
-   其中 known_lesion/manifest.csv 应与
+   生成的 known_lesion/manifest.csv 应与
    data/source_snapshots/known_lesion_manifest.csv 逐字节一致。
 
-5. 在学校允许的独立 Python 环境安装 requirements.txt，执行 pip check
-   和单元测试。当前只实际验证了本机 Python 3.13 / macOS 环境；学校
-   Linux/CUDA 的依赖安装仍需检查。不要为了跳过错误而静默更换版本。
+5. 本机 macOS 和学校 Linux/A100 已实际通过环境与流程检查。新机器仍应
+   使用独立 Python 3.13 环境和固定依赖，执行 pip check 与测试；不要
+   静默换版本。requirements-report.txt 对应独立文档导出环境。
 
-6. 按 README 获取原始 COCO 权重，再用学校批准的 GPU 分配流程运行
-   preflight.py。检查默认 batch=16、imgsz=640、FP32；明确记录设备。
-   人工 preflight 不等于完整训练，也不验证真实图片解码。
+6. 优先复核已有结果，完整原始结果另行恢复后可运行 compare_validation.py
+   和 analyse_reassessment.py，它们不重新训练或预测。权重与选择锁需
+   成对恢复并校验。学校启动脚本记录历史项目路径，新机器不能假定存在。
+   如明确需要复现训练，按 RUNBOOK 中直接命令使用实际候选配置，在新
+   输出目录和已获分配的 GPU 上执行；保留原始结果和完整曝光历史。
 
-7. 本轮已完整核查 1,098 张真实原图；以后正式运行前仍需通过 dataset.py
-   再查输入并创建新的运行目录。老师确认课程方案后再锁定配置。源照片挂载位置不同可用 --image-root，
-   不需要为改图片路径而重新分组。完整命令见代码目录的 README.md。
-
-训练、阈值选择与补充评估的规则不因转移而改变。旧 test 暴露历史、
-缺少患者 ID 的限制和待老师确认事项仍然保留。
+已暴露的补充集不能再次用于选模型或调阈值后仍称独立评估。缺失患者 ID、
+受限子集、组件组织与课程性能规则的待确认事项不因打包而解决。

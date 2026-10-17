@@ -16,7 +16,7 @@
 <text x="920" y="173">REASSESSMENT: 165 images</text><text x="920" y="197">Evaluate after settings are locked</text><text x="920" y="219">No threshold or model reselection</text>
 <text x="550" y="303">Each image has one annotated lesion. Detection matching requires the right class and sufficient IoU.</text>
 <text x="550" y="335">Full patient independence is not proven. This is supplementary evaluation, not a new blind test.</text>
-<text x="550" y="367">Protocol draft: instructor clarification and runtime checks precede formal ISIC training.</text>
+<text x="550" y="367">Provisional restricted-cohort study: instructor acceptance remains unconfirmed.</text>
 </g>
 <g fill="none" stroke="#222" stroke-width="1.5" marker-end="url(#arrow)">
 <path d="M290 55 H338"/><path d="M670 55 H718"/><path d="M900 90 V115 H175 V143"/>
