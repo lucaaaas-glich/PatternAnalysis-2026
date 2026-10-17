@@ -888,5 +888,66 @@
     "complete_lesion_independence_proven": false,
     "evidence": "studies/expanded_training_20261017/ns_results.json",
     "final_verification": "outputs/expanded_ns_comparison_20261018/final_verification.json"
+  },
+  "report_update_20261018": {
+    "checked_at": "2026-10-18T00:40:11.144707+10:00",
+    "status": "passed",
+    "pdf_pages": 14,
+    "visually_inspected_pages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "new_exploration_pages": [
+      6,
+      7,
+      8
+    ],
+    "engineering_recommendation_page": 12,
+    "source_sha256": "8fe6546bf21d1bb347cb26c60bf553ffb0ff10e51f57c4296997c37e4e688ccc",
+    "pdf_sha256": "09373c48a48efde46165abda746d3b5776053d23dabccc8c8399639714b0fdda",
+    "original_report_archive": "outputs/report_update_20261018",
+    "original_quantitative_tables_preserved": 6,
+    "full_expanded_grid_rows_verified": 14,
+    "evidence_copies_match_sources": true,
+    "frozen_inputs_and_selection_locks_unchanged": true,
+    "text_within_page_margins": true,
+    "running_headers_footers_page_numbers": false,
+    "new_training_or_inference": false,
+    "primary_experiment_replaced": false,
+    "fresh_blind_test": false,
+    "course_acceptance_confirmed": false,
+    "primary_choice": {
+      "cohort": "known-lesion main study",
+      "model": "n",
+      "confidence": 0.5
+    },
+    "exploratory_candidate": {
+      "cohort": "expanded training",
+      "model": "s",
+      "confidence": 0.5,
+      "selection_after_comparison_disclosed": true
+    },
+    "report_source_hashes": {
+      "build_final_report.py": "0db8dfa0171a8160ce47ace3018764e112cb0f1e564d9d8d7d4babf9f9f8b9a1",
+      "report_expanded.py": "8ba5b8bdd4b9f183d244f98f5c43dd92596dc7a3097201976a916831ec3bb155",
+      "export_readme_pdf.py": "1a49cdeb66b2b31ed06dea565b557bc8dfaf92e446c76e5a417df35a9feb0411",
+      "coursework_model_decision.json": "d1ac66eb7fc76df97050e6332a39ed14595594539febdd72b62fc8f468cd23b5",
+      "transfer.py": "ee7b2e6aa4995cf4b63e4b409228893e356767b1e6de752ca14e437116ea7f74"
+    },
+    "evidence": "outputs/report_update_20261018/final_verification.json",
+    "packaging_tests_passed": 3,
+    "updated_package_evidence": "outputs/report_update_20261018/package_verification.json"
   }
 }

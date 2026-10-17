@@ -51,7 +51,7 @@ P1：不依赖训练结果的交付
 6. README：需算法解释/图、feasibility、依赖与复现、输入输出、预处理与
    划分理由、同划分 baseline 对照、资源表、3-5 个失败案例和工程建议。
    完整 README 已包含以上内容、锁定补充评估、五个真实失败案例、
-   A100 训练与推理资源统计，并已导出为 11 页黑白 PDF：
+   A100 训练与推理资源统计，并已导出为 14 页黑白 PDF（18 October加入扩充探索）：
    output/pdf/COMP3710_Project3_Report.pdf。已逐页检查排版。旧四页
    validation 对照 PDF 保留为中间记录；新完整报告尚未提交 Turnitin。
 7. AI disclosure：已按要求加入完整标题 Artificial Intelligence Usage Disclosure，
@@ -92,7 +92,7 @@ IoU 分母和分类效果标准；个人 check-off 登记及准确截止时间�
 已完成：mask-to-box 标签与数据核对；已知 ID 分组候选；五个核心文件；
 40 项测试及人工流程；n/s 实际 60 轮训练；同划分 validation；阈值锁与
 独立匹配复核；锁定补充评估；五个失败案例；训练/推理资源记录；完整
-README 与 11 页 PDF；AI disclosure；渐进本地 commit。
+README 与 14 页 PDF；AI disclosure；渐进本地 commit。
 
 仍有边界：一页 feasibility review 已写入报告，但不代表个人 check-off
 已登记；分组（已知联系隔离，
@@ -109,3 +109,7 @@ README 与 11 页 PDF；AI disclosure；渐进本地 commit。
 YOLOv7 或更新属于 Normal：实现部分最高 15/20，其余部分评分上限不变。
 写好文件、通过单元测试或增加模型参数都不会自动取得这些分数。
 模型组件、效果目标和课程接受问题按最新教师解释处理。
+
+2026-10-18报告更新：扩充n/s对照和模型建议已加入第6-8、12页，
+没有新增课程公告或老师回复核查。上述课程接受与个人登记问题仍待核实；
+报告扩展不等于要求已被豁免或性能目标已达到。

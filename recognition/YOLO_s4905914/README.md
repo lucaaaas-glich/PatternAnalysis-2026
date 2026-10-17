@@ -1,8 +1,8 @@
 # Lesion detection and classification with YOLOv8
 
-COMP3710 Assignment 3, Project 3 | s4905914 | 17 October 2026
+COMP3710 Assignment 3, Project 3 | s4905914 | Updated 18 October 2026
 
-This report compares YOLOv8n, the predeclared primary/baseline, with YOLOv8s on a restricted ISIC2018 Task 1 cohort. The engineering question is how malignant detection changes as benign-image false alerts are limited. The completed experiment includes data auditing, two fresh 60-epoch training runs, validation-only checkpoint/threshold selection, one locked supplementary reassessment per model, resource measurements and five actual failure examples.
+The main experiment compares YOLOv8n, the predeclared primary, with YOLOv8s on an ISIC2018 Task 1 cohort with known lesion IDs. It includes fresh 60-epoch training, validation selection, locked supplementary reassessment, resource measurements and five failure examples. A later exploration adds training images with missing IDs and compares n/s on the same validation images. Its results are reported separately.
 
 On supplementary reassessment, n has mAP50:95 0.3619 and detects 10/41 malignant lesions at confidence 0.50; s has mAP50:95 0.3527 and detects 6/41 at 0.80. n generates malignant alerts on 16/124 benign images, exceeding the 10% budget that was satisfied on validation. Neither model demonstrates adequate malignant screening sensitivity. n remains the primary by the original protocol, and neither its threshold nor the model policy was changed after reassessment.
 
@@ -12,7 +12,7 @@ Course acceptance of the restricted cohort and third-party component packaging r
 
 The source consists of 2,594 school-provided dermoscopic photographs. Bounding boxes are the smallest axis-aligned rectangles around the corresponding official binary masks, resized to photo dimensions with nearest-neighbour interpolation. The verified coordinates are reused in this restart. Class labels come from official metadata matched by image ID, not from the masks. The school source photos and masks were not altered. The official dataset and metadata sources are listed in References [1,2].
 
-The full metadata contains 2,074 Benign, 519 Malignant and one Indeterminate image. Only 1,098 have a recorded lesion_id. All and only those images enter this study; the other 1,496 are excluded from every phase. The Indeterminate image is outside the selected cohort, not relabelled as benign. The two outputs are Benign=0 and Malignant=1. Each image has one annotated lesion, so this experiment does not establish performance on genuinely multi-lesion scenes.
+The full metadata contains 2,074 Benign, 519 Malignant and one Indeterminate image. Only 1,098 have a recorded lesion_id; these form the main study, excluding the other 1,496 from all its phases. The later exploration adds 1,495 binary-labelled missing-ID images to training only. Indeterminate is excluded, not relabelled. The outputs are Benign=0 and Malignant=1. Each image has one annotated lesion; multi-lesion performance is not established.
 
 | Split | Benign / Malignant | Images |
 | --- | --- | --- |
@@ -102,7 +102,7 @@ Classification loss on validation uses a logarithmic axis to show early spikes a
 
 <!-- pagebreak -->
 
-## Quantitative results
+## Main-study quantitative results
 
 Validation and supplementary reassessment each contain 124 benign and 41 malignant images, but they are different image sets. Reassessment used the already selected best checkpoints and thresholds once per model. No reassessment threshold sweep, checkpoint search or model replacement was performed.
 
@@ -147,7 +147,100 @@ All-GT means use the best retained box under the stated class condition, with mi
 
 <!-- pagebreak -->
 
-## Resource measurements and scope
+## Exploratory expansion: design and results
+
+After the main study was completed, the training set was expanded to investigate the effect of using more of the available data. The original 768 training images were retained and all 1,495 eligible binary-labelled images with missing lesion IDs were added. The sole Indeterminate image remained excluded. Validation and reassessment membership and labels were unchanged; only validation was scored in the new runs. These results do not replace the main study.
+
+The added images also lack patient IDs. Recorded links are still checked, and no exact decoded-image duplicates cross the splits. Unrecorded lesion or patient links may nevertheless connect training and evaluation images. Missing IDs were not fabricated, and deduplication is not proof of independence.
+
+| Design feature | Main study | Expanded exploration |
+| --- | --- | --- |
+| Training images (Benign / Malignant) | 768 (576 / 192) | 2,263 (1,826 / 437) |
+| Validation images (Benign / Malignant) | 165 (124 / 41) | Same images and labels |
+| Epochs / optimizer calls, each model | 60 / 2,880 | 60 / 8,520 |
+| Missing-lesion training images | 0 | 1,495 |
+
+Expanded n and s both started from their respective original COCO weights. They used the same 60 epochs, seed 3710, FP32, 640-pixel input, batch and nominal batch 16, AdamW, learning-rate schedule and flips-only augmentation. Each completed 8,520 optimizer calls; all original image file hashes and per-call learning rates match between these two runs. Best EMA selection still maximizes validation macro mAP50:95.
+
+Relative to restricted n, expanded n raises malignant AP50 from 0.3591 to 0.5311 on the same validation images. At confidence 0.05 its malignant TP increases from 25 to 33, but benign false-alert images also increase from 38 to 55. Training-set size, class balance and optimizer-call budget changed together, so this is not an isolated causal effect of sample count.
+
+| Expanded-model validation AP | YOLOv8n | YOLOv8s |
+| --- | --- | --- |
+| Macro mAP50 | 0.6353 | 0.6437 |
+| Macro mAP50:95 | 0.4370 | 0.4540 |
+| Benign AP50 | 0.7396 | 0.8041 |
+| Benign AP50:95 | 0.5302 | 0.5805 |
+| Malignant AP50 | 0.5311 | 0.4833 |
+| Malignant AP50:95 | 0.3437 | 0.3276 |
+
+s improves the macro average while its malignant AP50 and AP50:95 are lower. Macro improvement therefore does not establish improvement in the malignant class.
+
+Training-call time was 13.06 / 17.82 minutes for n/s, with peak allocated CUDA memory 4.17 / 9.60 GiB and selected EMA epochs 29 / 41. The models have 3,011,238 / 11,136,374 parameters. Jobs 669929 and 670000 ran on separate A100 nodes; these times are descriptive, not a controlled speed comparison.
+
+<!-- pagebreak -->
+
+## Expanded n/s: common operating thresholds
+
+Before training s, the comparison specified common confidence thresholds 0.05 and 0.50 as the primary points, plus 0.70 as an additional reference because expanded n had already selected it. Strict joint improvement required more malignant TP and fewer benign-image false alerts. The 14-point grid was retained without refinement. Both models use the same class-aware NMS at 0.7 and correct-class IoU >= 0.5 matching. Confidence is not a calibrated cancer probability.
+
+| Confidence and measure | YOLOv8n | YOLOv8s |
+| --- | --- | --- |
+| 0.05: Malignant TP / FP / FN | 33 / 85 / 8 | 20 / 31 / 21 |
+| 0.05: Malignant recall / precision | 80.49% / 27.97% | 48.78% / 39.22% |
+| 0.05: Benign images with malignant alert | 55/124 (44.35%) | 26/124 (20.97%) |
+| 0.50: Malignant TP / FP / FN | 24 / 31 / 17 | 16 / 13 / 25 |
+| 0.50: Malignant recall / precision | 58.54% / 43.64% | 39.02% / 55.17% |
+| 0.50: Benign images with malignant alert | 28/124 (22.58%) | 10/124 (8.06%) |
+| 0.70: Malignant TP / FP / FN | 12 / 5 / 29 | 13 / 4 / 28 |
+| 0.70: Malignant recall / precision | 29.27% / 70.59% | 31.71% / 76.47% |
+| 0.70: Benign images with malignant alert | 5/124 (4.03%) | 3/124 (2.42%) |
+
+At both primary thresholds, s reduces benign false alerts but also reduces malignant recall. At 0.70 it detects one more malignant image and falsely alerts on two fewer benign images. This is the only grid point meeting the strict joint-improvement rule. Pairing the images shows 11 malignant detections in common, one detected only by n, two only by s, and 27 missed by both. The five n false alerts and three s false alerts occur on different benign images. This small net difference is not uniform improvement across cases or evidence of stable superiority.
+
+Malignant FP counts are prediction-box counts, whereas benign false alerts count images. They have different denominators. For example, n has 85 malignant FP boxes at 0.05 but 55 benign images with malignant alerts. An alert itself does not require adequate localization.
+
+### Same false-alert budget, separately selected thresholds
+
+| Measure | Expanded n | Expanded s |
+| --- | --- | --- |
+| Existing validation-selected confidence | 0.70 | 0.50 |
+| Malignant detections / recall | 12/41 (29.27%) | 16/41 (39.02%) |
+| Benign images with malignant alert | 5/124 (4.03%) | 10/124 (8.06%) |
+
+Both selected points satisfy the original validation budget of at most 12 benign false-alert images. s has greater recall within this constraint, but also more false alerts. This supports s at 0.50 as an exploratory development candidate; it is a different-threshold comparison, not simultaneous improvement at a common threshold. The report keeps the original known-lesion n at 0.50 as its primary experiment.
+
+<!-- pagebreak -->
+
+## Expanded n/s: complete threshold grid
+
+All 14 declared points are shown, including those unfavorable to s. Malignant TP has denominator 41; benign false-alert images have denominator 124. These are validation results, not new test results.
+
+| Confidence | n M TP | s M TP | n B alerts | s B alerts |
+| --- | --- | --- | --- | --- |
+| 0.01 | 35 | 24 | 62 | 32 |
+| 0.02 | 34 | 23 | 58 | 30 |
+| 0.05 | 33 | 20 | 55 | 26 |
+| 0.10 | 30 | 20 | 54 | 26 |
+| 0.15 | 30 | 20 | 53 | 24 |
+| 0.20 | 30 | 20 | 52 | 24 |
+| 0.30 | 28 | 20 | 46 | 23 |
+| 0.40 | 27 | 17 | 42 | 19 |
+| 0.50 | 24 | 16 | 28 | 10 |
+| 0.60 | 20 | 14 | 15 | 6 |
+| 0.70 | 12 | 13 | 5 | 3 |
+| 0.80 | 4 | 6 | 0 | 1 |
+| 0.90 | 0 | 1 | 0 | 0 |
+| 0.95 | 0 | 0 | 0 | 0 |
+
+![Expanded n/s validation trade-off](assets/expanded_threshold_tradeoff.png)
+
+Markers are evaluated points; connecting lines do not validate intermediate thresholds. All 28 operating points were independently replayed from saved predictions. AP uses the pinned Ultralytics implementation and was not independently recomputed.
+
+Only one seed and 41 malignant validation images were used. Validation has been reused during development and missing identity links may inflate results. The architecture and initialization-transfer differences remain. No expanded model was evaluated on supplementary reassessment, and no original checkpoint or threshold lock was changed.
+
+<!-- pagebreak -->
+
+## Main-study resource measurements and scope
 
 Training ran on an A100 host in job 669143. Locked reassessment and a separately declared resource test ran on NVIDIA A100-PCIE-40GB in job 669815. The latter used validation images only, without labels for selection, with FP32, 640-pixel input and serial batch-one calls. Ten warm-up calls preceded three passes over all 165 validation paths, giving 495 timed calls per model. CUDA synchronization bracketed each wall-time measurement.
 
@@ -176,7 +269,7 @@ All training/evaluation source files needed by reassessment matched the complete
 
 <!-- pagebreak -->
 
-## Five supplementary failure cases
+## Five main-study supplementary failure cases
 
 Cases are selected by the lowest image ID satisfying each stated failure category, without reusing an image. They illustrate mechanisms in the saved output and are not a random sample. Dashed outlines show GT; solid outlines show every prediction retained at the model's locked threshold. B and M mean predicted Benign and Malignant. The photos retain their original aspect ratios. Visible artefacts are not treated as causal explanations without a controlled experiment.
 
@@ -226,9 +319,11 @@ The GT is malignant and neither model retains a prediction at its operating poin
 
 ## Engineering recommendation
 
-Retain n as the predeclared primary for the coursework prototype and s as its comparator. The results do not justify automatic benign clearance or automated biopsy decisions. A demonstration can highlight malignant predictions for human review, but an absent alert or a benign label must not be presented as ruling out malignancy. The dataset cannot estimate actual biopsy workload or validate a clinical multi-tier policy.
+Retain the known-lesion main-study n checkpoint at confidence 0.50 for the coursework prototype, with its original s comparator at 0.80. This preserves the declared experiment and its completed reassessment; it is not a claim that n has the best score across all later runs. Both recorded lesion and patient links are isolated in the main cohort, although complete patient independence and course acceptance remain unconfirmed.
 
-The main observed limitation is malignant detection under the declared false-alert constraint. Validation showed that relaxing thresholds increases detections and benign alerts together; reassessment showed that even the validation false-alert budget did not reliably transfer. A larger n-to-s model did not resolve this problem. Do not retune the selected threshold on these reassessment cases.
+Within the expanded-data exploration, s at 0.50 is the development candidate under the same 10% validation false-alert budget: it detects 16/41 malignant images with 10/124 benign alerts, compared with expanded n at 0.70 detecting 12/41 with 5/124 alerts. This recommendation follows inspection of the exploratory results; it was not the original primary-model declaration. Unknown identity links and repeated validation use prevent promoting it as an independently validated replacement. The exact checkpoints, configurations and existing locks are recorded in `coursework_model_decision.json`.
+
+The main limitation remains malignant detection under the false-alert constraint. Expanded s reduces false alerts but loses recall at the primary shared thresholds; its small advantage at 0.70 is insufficient to establish stable superiority. Stop additional performance-driven tuning for this revision and finish the report review, course clarifications, check-off and submission preparation. Do not retune on reassessment cases. A benign output or absent alert cannot rule out malignancy.
 
 For a future, separately declared study, prioritize trustworthy grouping/diagnostic provenance and a new evaluation plan. On development data, compare one factor at a time: a fixed augmentation schedule with a longer update budget; then class-balanced sampling with measured actual sampling frequencies. A localization-plus-classification design could be investigated because well-located wrong-class boxes exist, but its value is unproven and it must retain a qualifying YOLO detector or obtain course approval. A controlled artefact-removal or crop experiment is needed before attributing errors to hair, rulers or lesion size. None of these future experiments is claimed as completed here.
 
@@ -236,7 +331,7 @@ For a future, separately declared study, prioritize trustworthy grouping/diagnos
 
 ## Reproducibility and use
 
-The completed training/validation run is `outputs/provisional_20261017_669143`; the locked supplementary/resource run is `outputs/reassessment_20261017_669815`. Raw outputs and weights are intentionally excluded from Git. Small aggregate JSON files and report figures are included. The previous preparation README is preserved as `RUNBOOK.md` for detailed historical checks and commands; this README is the report prose source for the submitted PDF.
+The main training/validation run is `outputs/provisional_20261017_669143`; the locked supplementary/resource run is `outputs/reassessment_20261017_669815`. Expanded n/s runs are `outputs/expanded_training_20261017_669929` and `outputs/expanded_s_20261018_670000`. Raw outputs and weights are excluded from Git. Aggregate JSON files and figures are included; `expanded_evidence_provenance.json` records the copied exploration evidence. This README is the prose source for the PDF prepared for submission; `RUNBOOK.md` preserves historical commands.
 
 ### Environment and inputs
 
@@ -270,13 +365,13 @@ python recognition/YOLO_s4905914/predict.py \
   --image /path/to/image.jpg --output outputs/new_prediction --device 0
 ```
 
-To audit archived results without retraining or predicting again, use `compare_validation.py` and `analyse_reassessment.py`. `benchmark_inference.py` measures the declared resource workload; it does not select a threshold. `build_final_report.py` assembles this README from the audited records. `export_readme_pdf.py` exports the same Markdown prose, tables and figures into the plain PDF; the export provenance records source and figure hashes. Reproducing numerical results can still be sensitive to platform and library execution details despite the fixed seed.
+To audit archived main-study results without inference, use `compare_validation.py` and `analyse_reassessment.py`. Expanded-study sources, fixed configurations and commands are under `studies/expanded_training_20261017/` at the project root; `compare_ns.py` replays all 28 saved operating points. `build_final_report.py` and `report_expanded.py` assemble this README from the copied evidence; `export_readme_pdf.py` exports its prose, tables and figures with source hashes. Platform execution can affect numerical reproducibility despite the fixed seed.
 
 <!-- pagebreak -->
 
 ## Limitations and course status
 
-The most important limitation is identity information. A complete recheck of the official CSV and all 26 API pages found 2,594 matched image IDs but still 1,496 missing lesion IDs and 2,204 missing patient IDs. The 2018 Task 3 grouping IDs do not intersect this Task 1 set; checked 2019/2020 metadata did not fill the missing lesion links. This does not prove every possible external source has been exhausted. The selected cohort has recorded lesion independence and constraints on known patient links, not proven complete patient independence. Restricting data to known IDs may change the case mix; the excluded cases cannot be assumed equivalent.
+The most important limitation is identity information. Rechecking the official CSV and all 26 API pages found 2,594 matched images but still 1,496 missing lesion IDs and 2,204 missing patient IDs. Task 3 grouping IDs do not intersect this Task 1 set; checked 2019/2020 metadata filled no missing lesion links. Other sources may exist. The main cohort isolates recorded lesion/patient links but cannot prove full patient independence. Restriction may change the case mix. Adding unknown-ID images in the exploration also removes any complete lesion-independence assurance; exact-image deduplication cannot restore it.
 
 The prior image-level pilot and its test failures were inspected. Of the new validation images, 120 were in the old training set, 22 in old validation and 23 in old test. Of the new reassessment images, 122 were in old training, 22 in old validation and 21 in old test. Both new models started from original COCO weights rather than old fitted checkpoints, but this cannot remove the researcher's historical exposure. This is retrospective supplementary evaluation, not a restored blind test. It is now fully exposed and must not be reused to choose further models or thresholds while retaining an independent-evaluation claim.
 

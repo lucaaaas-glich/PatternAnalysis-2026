@@ -92,3 +92,14 @@ Read-only course audit: COURSE_REQUIREMENTS_AUDIT_zh.txt. Ed #137 allows the
 listed preprocessing/metrics packages and reaffirms YOLO pretraining, but does
 not explicitly resolve this project's Ultralytics component packaging. Do not
 repeat the now-resolved general check-off-format or folder-name questions.
+
+18 October reporting update (not sent)
+
+The report now keeps the known-lesion n/0.50 main study and adds expanded-data
+n/s validation comparisons as exploratory evidence. The latter adds 1,495
+missing-ID images to training only and cannot establish complete lesion or
+patient independence. Expanded s/0.50 is a development candidate, not a
+replacement blinded result. The existing grouping question remains relevant;
+do not send a duplicate automatically. No new teacher reply was checked in
+this report-editing session. Confirm cohort acceptance, component packaging,
+metric rules and the student's own check-off/deadline before final submission.

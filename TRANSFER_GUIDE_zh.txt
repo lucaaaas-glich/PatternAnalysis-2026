@@ -26,7 +26,7 @@ annotations.csv 是此前核验过的 mask-to-box 结果；本包可从该表重
 构建命令（项目根目录；输出必须尚不存在）
 
 python recognition/YOLO_s4905914/transfer.py build \
-  --output outputs/transfer_final_20261017/comp3710_project3_reproducibility.zip
+  --output outputs/transfer_report_20261018_v2/comp3710_project3_reproducibility.zip
 
 同时生成 .zip.sha256。同一工具环境、相同内容生成相同 ZIP 字节；改动后
 使用新路径，不覆盖历史包。包内每个文件都有大小与 SHA-256，不能据此
@@ -75,3 +75,13 @@ python recognition/YOLO_s4905914/transfer.py build \
 
 已暴露的补充集不能再次用于选模型或调阈值后仍称独立评估。缺失患者 ID、
 受限子集、组件组织与课程性能规则的待确认事项不因打包而解决。
+
+2026-10-18更新范围
+
+本次包包含扩充实验的汇总JSON、对照计划、图、模型选择记录，以及可重建
+14页报告的源码。原始主实验768/165/165的复现输入保持原样。扩充训练的
+studies/expanded_training_20261017/运行源码、扩充训练标签和完整预测缓存
+未纳入这个主实验转移包；它们保存在本机项目和学校结果目录。不能把本包
+称为扩充训练的完整复现输入。不要依据expanded_evidence_provenance.json
+中的源路径假设额外目录已被打包。重建报告仅依赖已复制到代码目录的证据。
+当前模型及剩余事项见START_HERE_zh.txt和coursework_model_decision.json。

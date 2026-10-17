@@ -7,11 +7,12 @@ studies/expanded_training_20261017/NOTES_zh.txt。原有完整报告的实验范
 扩充版 s 已完成（学校作业 670000），同条件 n/s 对照见
 studies/expanded_training_20261017/NS_RESULTS_zh.txt：主要阈值0.05/0.50下
 s减少误警报但降低召回；附加0.70点只多检出1张恶性、少误报2张良性。
-全部结果和边界均保留，原主报告尚未加入这些追加探索。
+全部结果和边界现已加入主报告的独立探索章节。模型选择与收尾顺序见
+SUBMISSION_DECISION_zh.txt：主实验为已知病灶子集n、0.50；扩充候选为s、0.50。
 
 当前阶段：新 n/s 各 60 轮训练、validation、固定模型/阈值的补充评估、
 资源测试、五个失败案例与完整实验报告均完成。主报告为
-recognition/YOLO_s4905914/README.md；11 页 PDF 为
+recognition/YOLO_s4905914/README.md；14 页 PDF 为
 output/pdf/COMP3710_Project3_Report.pdf。详细结果见 READINESS_STATUS_zh.txt。
 课程接受、个人 check-off 与截止时间仍未确认；GitHub/Turnitin 未提交。
 这是新实验的工作目录，不是已完成的提交包。按用户确认范围，本机旧
