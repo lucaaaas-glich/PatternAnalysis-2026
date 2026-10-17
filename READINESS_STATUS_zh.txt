@@ -53,3 +53,13 @@ recognition/YOLO_s4905914/reassessment_results_669815.json：补充结果与审�
 outputs/reassessment_20261017_669815/：原始预测、评估、逐次计时。
 recognition/YOLO_s4905914/RUNBOOK.md：此前准备与验证阶段的历史运行说明。
 TEACHER_QUESTIONS.txt：待老师/课程系统确认问题，助手未代发。
+
+追加探索（2026-10-17，用户请求扩充训练数据）
+
+学校作业 669929 完成：n 从原始 COCO 训练 60 轮，训练集扩大至 2,263 张，
+原 validation 和 reassessment 成员不变。本轮只评估 validation。
+恶性 AP50 为 0.5311（原 0.3591）；固定 0.05 下 TP=33/41、良性误警报
+55/124。按原网格与10%预算选择0.70后 TP=12/41，因此不能只报告召回提升。
+输入审计与28个工作点复算通过。未知病例关联仍可能存在，且更新预算、
+类别构成同时改变，属于探索结果，不覆盖原锁定主实验。
+详情：studies/expanded_training_20261017/RESULTS_zh.txt 和 NOTES_zh.txt。

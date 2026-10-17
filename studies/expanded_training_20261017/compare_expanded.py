@@ -52,6 +52,15 @@ def audit(run, config_path, prepared, source_code, counts):
     trace = run/'train_n/fit/optimizer_steps.jsonl'
     assert sha(trace) == train['optimizer_trace_sha256']
     assert len(trace.read_text().splitlines()) == expected_steps
+    history_path=run/'train_n/fit/checkpoint_history.jsonl'
+    assert sha(history_path)==train['checkpoint_history_sha256']
+    history=[json.loads(line) for line in history_path.read_text().splitlines()]
+    assert len(history)==60
+    selected_epoch=max(history,key=lambda row:(row['validation_mAP50_95'],row['epoch']))
+    assert selected_epoch['epoch']==train['checkpoint_selection']['best_epoch']
+    curves=list(csv.DictReader((run/'train_n/fit/results.csv').open()))
+    assert len(curves)==60
+    assert all(math.isfinite(float(value)) for row in curves for value in row.values())
     for split in ('train', 'val', 'reassessment'):
         assert sha(prepared/f'{split}.csv') == cfg['manifest_sha256'][split]
     truth = {r['image_id']: r for r in csv.DictReader((prepared/'val.csv').open())}

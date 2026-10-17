@@ -847,5 +847,21 @@
     "recognition/YOLO_s4905914/export_readme_pdf.py": "1a49cdeb66b2b31ed06dea565b557bc8dfaf92e446c76e5a417df35a9feb0411",
     "recognition/YOLO_s4905914/reassessment_a100.sh": "ffc253722f6fb07758ef7bb4c700d55077c7ff8c93ff643d3e25e36cf47d8ab4",
     "recognition/YOLO_s4905914/transfer.py": "00e77583cddfcbae49fff8852102c709f71d69b82d53c318505233352615dac9"
+  },
+  "expanded_training_exploration": {
+    "status": "completed",
+    "job_id": 669929,
+    "prepared_inputs": 2593,
+    "training_images": 2263,
+    "validation_unchanged": true,
+    "epochs": 60,
+    "optimizer_calls": 8520,
+    "independent_working_points_verified": 28,
+    "new_reassessment_inference": false,
+    "original_experiment_replaced": false,
+    "patient_independence_proven": false,
+    "complete_lesion_independence_proven": false,
+    "evidence": "studies/expanded_training_20261017/results.json",
+    "final_verification": "outputs/expanded_training_20261017_669929/final_verification.json"
   }
 }
