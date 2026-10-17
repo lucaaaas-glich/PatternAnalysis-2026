@@ -1,0 +1,15 @@
+{
+  "job_id": 669929,
+  "state": "submitted",
+  "submitted_at": "2026-10-17T23:26:09.988638+10:00",
+  "models": [
+    "n"
+  ],
+  "remote_output": "/home/Student/s4905914/comp3710-restart-20261017/outputs/expanded_training_20261017_669929",
+  "training_images": 2263,
+  "validation_images": 165,
+  "epochs": 60,
+  "reassessment_inference": false,
+  "original_experiment_replaced": false,
+  "course_acceptance_confirmed": false
+}
