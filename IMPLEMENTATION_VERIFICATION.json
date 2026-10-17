@@ -863,5 +863,30 @@
     "complete_lesion_independence_proven": false,
     "evidence": "studies/expanded_training_20261017/results.json",
     "final_verification": "outputs/expanded_training_20261017_669929/final_verification.json"
+  },
+  "expanded_n_s_exploration": {
+    "checked_at": "2026-10-18T00:26:19.579410+10:00",
+    "status": "completed",
+    "jobs": {
+      "n": 669929,
+      "s": 670000
+    },
+    "training_images_each": 2263,
+    "validation_images_each": 165,
+    "epochs_each": 60,
+    "optimizer_calls_each": 8520,
+    "same_data_hyperparameters_and_step_learning_rates": true,
+    "independent_working_points_verified": 28,
+    "AP_independently_reimplemented": false,
+    "primary_joint_improvement_thresholds": [],
+    "all_grid_joint_improvement_thresholds": [
+      0.7
+    ],
+    "new_reassessment_inference": false,
+    "original_experiment_replaced": false,
+    "patient_independence_proven": false,
+    "complete_lesion_independence_proven": false,
+    "evidence": "studies/expanded_training_20261017/ns_results.json",
+    "final_verification": "outputs/expanded_ns_comparison_20261018/final_verification.json"
   }
 }
