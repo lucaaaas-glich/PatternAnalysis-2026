@@ -1,6 +1,6 @@
 {
   "job_id": 669929,
-  "state": "submitted",
+  "state": "training",
   "submitted_at": "2026-10-17T23:26:09.988638+10:00",
   "models": [
     "n"
@@ -11,5 +11,9 @@
   "epochs": 60,
   "reassessment_inference": false,
   "original_experiment_replaced": false,
-  "course_acceptance_confirmed": false
+  "course_acceptance_confirmed": false,
+  "observed_completed_epochs": 10,
+  "school_input_audit_passed": true,
+  "audited_images": 2593,
+  "cross_split_exact_decoded_duplicates": 0
 }
