@@ -203,12 +203,11 @@ python recognition/YOLO_s4905914/predict.py \
 
 40 unit tests passed, including preprocessing, NMS, transfer integrity, the pinned scheduler, AdamW, and actual upstream checkpoint saving/stripping. A controlled four-epoch score sequence checks that a later tied best survives a worse final epoch, is saved from EMA, and retains its selected epoch in the external history after finalization. Both n and s completed a one-epoch CPU run on 8 synthetic training images, with 4 synthetic validation images and 4 synthetic reassessment images. Each run made 4 optimizer-step calls; saved/reloaded two-class checkpoints; produced a finite (1, 6, 8400) decoded output for a 640×640 input; and completed validation selection, locked reassessment and prediction overlays. The latest integration also checked warm-up, selected-epoch records, FP16 checkpoint storage and FP32 loaded parameters. The separate CPU preflight previously completed two synthetic AdamW steps per model at batch 2 / 128 pixels. These synthetic metrics are not ISIC results. `IMPLEMENTATION_VERIFICATION.json` at the restart project root records the evidence and outstanding checks. Eight installed upstream source files matched the downloaded v8.3.221 tag exactly.
 
-## Work still required for submission
-
-
 All 1,098 candidate original photographs were copied unchanged from the school input directory and matched against independently computed server-side SHA-256 values. A complete local audit decoded every image, checked dimensions against the mask-box source and EXIF orientation, verified all staged labels/file hashes, and found no exact decoded-image duplicates across splits. No model was run on these real images. This establishes input integrity, not full patient independence. Evidence is recorded in `IMPLEMENTATION_VERIFICATION.json`.
 
-School readiness job 667499 stopped before model execution because a100-3 lacks `/cache`. The directory check was corrected and job 667532 is queued; no GPU success is claimed. The new cohort's GPU preflight, real training, validation comparison, locked reassessment, failure-case analysis and final report are not complete. A local software smoke test does not establish the feasibility check-off hurdle. Check-off status, the current deadline, component packaging, cohort acceptance and IoU aggregation still need confirmation. A GitHub PR, final README/PDF and the later review response are also outstanding.
+## Work still required for submission
+
+School readiness job 669120 completed successfully on a100-7: dependency checks, 40 tests, all 1,098 real input checks, n/s batch-16/640 FP32 CUDA probes, and full synthetic CPU pipelines passed. Earlier attempts 667499 and 667532 failed during temporary-directory selection, before model execution; the corrected selector uses scheduler `TMPDIR`. The GPU probe is not a full-training memory guarantee or evidence of lesion accuracy. The provisional real training/validation study is running as job 669143, with the n training pipeline started; locked reassessment, failure-case analysis and the final report remain incomplete. A local software smoke test does not establish the feasibility check-off hurdle. Check-off status, the current deadline, component packaging, cohort acceptance and IoU aggregation still need confirmation. A GitHub PR, final README/PDF and the later review response are also outstanding.
 
 This repository records progressive local implementation work. It has not been pushed or submitted. The final report must describe actual results and the history of exposed data; this preparation README is not a substitute.
 
@@ -225,7 +224,7 @@ OpenAI ChatGPT/Codex assisted with experimental planning, grouping and label-aud
 
 ## School readiness command
 
-Use Python 3.13 for the pinned dependencies: SciPy 1.18.1 requires Python >=3.12. The existing school environment was inspected and has Python 3.11 / Torch 2.14.0 / torchvision 0.29.0, which is not the declared stack. Do not silently reuse it or install into it. A separate Python 3.13 interpreter is provisioned in the new school project; the readiness job installs the pinned ML stack into a private temporary directory selected from the actual compute-node paths, with at least 12 GiB free. The first school attempt failed before installation because `/cache` exists on the login node but not on a100-3. The corrected script checks `SLURM_TMPDIR`, the scheduler-provided `TMPDIR`, `/cache`, `/scratch`, then `/tmp`; a successful rerun is still required. That temporary environment is not portable or permanent. Recheck it before any later job, and rebuild from the recorded requirements if unavailable.
+Use Python 3.13 for the pinned dependencies: SciPy 1.18.1 requires Python >=3.12. The existing school environment was inspected and has Python 3.11 / Torch 2.14.0 / torchvision 0.29.0, which is not the declared stack. Do not silently reuse it or install into it. A separate Python 3.13 interpreter is provisioned in the new school project; the readiness job installs the pinned ML stack into a private temporary directory selected from the actual compute-node paths, with at least 12 GiB free. The first school attempt failed before installation because `/cache` exists on the login node but not on a100-3. The corrected script checks `SLURM_TMPDIR`, the scheduler-provided `TMPDIR`, `/cache`, `/scratch`, then `/tmp`; job 669120 has now passed with this correction. That temporary environment is not portable or permanent. Recheck it before any later job, and rebuild from the recorded requirements if unavailable.
 
 From the isolated school project root, with `.python313` and the hash-verified original weights present:
 
@@ -234,3 +233,15 @@ sbatch recognition/YOLO_s4905914/readiness_a100.sh
 ```
 
 This requests one GPU, eight CPU cores and at most 40 minutes. It first installs and checks dependencies, then runs unit tests, decodes real input files, runs the synthetic GPU resource probe and the full synthetic CPU pipeline. It does not evaluate or train a model on ISIC. A missing `COMPLETED.txt` means the preparation job did not complete successfully; inspect its logs. Internet/package availability, cache headroom, CUDA compatibility and scheduler availability must all be verified by an actual run. The original draft remains gated. A separately locked provisional study may proceed after runtime checks while course acceptance remains explicitly unconfirmed; experimental progress is not instructor approval. The current teacher questions remain relevant to the final coursework submission.
+
+## Provisional study released 17 October 2026
+
+`experiment_provisional.json` locks the existing cohort, 60-epoch n/s budget, preprocessing, optimizer and validation-selection rules unchanged. `course_acceptance_confirmed=false` explicitly separates a runnable candidate study from instructor approval. The original `experiment.json` remains an unmodified disabled draft. The missing-ID recheck is documented in `ID_RECHECK_zh.txt`.
+
+`provisional_a100.sh` provisions an isolated Python 3.13 environment using `requirements.txt` constrained by `requirements-linux-a100.lock.txt` (the successful Linux/A100 environment), rechecks inputs/resources, trains both original COCO starts, and evaluates validation only. It requests at most four GPU-hours. It does not run supplementary reassessment or change the threshold rule based on results. Job 669143 has passed its new-environment/input checks and entered the n training pipeline; inspect its actual output before claiming training completion. Future coursework acceptance or new identity metadata may require revised experiments.
+
+```bash
+sbatch recognition/YOLO_s4905914/provisional_a100.sh
+```
+
+Do not submit a duplicate while the recorded job is active. Outputs are under `outputs/provisional_20261017_<jobid>/`; `COMPLETED.txt` is written only after both training and validation commands succeed.

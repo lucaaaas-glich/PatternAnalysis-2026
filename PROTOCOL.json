@@ -1,6 +1,6 @@
 {
   "version": "restart-20261017-v1",
-  "status": "data_preparation_only_not_trained",
+  "status": "provisional_training_in_progress",
   "task": "one lesion bounding box plus Benign/Malignant classification",
   "proposal": "known-lesion supplementary study, subject to course acceptance of restricted cohort",
   "cohort": {
@@ -54,7 +54,7 @@
     "initialisation": "separate original COCO pretrained weights for both"
   },
   "training_protocol": {
-    "status": "to be locked before training",
+    "status": "candidate configuration locked before training; instructor acceptance unconfirmed",
     "same_cohort_and_seed": true,
     "same_update_budget_and_augmentation_policy": true,
     "explicit_optimizer_and_learning_rate_schedule": true,
@@ -83,5 +83,7 @@
     "IoU target denominator",
     "feasibility check-off record and current deadline"
   ],
-  "no_automatic_clinical_clearance": true
+  "no_automatic_clinical_clearance": true,
+  "active_candidate_config": "recognition/YOLO_s4905914/experiment_provisional.json",
+  "active_candidate_job_id": 669143
 }

@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-17T04:58:09.576286+10:00",
+  "checked_at": "2026-10-17T17:40:55.303788+10:00",
   "unit_tests_passed": 40,
   "dependency_check": "pip check passed",
   "installed_upstream_source_files_matching_v8_3_221_tag": 8,
@@ -88,12 +88,12 @@
     }
   },
   "synthetic_evidence_path": "outputs/synthetic_integration_07_checkpoints",
-  "new_ISIC_training_started": false,
-  "new_ISIC_performance_results": false,
-  "school_GPU_preflight_completed": false,
+  "new_ISIC_training_started": true,
+  "new_ISIC_performance_results": true,
+  "school_GPU_preflight_completed": true,
   "course_acceptance_confirmed": false,
   "experiment_config_sha256": "7890293787b98902cadcf62878abd9e8f8c7396598f132e9437b590fe1650a5d",
-  "full_training_gate": "draft; disabled",
+  "full_training_gate": "Original draft disabled; separate provisional configuration locked with instructor acceptance unconfirmed.",
   "validation_score_policy": "confidence > threshold; single-label class-aware NMS",
   "source_sha256": {
     "recognition/YOLO_s4905914/audit_initialization.py": "844c2f5224295e74d999054f574727246c5323d49cbfe6071ad49bfd12be1b60",
@@ -119,7 +119,7 @@
     "recognition/YOLO_s4905914/test_runtime_pipeline.py": "2ece3cd6be211c4c5cd3363f2feae9c85317ea967addad8e5f45323af4be2a4b",
     "recognition/YOLO_s4905914/test_schedule.py": "ac1ffee2c3bc27a4df541f59a480e5e6b99333026fb4850b9cfda45ba4b5b78d",
     "recognition/YOLO_s4905914/test_transfer.py": "fc5b3aecf1e633bdd65d831005f7509a41af987545dbb3d8eb940e9b79e8dfdd",
-    "recognition/YOLO_s4905914/train.py": "df12460b615371dc0fd758e9286650f8d1dd7143c83687dac3dc5c8079fcad76",
+    "recognition/YOLO_s4905914/train.py": "4f835b8465674828e5f49cd2fe454ae10db4cf91a786fbff477ef3c21f3e35ed",
     "recognition/YOLO_s4905914/transfer.py": "9801d8b2a69b80f578c4e54dfcd7a65efa985de1aa4370c906515a6c281b94d8"
   },
   "verification_log_paths": [
@@ -127,7 +127,7 @@
     "outputs/checkpoint_audit_20261017/synthetic_integration.log",
     "outputs/readiness_audit_20261017/unit_tests.log"
   ],
-  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected. Transfer tooling and its three tests were subsequently added; model training/evaluation behavior was unchanged and the full synthetic training was not repeated for this packaging-only change. Subsequent optimizer logging checks the pinned schedule and fixed budget; a new complete synthetic pipeline run exercised warmup for n/s. Training hyperparameters are unchanged; documentation about the final LR and meaning of step counts was corrected. Checkpoint provenance was then added without changing the optimizer or selection rule; 40 tests and a fresh n/s synthetic run verified selected-epoch history, EMA saves, FP16 storage and FP32 reload. Training-time validation scores are rounded to five decimal places upstream. A separate read-only initialization audit verified exact source-tensor transfer and unchanged fresh initialization for unmatched entries for both models. It records classification-branch differences without changing training behavior or drawing performance conclusions. Real candidate photographs were copied unchanged and independently matched against school-side SHA-256 values. All 1098 were decoded, dimension/EXIF checked and staged with label/hash verification. The audit ran from a checksum-verified cache copy because iCloud placeholders delayed local reads; that interruption was not a dataset failure. A separate school Python 3.13.16 and a bounded synthetic-readiness job were prepared without changing old environments or enabling formal training.",
+  "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected. Transfer tooling and its three tests were subsequently added; model training/evaluation behavior was unchanged and the full synthetic training was not repeated for this packaging-only change. Subsequent optimizer logging checks the pinned schedule and fixed budget; a new complete synthetic pipeline run exercised warmup for n/s. Training hyperparameters are unchanged; documentation about the final LR and meaning of step counts was corrected. Checkpoint provenance was then added without changing the optimizer or selection rule; 40 tests and a fresh n/s synthetic run verified selected-epoch history, EMA saves, FP16 storage and FP32 reload. Training-time validation scores are rounded to five decimal places upstream. A separate read-only initialization audit verified exact source-tensor transfer and unchanged fresh initialization for unmatched entries for both models. It records classification-branch differences without changing training behavior or drawing performance conclusions. Real candidate photographs were copied unchanged and independently matched against school-side SHA-256 values. All 1098 were decoded, dimension/EXIF checked and staged with label/hash verification. The audit ran from a checksum-verified cache copy because iCloud placeholders delayed local reads; that interruption was not a dataset failure. A separate school Python 3.13.16 and a bounded synthetic-readiness job were prepared without changing old environments or enabling formal training. A complete current CSV and 26-page public API audit reconfirmed missing IDs, with no added matches from 2020. School readiness 669120 passed 40 tests, real-input audit, batch16/640 FP32 A100 n/s probes, and the synthetic CPU pipelines. A later train.py edit only clarifies the gate docstring/error text; gate logic and training behavior are unchanged. A separate fixed candidate configuration was released without asserting instructor acceptance; its launcher is limited to training and validation.",
   "nonfunctional_cleanup_after_checks": "Removed trailing blank lines from the two new checkpoint Python files; no behavior changed.",
   "synthetic_CPU_preflight": {
     "status": "completed",
@@ -479,22 +479,281 @@
     "scope": "Includes updated transfer file selection; real-input helper additionally checked by integration on all 1098 candidate images."
   },
   "school_readiness": {
-    "job_id": 667532,
-    "status": "pending_retry",
-    "reason": "QOSMaxJobsPerUserLimit",
-    "formal_training": false,
-    "new_project": "/home/Student/s4905914/comp3710-restart-20261017",
-    "isolated_base_python": "3.13.16",
-    "unrelated_jobs_modified": false,
-    "previous_attempt": {
-      "job_id": 667499,
-      "state": "FAILED",
-      "exit_code": "1:0",
-      "elapsed_seconds": 1,
-      "cause": "Compute node a100-3 has no /cache directory; failed before environment installation or model execution.",
-      "log": "outputs/readiness_audit_20261017/school_readiness_667499.err"
+    "job_id": 669120,
+    "status": "completed",
+    "slurm_exit_code": "0:0",
+    "elapsed_seconds": 371,
+    "node": "a100-7",
+    "runtime": {
+      "python": "3.13.16",
+      "platform": "Linux-4.18.0-553.148.1.el8_10.x86_64-x86_64-with-glibc2.28",
+      "ultralytics": "8.3.221",
+      "torch": "2.8.0",
+      "torchvision": "0.23.0"
     },
-    "fix": "Select an existing writable temporary directory with at least 12 GiB free; do not assume login-node paths exist on compute nodes. Shell syntax checked; compute-node run pending.",
-    "readiness_script_sha256": "9160f8b2fc66291abe572af970faf4aaa539498645041af10b82cca7abd3a71f"
-  }
+    "unit_tests_passed": 40,
+    "pip_check_passed": true,
+    "evidence_directory": "outputs/id_recheck_20261017/school_readiness_669120",
+    "gpu_preflight": {
+      "status": "completed",
+      "purpose": "synthetic_runtime_preflight",
+      "device": "cuda:0",
+      "runtime": {
+        "python": "3.13.16",
+        "platform": "Linux-4.18.0-553.148.1.el8_10.x86_64-x86_64-with-glibc2.28",
+        "ultralytics": "8.3.221",
+        "torch": "2.8.0",
+        "torchvision": "0.23.0"
+      },
+      "torch_cuda_build": "12.8",
+      "config_sha256": "7890293787b98902cadcf62878abd9e8f8c7396598f132e9437b590fe1650a5d",
+      "ISIC_images_used": 0,
+      "checkpoint_saved": false,
+      "clinical_performance_evidence": false,
+      "same_batch_and_resolution_as_experiment": true,
+      "full_trainer_memory_guaranteed": false,
+      "timing_scope": "Synthetic forward, loss, backward, AdamW update and verification; excludes data IO; not inference FPS",
+      "models": {
+        "n": {
+          "model": "n",
+          "nc": 2,
+          "parameters": 3011238,
+          "input_shape": [
+            16,
+            3,
+            640,
+            640
+          ],
+          "dtype": "float32",
+          "finite_forward_backward_and_update": true,
+          "optimizer_steps": 2,
+          "steps": [
+            {
+              "step": 1,
+              "loss_components": [
+                3.606224298477173,
+                5.926691055297852,
+                3.7910022735595703
+              ],
+              "seconds_including_verification": 0.7277300376445055
+            },
+            {
+              "step": 2,
+              "loss_components": [
+                2.309727907180786,
+                4.575500011444092,
+                2.78955340385437
+              ],
+              "seconds_including_verification": 0.10557777713984251
+            }
+          ],
+          "peak_cuda_allocated_bytes": 3321607680,
+          "peak_cuda_reserved_bytes": 3927965696,
+          "initial_weight_sha256": "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36"
+        },
+        "s": {
+          "model": "s",
+          "nc": 2,
+          "parameters": 11136374,
+          "input_shape": [
+            16,
+            3,
+            640,
+            640
+          ],
+          "dtype": "float32",
+          "finite_forward_backward_and_update": true,
+          "optimizer_steps": 2,
+          "steps": [
+            {
+              "step": 1,
+              "loss_components": [
+                3.733083963394165,
+                25.566165924072266,
+                4.07692813873291
+              ],
+              "seconds_including_verification": 0.19331824593245983
+            },
+            {
+              "step": 2,
+              "loss_components": [
+                2.013901472091675,
+                56.05520248413086,
+                2.3942861557006836
+              ],
+              "seconds_including_verification": 0.10944232996553183
+            }
+          ],
+          "peak_cuda_allocated_bytes": 6208839168,
+          "peak_cuda_reserved_bytes": 7870611456,
+          "initial_weight_sha256": "1f47a78bf100391c2a140b7ac73a1caae18c32779be7d310658112f7ac9aa78a"
+        }
+      },
+      "gpu": {
+        "name": "NVIDIA A100-PCIE-40GB",
+        "total_bytes": 42405855232,
+        "free_bytes_before_probe": 41962504192
+      }
+    },
+    "real_input_audit": {
+      "status": "passed",
+      "model_executed": false,
+      "images_modified": 0,
+      "patient_independence_proven": false,
+      "fresh_blind_test": false,
+      "config_sha256": "7890293787b98902cadcf62878abd9e8f8c7396598f132e9437b590fe1650a5d",
+      "manifest_sha256": {
+        "train": "8528722216b67d62078fe32632cb64128149053cc41ece6daec7399369126fca",
+        "val": "a4f6b6e9d8c7bbb476353f6789ec9e4d9170018564d04c70b855a2b10a125ff3",
+        "reassessment": "5264555d5de0ee5cbaa5b69e090d0b6e24c907b4efd50acc69cc32afd35a8df6"
+      },
+      "box_source_sha256": "19a56ef18ac91f1d07d2db8130fc2563ac51cff13fca2a0c25b9b2750e7ce482",
+      "runtime": {
+        "python": "3.13.16",
+        "host": "a100-7",
+        "Pillow": "11.3.0",
+        "PyYAML": "6.0.3"
+      },
+      "image_root_override": null,
+      "counts": {
+        "train": 768,
+        "val": 165,
+        "reassessment": 165
+      },
+      "decoded_images": 1098,
+      "all_dimensions_match_box_source": true,
+      "exif_orientation_valid": true,
+      "cross_split_exact_decoded_duplicates": 0,
+      "same_split_exact_duplicate_groups": 0,
+      "staged_audit_sha256": "4b2339fb4ee026b06bff1a882cbf002e06303815b6fb4ccf664bb13bd365c8d7",
+      "staging_directory": "/home/Student/s4905914/comp3710-restart-20261017/outputs/school_readiness_669120/real_inputs/staged"
+    },
+    "synthetic_cpu_pipeline": {
+      "purpose": "synthetic_smoke",
+      "ISIC_images_used": 0,
+      "clinical_or_lesion_performance_evidence": false,
+      "models": {
+        "n": {
+          "saved_and_reloaded": true,
+          "forward_640_shape": [
+            1,
+            6,
+            8400
+          ],
+          "optimizer_steps": 4,
+          "warmup_epochs": 3.0,
+          "zero_lr_optimizer_step_calls": 1,
+          "first_step_lrs": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "last_step_lrs": [
+            3.0000000000000004e-05,
+            3.0000000000000004e-05,
+            3.0000000000000004e-05
+          ],
+          "checkpoint_selection": {
+            "best_epoch": 1,
+            "completed_epochs": 1,
+            "selection_validation_mAP50_95": 0.02479,
+            "last_epoch_validation_mAP50_95": 0.02479,
+            "weight_source": "EMA",
+            "tie_rule": "later epoch wins exact ties",
+            "score_scope": "Training-time validation of in-memory EMA before FP16 serialization",
+            "finalized_file_epoch_is_not_selection_epoch": true
+          },
+          "stored_parameter_dtype": "float16",
+          "loaded_parameter_dtype": "float32",
+          "validation_selection_and_locked_reassessment_ran": true,
+          "prediction_overlay_created": true
+        },
+        "s": {
+          "saved_and_reloaded": true,
+          "forward_640_shape": [
+            1,
+            6,
+            8400
+          ],
+          "optimizer_steps": 4,
+          "warmup_epochs": 3.0,
+          "zero_lr_optimizer_step_calls": 1,
+          "first_step_lrs": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "last_step_lrs": [
+            3.0000000000000004e-05,
+            3.0000000000000004e-05,
+            3.0000000000000004e-05
+          ],
+          "checkpoint_selection": {
+            "best_epoch": 1,
+            "completed_epochs": 1,
+            "selection_validation_mAP50_95": 0.27404,
+            "last_epoch_validation_mAP50_95": 0.27404,
+            "weight_source": "EMA",
+            "tie_rule": "later epoch wins exact ties",
+            "score_scope": "Training-time validation of in-memory EMA before FP16 serialization",
+            "finalized_file_epoch_is_not_selection_epoch": true
+          },
+          "stored_parameter_dtype": "float16",
+          "loaded_parameter_dtype": "float32",
+          "validation_selection_and_locked_reassessment_ran": true,
+          "prediction_overlay_created": true
+        }
+      }
+    },
+    "earlier_failures": [
+      {
+        "job_id": 667499,
+        "state": "FAILED",
+        "exit_code": "1:0",
+        "elapsed_seconds": 1,
+        "cause": "Compute node a100-3 has no /cache directory; failed before environment installation or model execution.",
+        "log": "outputs/readiness_audit_20261017/school_readiness_667499.err"
+      },
+      {
+        "job_id": 667532,
+        "state": "FAILED",
+        "exit_code": "1:0",
+        "elapsed_seconds": 1,
+        "cause": "Selector omitted scheduler TMPDIR; /scratch root is not writable and /tmp has less than 12 GiB free."
+      }
+    ],
+    "fix": "Use the scheduler-provided per-job TMPDIR, verified via allocated node probe 669117; original 12 GiB headroom requirement retained.",
+    "temporary_environment_lifetime": "Per-job scratch environment may be removed at job end; each later job provisions an isolated environment.",
+    "readiness_script_sha256": "fba35e4e8d90f2b980a6a2bcc65f642b46a7c3263ca52d58c5d549019847c209",
+    "unrelated_jobs_modified": false
+  },
+  "public_id_recheck": {
+    "evidence": "outputs/id_recheck_20261017/ID_RECHECK_SUMMARY.json",
+    "full_api_pages": 26,
+    "all_images_matched_once": 2594,
+    "fresh_csv_matches_snapshot": true,
+    "lesion_id_missing": 1496,
+    "patient_id_missing": 2204,
+    "newly_filled_ids": 0,
+    "additional_2020_train_and_test_image_intersections": 0
+  },
+  "provisional_study": {
+    "job_id": 669143,
+    "state": "running_yolov8n_real_training",
+    "config": "recognition/YOLO_s4905914/experiment_provisional.json",
+    "config_sha256": "b304d0a6b69df04ef1fae4ecd9dda5a0beca7020cd8ff8c72c589535b960857d",
+    "course_acceptance_confirmed": false,
+    "scope": "60 epochs each for n and s with original COCO starts; validation only; no reassessment",
+    "training_and_selection_parameters_unchanged_from_draft": true,
+    "original_draft_retained": true,
+    "actual_model_training_started": true,
+    "release_commit": "3cd0386",
+    "completed_comparison": false,
+    "reassessment_model_evaluation_started": false,
+    "remote_output": "/home/Student/s4905914/comp3710-restart-20261017/outputs/provisional_20261017_669143",
+    "observed_n_completed_epochs": 5,
+    "observed_n_optimizer_step_calls": 240,
+    "observed_s_started": false
+  },
+  "new_ISIC_performance_results_scope": "Preliminary training-time validation only; candidate n/s comparison is not complete."
 }
