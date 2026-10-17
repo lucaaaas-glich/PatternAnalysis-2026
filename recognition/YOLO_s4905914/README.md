@@ -1,6 +1,6 @@
 # COMP3710 Project 3 restart: YOLOv8 lesion detection
 
-This is an experimental implementation in preparation, not a completed assignment report. The real ISIC cohort has not been retrained or scored with this code. The code integrates Ultralytics 8.3.221; the YOLO network, loss and training engine are third-party implementations, not my own network design. Acceptance of this packaging under the course's `modules.py` requirement is still awaiting clarification.
+This is a provisional restricted-cohort study, not a completed assignment submission. Both real ISIC training runs and validation comparisons are complete (school job 669143); supplementary reassessment has not been model-evaluated. The code integrates Ultralytics 8.3.221; the YOLO network, loss and training engine are third-party implementations, not my own network design. Acceptance of this packaging under the course's `modules.py` requirement is still awaiting clarification.
 
 ## Working principle
 
@@ -46,7 +46,7 @@ The candidate cohort contains all 1,098 images with recorded lesion IDs from 2,5
 
 **Evidence, risks and next decision**
 
-Local verification includes 40 unit tests, two one-epoch synthetic model pipelines, preprocessing equivalence checks and exact COCO initialization audits. Synthetic scores are not lesion-performance evidence. The main risks are missing grouping IDs, restricted-cohort selection bias, weak malignant classification and validation overuse. The earlier test was inspected; repartitioning cannot make the new reassessment blind. After instructor clarification and real-input/GPU checks, lock the protocol, train both models, select operating points using validation, then conduct one locked supplementary reassessment and document 3-5 failures. If the cohort is rejected, revise grouping before training. If resources or numerical checks fail, stop and revise both models' shared protocol before rerunning; do not silently change one model's budget.
+Local verification includes 40 unit tests, two one-epoch synthetic model pipelines, preprocessing equivalence checks and exact COCO initialization audits. Synthetic scores are not lesion-performance evidence. The main risks are missing grouping IDs, restricted-cohort selection bias, weak malignant classification and validation overuse. The earlier test was inspected; repartitioning cannot make the new reassessment blind. The provisional protocol was locked after real-input/GPU checks and both models have completed training and validation. Instructor acceptance remains unconfirmed. Preserve the selected operating points for one supplementary reassessment and document 3-5 failures. If the cohort is rejected, review the required grouping changes and rerun affected experiments. If resources or numerical checks fail, stop and revise both models' shared protocol before rerunning; do not silently change one model's budget.
 
 **Course and authorship notes**
 
@@ -100,7 +100,7 @@ AP uses the low-score sweep, not the chosen operating threshold. At the operatin
 
 ## Running from the restart project root
 
-The examples below assume `recognition/YOLO_s4905914/`, `data/known_lesion_v1/` and the source snapshots have been transferred together. Data and weights are ignored by Git; reproduce or separately supply the audited manifests and source snapshots. Do not commit them. The local macOS environment snapshot is recorded in `tested-environment-macos-py313.txt`. Linux/CUDA compatibility, GPU memory and timing still need a school-host preflight.
+The examples below assume `recognition/YOLO_s4905914/`, `data/known_lesion_v1/` and the source snapshots have been transferred together. Data and weights are ignored by Git; reproduce or separately supply the audited manifests and source snapshots. Do not commit them. The local macOS environment snapshot is recorded in `tested-environment-macos-py313.txt`. School readiness and full training have now completed; the recorded Linux/A100 environment is in `requirements-linux-a100.lock.txt`.
 
 `TRANSFER_GUIDE_zh.txt` at the project root explains the local transfer bundle. It includes the required manifests, labels and provenance missing from a plain Git clone. It does not contain images, masks, checkpoints or the full local test logs. Its manifest checks file integrity, not scientific correctness. Building the bundle does not upload files or start training. After extraction, verify before installing ML dependencies:
 
@@ -155,9 +155,9 @@ python recognition/YOLO_s4905914/preflight.py \
   --weights-dir weights/original_coco --output outputs/preflight_gpu --device 0
 ```
 
-An unavailable GPU is an error; the script does not silently switch to CPU or reduce the batch. `preflight.json` records the environment, device, original-weight hashes, finite loss/gradients/parameters, and CUDA peak allocation/reservation when applicable. The throwaway optimizer exercises AdamW state allocation but does not reproduce the full trainer's parameter groups, EMA, loader workers or validation. Passing this probe therefore does not guarantee that complete training fits in GPU memory. Recorded step times include verification and are not inference FPS. The school GPU command has been prepared but has not been executed here.
+An unavailable GPU is an error; the script does not silently switch to CPU or reduce the batch. `preflight.json` records the environment, device, original-weight hashes, finite loss/gradients/parameters, and CUDA peak allocation/reservation when applicable. The throwaway optimizer exercises AdamW state allocation but does not reproduce the full trainer's parameter groups, EMA, loader workers or validation. Passing this probe therefore does not guarantee that complete training fits in GPU memory. Recorded step times include verification and are not inference FPS. The school GPU probe passed as job 669120; the full n/s training and validation job 669143 also completed.
 
-Before real training, resolve cohort acceptance and the course questions, review the draft policy, and save `status="locked_before_training"` and `ready_for_full_training=true` in the experiment configuration. This is an explicit gate, not a claim that confirmation has already occurred. A different approved cohort requires new manifests, hashes, counts and a new configuration version; do not bypass the checks.
+For the provisional study, the separate `experiment_provisional.json` was locked with `status="locked_before_training"` and `ready_for_full_training=true`, while `course_acceptance_confirmed=false`. The original disabled draft was not changed. Course questions remain unresolved; progress does not imply instructor approval. A different approved cohort requires new manifests, hashes, counts and a new configuration version; do not bypass the checks.
 
 On the school host, stage the declared images and verify all files decode. The default uses the paths in the manifests. `--image-root /actual/image/directory` is available when the same source files are mounted elsewhere. Images are symlinked, never edited; labels/cache go in the new staging directory.
 
@@ -207,7 +207,7 @@ All 1,098 candidate original photographs were copied unchanged from the school i
 
 ## Work still required for submission
 
-School readiness job 669120 completed successfully on a100-7: dependency checks, 40 tests, all 1,098 real input checks, n/s batch-16/640 FP32 CUDA probes, and full synthetic CPU pipelines passed. Earlier attempts 667499 and 667532 failed during temporary-directory selection, before model execution; the corrected selector uses scheduler `TMPDIR`. The GPU probe is not a full-training memory guarantee or evidence of lesion accuracy. The provisional real training/validation study is running as job 669143, with the n training pipeline started; locked reassessment, failure-case analysis and the final report remain incomplete. A local software smoke test does not establish the feasibility check-off hurdle. Check-off status, the current deadline, component packaging, cohort acceptance and IoU aggregation still need confirmation. A GitHub PR, final README/PDF and the later review response are also outstanding.
+School readiness job 669120 completed successfully on a100-7: dependency checks, 40 tests, all 1,098 real input checks, n/s batch-16/640 FP32 CUDA probes, and full synthetic CPU pipelines passed. Earlier attempts 667499 and 667532 failed during temporary-directory selection, before model execution; the corrected selector uses scheduler `TMPDIR`. The GPU probe is not a full-training memory guarantee or evidence of lesion accuracy. The provisional real training/validation study completed as job 669143 (exit 0:0). Independent validation replay and two illustrated validation failures are complete. Supplementary reassessment and the final coursework report remain incomplete. A local software smoke test does not establish the feasibility check-off hurdle. Check-off status, the current deadline, component packaging, cohort acceptance and IoU aggregation still need confirmation. A GitHub PR, final README/PDF and the later review response are also outstanding.
 
 This repository records progressive local implementation work. It has not been pushed or submitted. The final report must describe actual results and the history of exposed data; this preparation README is not a substitute.
 
@@ -238,10 +238,60 @@ This requests one GPU, eight CPU cores and at most 40 minutes. It first installs
 
 `experiment_provisional.json` locks the existing cohort, 60-epoch n/s budget, preprocessing, optimizer and validation-selection rules unchanged. `course_acceptance_confirmed=false` explicitly separates a runnable candidate study from instructor approval. The original `experiment.json` remains an unmodified disabled draft. The missing-ID recheck is documented in `ID_RECHECK_zh.txt`.
 
-`provisional_a100.sh` provisions an isolated Python 3.13 environment using `requirements.txt` constrained by `requirements-linux-a100.lock.txt` (the successful Linux/A100 environment), rechecks inputs/resources, trains both original COCO starts, and evaluates validation only. It requests at most four GPU-hours. It does not run supplementary reassessment or change the threshold rule based on results. Job 669143 has passed its new-environment/input checks and entered the n training pipeline; inspect its actual output before claiming training completion. Future coursework acceptance or new identity metadata may require revised experiments.
+`provisional_a100.sh` provisions an isolated Python 3.13 environment using `requirements.txt` constrained by `requirements-linux-a100.lock.txt` (the successful Linux/A100 environment), rechecks inputs/resources, trains both original COCO starts, and evaluates validation only. It requests at most four GPU-hours. It does not run supplementary reassessment or change the threshold rule based on results. Job 669143 completed on a100-4 in 21 minutes 15 seconds, including setup, two 60-epoch training runs and both validation evaluations. Future coursework acceptance or new identity metadata may require revised experiments.
 
 ```bash
 sbatch recognition/YOLO_s4905914/provisional_a100.sh
 ```
 
-Do not submit a duplicate while the recorded job is active. Outputs are under `outputs/provisional_20261017_<jobid>/`; `COMPLETED.txt` is written only after both training and validation commands succeed.
+Do not rerun this completed comparison merely to improve a reported score. Outputs are under `outputs/provisional_20261017_669143/`; its `COMPLETED.txt` confirms that both training and validation commands succeeded.
+
+
+## Completed validation comparison (job 669143)
+
+Both models used the same 165 validation images (124 benign, 41 malignant), original COCO starts, 60 epochs and 2,880 optimizer-step calls. The predeclared primary remains n; s is a comparator. These validation results were used for checkpoint/threshold selection, so they are development evidence, not a fresh blind test.
+
+| Validation measure | YOLOv8n | YOLOv8s |
+| --- | ---: | ---: |
+| mAP50 | 0.5874 | 0.5975 |
+| mAP50:95 | 0.4055 | 0.3926 |
+| Benign AP50 | 0.8157 | 0.7898 |
+| Malignant AP50 | 0.3591 | 0.4052 |
+| Malignant AP50:95 | 0.2511 | 0.2416 |
+| Selected confidence | 0.50 | 0.80 |
+| Malignant TP / FP / FN | 13 / 13 / 28 | 11 / 8 / 30 |
+| Malignant precision | 50.00% | 57.89% |
+| Malignant detection recall | 31.71% | 26.83% |
+| Benign-image malignant false alerts | 11/124 (8.87%) | 7/124 (5.65%) |
+| Malignant-image alerts, no IoU condition | 15/41 | 11/41 |
+| Selected epoch | 32 | 42 |
+| Parameters | 3,011,238 | 11,136,374 |
+| Training-call elapsed time on A100 | 8.05 min | 9.55 min |
+| Peak PyTorch CUDA allocation | 4.17 GiB | 6.12 GiB |
+
+AP sweeps scores from 0.001 and is separate from the selected operating point. Each model's threshold follows the same fixed 14-point grid and at-most-12/124 benign false-alert rule. At a shared threshold of 0.50, s detects 22 malignant images but alerts on 28 benign images, exceeding the budget. At 0.70, s has 14 malignant TP and 14 benign alerts, also exceeding it. The grid was not refined after looking at these results.
+
+n has better macro mAP50:95 and recall under the declared operating rule; s has better malignant AP50 and selected-point precision. Neither dominates all measures. At their selected thresholds, 5 malignant images are TP for both, 8 only for n, 6 only for s, and 22 for neither. The net difference of two TP on 41 malignant images and one seed is not evidence of a stable population advantage. Training-call time is not inference latency; allocated CUDA memory is not total device memory.
+
+Among n's 28 malignant FN, 19 have a localized malignant prediction in the low-score cache that falls below the operating threshold, 7 have only localized benign candidates, and 2 have no candidate reaching IoU 0.5. For s, these counts are 21, 8 and 1. The cache is post-NMS and has already applied the 0.001 floor. These categories describe available outputs; they do not identify imbalance, augmentation, NMS or image artefacts as causal explanations. Two illustrated validation cases are in the PDF; complete paired results are in the local evidence directory.
+
+At the selected operating points, mean malignant IoU over all 41 GT using the best correct-class prediction (missing=0) is 0.2870 for n and 0.2118 for s. Ignoring class yields 0.7236 and 0.4362; TP-only means are 0.8571 over 13 matches and 0.7895 over 11. Those denominators are not interchangeable and do not establish compliance with the unresolved course IoU target.
+
+`compare_validation.py` independently replayed all 28 operating points with NumPy and verified GT/manifest/config/checkpoint hashes, original-weight identities, actual arguments, epoch and update histories, selected thresholds and finite logged scalars. AP is the pinned library output, not independently recomputed. All recorded n/s source hashes agree with each other; only the packaging-only `transfer.py` differs from the current local copy, outside the training/evaluation import path. The full audit is saved with the raw results and a compact tracked copy is `validation_results_669143.json`.
+
+Reproduce the read-only comparison after restoring the raw result directory:
+
+```bash
+python recognition/YOLO_s4905914/compare_validation.py \
+  --run-dir outputs/provisional_20261017_669143 \
+  --output outputs/validation_comparison_20261017 \
+  --image-root /path/to/unchanged/school_images
+```
+
+Omit `--image-root` to skip example figures. Reproducing the PDF additionally requires ReportLab and the generated figures; the PDF dependency is separate from the pinned training environment:
+
+```bash
+python recognition/YOLO_s4905914/build_validation_report.py
+```
+
+The plain four-page PDF is `output/pdf/COMP3710_Validation_Comparison.pdf`; the concise Chinese result summary is `VALIDATION_COMPARISON_zh.txt`. Raw checkpoints/results and generated figures are local ignored artifacts, not part of a plain Git clone or the old preparation transfer bundle. Validation has now been inspected; its results must not be described as an untouched evaluation. The supplementary set has not been model-evaluated, and its historical exposure still prevents a fresh-blind-test claim.

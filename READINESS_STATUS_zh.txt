@@ -1,51 +1,55 @@
 新项目当前状态（2026-10-17，布里斯班）
 
-已完成
-- 最新官方 CSV 与完整 API（26 页、2,594 张）一致：1,496 张缺 lesion_id，
-  2,204 张缺 patient_id；没有新增补全。2020 训练 v2 / test 元数据与本集
-  无图像 ID 交集。没有证明所有潜在来源都已穷尽。
-- 1,098 张候选原图在本机和学校都通过完整解码、尺寸、方向、标签和
-  文件校验；没有跨集合的完全相同解码图片。去重不证明患者独立。
-- 学校作业 669120 在 a100-7 完成，退出码 0，用时 6 分 11 秒：
-  固定版本依赖检查、40 项测试、真实输入检查、n/s A100 batch16/640/FP32
-  前向/反向/更新，以及完整人工数据 CPU 流程均通过。
-- 首次两次检查在模型运行前停止，原因是临时目录选择不正确。现已使用
-  学校提供的每作业 TMPDIR，保留 12 GiB 空间要求；未修改旧环境或其他作业。
+训练与 validation 对照已完成
+学校作业 669143 在 a100-4 成功完成，退出码 0:0，总用时 21 分 15 秒。
+n、s 均从各自原始 COCO 权重训练 60 轮，各调用 optimizer.step 2,880 次。
+按预定 macro mAP50:95 规则选择 n 第 32 轮、s 第 42 轮的 EMA checkpoint。
+165 张 validation（124 良性、41 恶性），两个模型采用相同数据与评估规则。
 
-正在推进
-候选研究作业 669143 在 a100-4 运行；隔离环境、GPU 和真实输入复核
-已通过，YOLOv8n 训练流程已开始，之后依次做 n 的 validation、s 的
-训练和 validation。n/s 各 60 epochs；本次最后核对 n 已完成 5 轮、240 次
-optimizer.step 调用，s 尚未开始。已有逐轮 validation 日志，但尚无
-完成的 n/s 对照结论。最新实际阶段以学校
-outputs/provisional_20261017_669143/ 的日志和 run.json 为准。
-COMPLETED.txt 只在两个模型及 validation 均成功后产生。
-本作业不对真实 supplementary reassessment 做模型评估。
+指标                         n                 s
+mAP50                        0.5874            0.5975
+mAP50:95                     0.4055            0.3926
+恶性 AP50                    0.3591            0.4052
+选定 confidence              0.50              0.80
+恶性 TP / FP / FN            13 / 13 / 28      11 / 8 / 30
+恶性检测 Recall              31.71%            26.83%
+恶性检测 Precision           50.00%            57.89%
+良性图片恶性误警报           11/124            7/124
 
-配置与决策
-原 experiment.json 草案仍保持关闭，没有覆盖。
-另存 experiment_provisional.json，课程接受状态明确为 false。
-样本清单、训练设置、主模型 n / 对照 s、阈值选择规则全部沿用原计划。
-新配置 SHA-256：b304d0a6b69df04ef1fae4ecd9dda5a0beca7020cd8ff8c72c589535b960857d
-可以先做候选研究，不无限等待教师回复；这不是教师批准，也不是最终
-作业已经合规。若后续要求不同，须评估调整及重跑范围。
+阈值均按事先声明的同一规则选择：良性误警报最多 12/124，优先恶性检测
+Recall；14 个预定阈值未扩展。统一阈值 0.50 时 s 检出 22/41，但误警报
+28/124，超过预算。没有哪个模型在所有指标占优。n 保持事先声明的主模型，
+s 是对照；并非看过结果后更换主模型。单 seed、41 个恶性验证病例不支持
+稳定优越性结论，恶性漏检仍是明显弱点。
 
-仍然成立的限制
-- 768 train / 165 validation / 165 supplementary reassessment。
-- 排除 1,496 张缺失 lesion_id 的图；已记录病灶及患者联系不跨集合。
-- 708 张候选图仍缺 patient_id，因此不能声称全体患者独立。
-- 旧 test 已暴露；重新分组不能恢复盲测地位。
-- n/s 各自从原始 COCO 权重开始，不复用旧拟合 checkpoint。
-- 尚无已完成的本次真实实验对照结论，不承诺更高 Recall 或课程达标。
+已完成的复核
+- 独立 NumPy 匹配器复算 28 个工作点，TP/FP/FN、图片警报、各分母 IoU
+  和阈值选择均一致。AP 沿用固定版库输出，没有宣称独立重算 AP。
+- config、manifest、初始权重、best/last、训练记录、预测 GT 坐标与 ID
+  均核对；实际训练参数、60 轮记录、2,880 次更新记录一致且日志标量有限。
+- 两模型训练源码相同；当前副本仅 transfer.py 打包工具与记录版本不同，
+  它不在训练/评估导入路径；其余记录的源码逐字节相同。
+- 两模型共同检出 5 个恶性，n 单独检出 8 个，s 单独检出 6 个，均漏检 22 个。
+- 已完成阈值曲线、训练曲线、FN 分类、两张验证图示例和四页黑白 PDF。
 
-仍需处理
-老师对候选子集、第三方 modules.py 组织和 IoU 分母的确认；学生个人
-feasibility check-off 登记及准确截止时间。训练/validation 后固定方案，
-再进行一次明确标记的补充评估、失败分析、资源报告和最终提交。
+数据与课程边界
+官方完整 CSV/API 再查仍有 1,496 张缺 lesion_id；没有补到新 ID。
+子集 1,098 张：768 train / 165 validation / 165 supplementary reassessment。
+按已记录 lesion/patient 联系分组；708 张仍缺 patient_id，无法证明完全
+患者独立。课程对子集接受情况尚未确认。旧 test 暴露不能被重新分组清除。
+本次没有对真实 supplementary reassessment 做模型评估，也没用它调参。
+原 experiment.json 保持关闭；实际使用 experiment_provisional.json：
+b304d0a6b69df04ef1fae4ecd9dda5a0beca7020cd8ff8c72c589535b960857d
 
-入口
-recognition/YOLO_s4905914/ID_RECHECK_zh.txt：本次 ID 核查说明。
-recognition/YOLO_s4905914/README.md：方法、运行命令及当前候选研究。
-IMPLEMENTATION_VERIFICATION.json：检查证据与作业记录。
-TEACHER_QUESTIONS.txt：待确认问题，助手未代发。
-outputs/id_recheck_20261017/：原始接口响应及学校检查证据。
+下一步
+保留主模型/阈值锁，准备一次固定方案的补充评估及最终报告。
+教师仍须确认子集、第三方模块组织、IoU 分母；个人 check-off 和准确截止
+时间仍未核实。当前完成训练和验证对照，不表示整个作业已完成或已达标。
+未上传、提交、推送 GitHub，未代发老师消息。
+
+结果入口
+output/pdf/COMP3710_Validation_Comparison.pdf
+recognition/YOLO_s4905914/VALIDATION_COMPARISON_zh.txt
+recognition/YOLO_s4905914/validation_results_669143.json
+outputs/validation_comparison_20261017/：完整独立审计、阈值表及逐图比较。
+outputs/provisional_20261017_669143/：两次训练、权重、预测及原始验证记录。

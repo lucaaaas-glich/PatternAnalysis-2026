@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-17T17:40:55.303788+10:00",
+  "checked_at": "2026-10-17T21:43:12.265732+10:00",
   "unit_tests_passed": 40,
   "dependency_check": "pip check passed",
   "installed_upstream_source_files_matching_v8_3_221_tag": 8,
@@ -125,7 +125,8 @@
   "verification_log_paths": [
     "outputs/checkpoint_audit_20261017/unit_tests.log",
     "outputs/checkpoint_audit_20261017/synthetic_integration.log",
-    "outputs/readiness_audit_20261017/unit_tests.log"
+    "outputs/readiness_audit_20261017/unit_tests.log",
+    "outputs/validation_comparison_20261017/comparison.json"
   ],
   "development_note": "The first two synthetic runs exposed a strict score-boundary inconsistency in the test endpoint. It was fixed and regression-tested; no real validation/test scores were inspected. The v2 draft subsequently aligned actual validation/prediction preprocessing and passed the fifth synthetic integration run; no real validation/reassessment scores were inspected. Transfer tooling and its three tests were subsequently added; model training/evaluation behavior was unchanged and the full synthetic training was not repeated for this packaging-only change. Subsequent optimizer logging checks the pinned schedule and fixed budget; a new complete synthetic pipeline run exercised warmup for n/s. Training hyperparameters are unchanged; documentation about the final LR and meaning of step counts was corrected. Checkpoint provenance was then added without changing the optimizer or selection rule; 40 tests and a fresh n/s synthetic run verified selected-epoch history, EMA saves, FP16 storage and FP32 reload. Training-time validation scores are rounded to five decimal places upstream. A separate read-only initialization audit verified exact source-tensor transfer and unchanged fresh initialization for unmatched entries for both models. It records classification-branch differences without changing training behavior or drawing performance conclusions. Real candidate photographs were copied unchanged and independently matched against school-side SHA-256 values. All 1098 were decoded, dimension/EXIF checked and staged with label/hash verification. The audit ran from a checksum-verified cache copy because iCloud placeholders delayed local reads; that interruption was not a dataset failure. A separate school Python 3.13.16 and a bounded synthetic-readiness job were prepared without changing old environments or enabling formal training. A complete current CSV and 26-page public API audit reconfirmed missing IDs, with no added matches from 2020. School readiness 669120 passed 40 tests, real-input audit, batch16/640 FP32 A100 n/s probes, and the synthetic CPU pipelines. A later train.py edit only clarifies the gate docstring/error text; gate logic and training behavior are unchanged. A separate fixed candidate configuration was released without asserting instructor acceptance; its launcher is limited to training and validation.",
   "nonfunctional_cleanup_after_checks": "Removed trailing blank lines from the two new checkpoint Python files; no behavior changed.",
@@ -739,7 +740,7 @@
   },
   "provisional_study": {
     "job_id": 669143,
-    "state": "running_yolov8n_real_training",
+    "state": "completed_training_and_validation",
     "config": "recognition/YOLO_s4905914/experiment_provisional.json",
     "config_sha256": "b304d0a6b69df04ef1fae4ecd9dda5a0beca7020cd8ff8c72c589535b960857d",
     "course_acceptance_confirmed": false,
@@ -748,12 +749,27 @@
     "original_draft_retained": true,
     "actual_model_training_started": true,
     "release_commit": "3cd0386",
-    "completed_comparison": false,
+    "completed_comparison": true,
     "reassessment_model_evaluation_started": false,
     "remote_output": "/home/Student/s4905914/comp3710-restart-20261017/outputs/provisional_20261017_669143",
-    "observed_n_completed_epochs": 5,
-    "observed_n_optimizer_step_calls": 240,
-    "observed_s_started": false
+    "observed_n_completed_epochs": 60,
+    "observed_n_optimizer_step_calls": 2880,
+    "observed_s_started": true,
+    "observed_s_completed_epochs": 60,
+    "observed_s_optimizer_step_calls": 2880,
+    "school_exit_code": "0:0",
+    "school_elapsed_seconds": 1275,
+    "local_output": "outputs/provisional_20261017_669143",
+    "independent_comparison_audit": "outputs/validation_comparison_20261017/comparison.json",
+    "source_discrepancy": "Only transfer.py differs from current local source; packaging utility outside training/evaluation import path. Recorded n/s sources match.",
+    "selected_thresholds": {
+      "n": 0.5,
+      "s": 0.8
+    },
+    "checkpoints": {
+      "n": "fcb51c9524a66df34318065f7c24a797f3fd59418c97dc0e3b6addf5a67ac59c",
+      "s": "c0a93dab2e63d02b9c12e860ed9cc575de0ff74190527e464057a789f3c86c54"
+    }
   },
   "new_ISIC_performance_results_scope": "Preliminary training-time validation only; candidate n/s comparison is not complete."
 }
