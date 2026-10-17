@@ -1,6 +1,7 @@
 """Plan, fit and evaluate the restart using the declared local interfaces.
 
-Full training is gated while the cohort/course decisions are unresolved.
+Full training requires a separately locked configuration. A provisional study
+can be released with course acceptance explicitly recorded as unconfirmed.
 Synthetic smoke runs test integration and cannot be reported as lesion results.
 """
 import argparse
@@ -25,7 +26,7 @@ def release_check(cfg, rows):
                 or any(not r['image_id'].startswith('SYNTH_') for rs in rows.values() for r in rs)):
             raise ValueError('Smoke mode is restricted to tiny synthetic fixtures')
     elif not (cfg['ready_for_full_training'] and cfg['status'] == 'locked_before_training'):
-        raise ValueError('Full experiment remains a draft; resolve the listed course questions and lock the config first')
+        raise ValueError('Full experiment remains a draft; record the study release decision and lock its config first')
 
 
 def trainer_class():

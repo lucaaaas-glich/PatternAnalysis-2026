@@ -24,7 +24,8 @@ from pathlib import Path
 assert sys.version_info[:2] == (3, 13), 'Use the tested Python 3.13 family'
 cfg=json.loads(Path('recognition/YOLO_s4905914/experiment.json').read_text())
 assert cfg['ready_for_full_training'] is False, 'This job only verifies the preparation draft'
-for candidate in (os.environ.get('SLURM_TMPDIR'), '/cache', '/scratch', '/tmp'):
+for candidate in (os.environ.get('SLURM_TMPDIR'), os.environ.get('TMPDIR'),
+                  '/cache', '/scratch', '/tmp'):
     if (candidate and Path(candidate).is_dir() and os.access(candidate, os.W_OK | os.X_OK)
             and shutil.disk_usage(candidate).free >= 12 * 1024**3):
         print(candidate)
