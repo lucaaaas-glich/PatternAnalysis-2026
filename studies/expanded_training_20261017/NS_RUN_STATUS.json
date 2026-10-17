@@ -1,0 +1,14 @@
+{
+  "state": "s_submitted",
+  "n_job": 669929,
+  "s_job": 670000,
+  "submitted_at": "2026-10-18T00:02:13.868508+10:00",
+  "remote_s_output": "/home/Student/s4905914/comp3710-restart-20261017/outputs/expanded_s_20261018_670000",
+  "same_training_and_validation_data": true,
+  "same_training_parameters": true,
+  "n_config_sha256": "feedb27cffd59c0d62dc9a23da8d68761ff6c0643771a06603d75a410bdb255f",
+  "s_config_sha256": "a34ce2fb711aec54fc48a4ffa0ab2b9dc0ad4d50b3c279c65ae38509a5e38b41",
+  "comparison_plan": "studies/expanded_training_20261017/ns_comparison_plan.json",
+  "reassessment_inference": false,
+  "original_study_replaced": false
+}
