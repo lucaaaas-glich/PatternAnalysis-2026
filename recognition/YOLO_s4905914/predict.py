@@ -4,6 +4,7 @@ from pathlib import Path
 from evaluation import inference_args
 from modules import load_trained
 from runtime import digest, load_config, read_json, write_json
+from classification_metrics import primary_prediction
 
 
 def predict(config, checkpoint, lock, image, output, device='cpu'):
@@ -21,7 +22,14 @@ def predict(config, checkpoint, lock, image, output, device='cpu'):
     result = model.predict(str(image), **inference_args(cfg, device))[0]
     result = result[result.boxes.conf > selected['threshold']]
     result.save(filename=str(output / 'prediction.jpg'))
+    primary = primary_prediction([
+        {'class_id': int(c), 'confidence': float(s), 'box': b}
+        for c, s, b in zip(result.boxes.cls.tolist(), result.boxes.conf.tolist(), result.boxes.xyxyn.tolist())
+    ], selected['threshold'])
     data = {'image': str(image), 'threshold': selected['threshold'], 'confidence_is_cancer_probability': False,
+            'image_classification': {'class': model.names[primary['class_id']] if primary else None,
+                'status': 'classified' if primary else 'no_prediction',
+                'rule': 'Highest-confidence retained box; no GT or IoU used for this image decision'},
             'checkpoint_sha256': digest(checkpoint), 'predictions': [
                 {'class': model.names[int(c)], 'confidence': float(s), 'box_xyxy_pixels': b}
                 for c, s, b in zip(result.boxes.cls.tolist(), result.boxes.conf.tolist(), result.boxes.xyxy.tolist())]}

@@ -1,218 +1,34 @@
-最新状态（2026-10-22，布里斯班）
+最新收尾状态见 CLOSEOUT_STATUS_zh.txt（2026-10-22）。
+旧版本记录保留在 outputs/closeout_20261022/historical_START_HERE_zh.txt。
 
-三组已知病灶子集优化和两次 seed=3711 确认均已完成，结果按原规则比较。
-当前选择：轻度几何增强 n（seed=3710），confidence=0.40。
-两次 seed 比较均达到事先规定的改善标准，推荐初次几何增强模型。
-没有从两个 seed 中挑较好的一个；当前选择仍指 seed=3710 的权重。
+收尾状态更新：2026-10-22
 
-运行 / seed | confidence | 恶性 TP/41 | 良性误警报/124 | 恶性全 GT 正确类别 IoU
-Original n / 3710 | 0.50 | 13 | 11 | 0.2870
-Candidate / 3710 | 0.40 | 18 | 12 | 0.3757
-Original n / 3711 | 0.80 | 12 | 8 | 0.2415
-Candidate / 3711 | 0.50 | 15 | 7 | 0.3114
+已完成：
+- 保存 Zhao 的最新回复；IoU>=0.8 仍是要求，合理试验、尽力且有充分分析时，老师允许未达到目标而不因此扣分；不是整体成绩保证。
+- 新增分类 Accuracy、每类 Precision/Recall/F1、Macro F1、覆盖率、混淆矩阵；无预测计为分类错误。
+- 新增整体和各类别 IoU，分别列出全 GT 正确类别、忽略类别、TP-only 和最高分单框定义。
+- 补齐八组 validation 模型及原始 n/s 回顾评估的指标；未重新选择模型或阈值。
+- 合并 22 October 分辨率、恶性正项加权、模型大小和单框规则实验分析。
+- 保留当前 n+轻度几何增强、seed=3710、confidence=0.40。
 
-以上都来自同一 validation。每次拟合按相同网格和最多 12 张良性误警报
-的规则选择阈值。IoU 包括全部 41 个恶性 GT，无正确类别预测时记 0。
-第二个 seed 是对训练随机性的一次检查，不是独立验证或新盲测。
-两次 seed 不能证明普遍稳定性；这里的“通过确认”仅指达到本次预定规则。
+当前 validation（165张）:
+Accuracy=118/165=71.52%；Macro F1=0.6663；分类恶性Recall=16/41=39.02%。
+恶性检测Recall=18/41=43.90%；恶性检测F1=0.5070。
+全GT正确类别最佳框IoU：整体0.6238，良性0.7058，恶性0.3757。
+这些是不同定义，完整口径见README的新增指标章节。
 
-当前仅使用 1,098 张已知 lesion_id 图片：train 768、validation 165、
-reassessment 165。本次优化只使用 train/validation，没有新补充评估推理或调参。
-老师建议使用这个子集的情况来自学生转述；708 张缺 patient_id，仍不能
-证明完整患者独立。扩充数据模型只作为历史探索，不参与当前选择。
-
-模型选择记录：recognition/YOLO_s4905914/known_optimization_decision_20261021.json
-对应 validation 输出：outputs/known_lesion_optimization_20261021_681452/n_geometry/val_n
-checkpoint SHA-256：a1bd556186a1dc98d4b1d731fd59897e3084a70f6484e6b700586e6a09ef794c
-预测命令模板：studies/known_lesion_optimization_20261021/SELECTED_MODEL_COMMAND.txt
 报告：recognition/YOLO_s4905914/README.md
 PDF：output/pdf/COMP3710_Project3_Report.pdf
-结果和来源：studies/known_lesion_optimization_20261021/results.json
-报告核验：outputs/known_optimization_report_20261021/verification.json
-报告的逐页视觉检查是否完成，以该核验文件的最新状态为准。
+新指标与锁定计划：recognition/YOLO_s4905914/course_metrics_20261022.json、course_closeout_plan.json。
+老师回复：recognition/YOLO_s4905914/teacher_response_20261022.txt。
+新指标由独立NumPy实现核对；原40项测试与新增7项指标测试通过。
 
-本轮固定实验到此停止，不追加模型或阈值搜索。原训练配置、阈值锁和
-原始预测记录均保留。没有改写历史结果，没有 commit、push、新 PR、
-对外消息或正式提交；也没有创建定时自动任务。
+仍未完成：
+1. 当前geometry候选的最终固定回顾评估：SSH连接超时，本机缺这165张原始照片。已准备evaluate_locked_candidate.py，不重新训练或扫描阈值，也不会称新盲测。
+2. GitHub同步：线上lucaaaas-glich/PatternAnalysis-2026的topic-recognition有25次旧项目提交，最新06c71b5（布里斯班10月15日）。重做工程已有22次历史本地提交，随后已按实际日期提交两批已完成实验，后续收尾继续如实提交。
+3. 当前GitHub连接器是另一账号，尚未向远程写入；新课程PR和Turnitin也未提交。
+4. 学生需核对feasibility check-off登记、截止日期，以及第三方Ultralytics组件是否满足源码要求。
 
-剩余课程事项：IoU 分母/性能门槛及第三方组件要求；个人 feasibility
-check-off、准确截止时间；学生审阅与课程仓库整合。当前英文问题稿
-为 TEACHER_CONFIRMATION_EN.txt，尚未发送。子集选择不再重复询问。
-旧转移 ZIP 和 18 日提交前检查属于历史版本，不能当作当前提交包。
+课程Git要求：完成有意义的小里程碑后commit，使用清楚的消息；push才会更新GitHub；向上游topic-recognition创建PR才是课程提交的一部分。不是每改一行都提交，也不能用现在拆分的提交冒充过去的开发时间。
 
-以下保留此前记录；与上面的最新状态冲突时，以最新状态为准。
-
-COMP3710 Project 3：重新设计的实验版本
-建立日期：2026-10-17（布里斯班）
-
-18 October提交前检查已完成：见PRE_SUBMISSION_CHECK_zh.txt。代码/记录/README/PDF
-内部一致；已修复报告生成器的模块外文字依赖。老师确认英文见
-TEACHER_CONFIRMATION_EN.txt，未发送；课程仓库整合和正式提交仍未进行。
-
-新增探索：按用户请求完成训练数据扩充与同一 validation 对照，详见
-studies/expanded_training_20261017/NOTES_zh.txt。原有完整报告的实验范围不变，
-新探索独立保存，不覆盖原来的权重、阈值或结果。
-扩充版 s 已完成（学校作业 670000），同条件 n/s 对照见
-studies/expanded_training_20261017/NS_RESULTS_zh.txt：主要阈值0.05/0.50下
-s减少误警报但降低召回；附加0.70点只多检出1张恶性、少误报2张良性。
-全部结果和边界现已加入主报告的独立探索章节。模型选择与收尾顺序见
-SUBMISSION_DECISION_zh.txt：主实验为已知病灶子集n、0.50；扩充候选为s、0.50。
-
-当前阶段：新 n/s 各 60 轮训练、validation、固定模型/阈值的补充评估、
-资源测试、五个失败案例与完整实验报告均完成。主报告为
-recognition/YOLO_s4905914/README.md；14 页 PDF 为
-output/pdf/COMP3710_Project3_Report.pdf。详细结果见 READINESS_STATUS_zh.txt。
-课程接受、个人 check-off 与截止时间仍未确认；GitHub/Turnitin 未提交。
-这是新实验的工作目录，不是已完成的提交包。按用户确认范围，本机旧
-实验的 35 项文件/目录已移出工作区，采用废纸篓方式，未清空废纸篓。
-学校服务器上的旧项目、GitHub、原始数据和课程资料未改动。另已在学校
-账号创建独立的新项目目录及 Python 3.13 环境；新版本必需来源已
-独立保存；清理清单和实际操作记录见 CLEANUP_PLAN.txt。
-
-为什么重做
-
-旧图片级划分存在已知病灶和患者跨集合。标签转换没有发现当前错误，
-但评估独立性不足。老师已明确建议用 lesion_id 防止同一病灶跨集合。
-重做修正实验设计，不表示原来的图片、标签、代码和全部发现作废。
-
-已核实的来源
-
-- 对应 Task 1 的官方元数据：2,594 张；已知 lesion_id 1,098 张，缺失 1,496 张。
-- 官方 2018 Task 3 grouping CSV：10,015 张，与本项目图像 ID 交集为 0。
-- 官方 2019 metadata：25,331 张，与本项目匹配 772 张；匹配记录中只有
-  1 张带 lesion_id，且本地已有该图的 lesion_id，没有补到新的缺失项。
-- 没有据此声称所有可能来源都已穷尽。未知身份保持未知，不做身份推测。
-- 17 October 再次下载官方 CSV，并遍历 API 全部 26 页；2,594 张逐一核对，
-  身份字段和缺失数均未改变。2020 训练 v2 / test 元数据也无图像 ID 交集。
-  详见 recognition/YOLO_s4905914/ID_RECHECK_zh.txt。
-
-新版本的具体候选设计
-
-只使用有记录 lesion_id 的 1,098 张：824 良性、274 恶性。
-缺失 lesion_id 的 1,496 张不进入此子集的任何阶段，包括训练阶段。
-唯一的 Indeterminate 图不属于该子集，因此新版本是两个输出类别：
-0 = Benign；1 = Malignant。这是数据子集规则的结果，不是把它改成良性。
-
-集合             总数     良性     恶性
-train            768      576      192
-val              165      124       41
-reassessment     165      124       41
-
-seed = 3710。先按真实 lesion_id / patient_id 的已知相等关系连成组，
-再按组分配，尽量接近 70/15/15 和类别比例。共 1,043 个分配组；
-它们不是新造的病灶 ID。真实病灶数为 1,083；若多个病灶属于同一已知
-患者，分配组可以包含多个病灶。三集合的已知病灶和患者交集均为 0。
-
-仍有 708 张缺少 patient_id。准确表述是：
-“在记录 ID 可信的前提下，所选子集按病灶分组，并避免已知患者跨集合。”
-不能表述成已证明整个子集患者独立。
-课程是否接受缩小至此子集，仍需老师回答 TEACHER_QUESTIONS.txt 的问题 1。
-
-旧 test 已暴露怎样处理
-
-重分配不清除历史。新 val 的 165 张中，120 张曾在旧 train；新
-reassessment 的 165 张中，122 张曾在旧 train。所以：
-1. 旧拟合 checkpoint 不用作新实验初始化，也不直接用来给新划分评分。
-2. n 和 s 都从各自原始 COCO 预训练权重开始。
-3. 只用新 val 选择阈值、设置；选择规则在看分数前写清。
-4. reassessment 只在方案锁定后评估，明确是补充、回顾性评估，不是新盲测。
-5. 新旧实验不能直接用 Recall 的差值证明模型进步，因为样本和分组都变了。
-
-保留的来源与已完成的重跑
-
-保留：学校源照片、官方二值 mask、已验证的框坐标、元数据来源和旧划分
-曝光记录。旧实验的本机代码、结果和报告已按清单移入废纸篓；服务器
-及 GitHub 上的旧工作未改动。新标签复用原框坐标，没有重画标注。
-已重做并完成：分组、两类训练/推理配置、同划分 n/s 对照、验证阈值
-选择与锁定补充评估。完整训练前已做小流程和真实输入检查。
-还没有认定两类模型会更好；类别定义改变本身也是实验差异。
-
-已完成的验证
-
-- 3 个候选分组方案生成并独立核查：已知病灶 1,098；已知患者 390；
-  全量但仅约束已知联系 2,594。后两项保留为备选，没有据结果挑选。
-- 重放分组：清单与 ID 文件逐字节一致，JSON 摘要内容一致。
-- 新准备流程生成 1,098 个两类 YOLO 标签，查验来源哈希、类别、坐标、
-  整体子集覆盖与分组交集。原输入哈希保持不变。
-- 新工作目录的 13 项单元测试通过。测试验证代码约束，不证明模型准确。
-- 清理准备中使用项目内部来源重放：1,098 个标签和 3 个 manifest 逐字节
-  一致；分组也可由内部快照重建，不再读取旧实验目录。
-- 旧目录移除后再次重放：1,098 个标签和 3 个 manifest 逐字节一致；
-  已知病灶分组清单也一致，来源哈希匹配。详情见
-  outputs/cleanup/post_cleanup_verification.json。
-- 40 项测试通过；n/s 的人工数据流程通过训练、保存/重载、两类前向、
-  validation 选择、锁定补充评估和预测展示。见 IMPLEMENTATION_VERIFICATION.json。
-- 验证与预测统一使用一次等比例缩放加补边；8 种尺寸/分辨率组合的实际
-  输入像素相同，框坐标可还原。曾发现的预处理差异不能据此解释旧分类错误。
-- 新增学校 GPU 运行检查脚本 preflight.py；本机 CPU 的小尺寸人工检查已
-  通过，学校 A100 的 batch=16、640、FP32 n/s 检查已通过（作业 669120）。
-  最新状态见 READINESS_STATUS_zh.txt，命令见代码 README。
-- 核对固定版本的学习率调度，并记录每次 optimizer.step 调用的实际值。
-  60 轮方案预计调用 2,880 次，其中首次学习率为 0；最后一轮为 0.0000265。
-  两个真实 60 轮流程已完成，上述调用数和实际学习率已核对。
-- 单独记录 best 的选择轮次和分数，并核实验证/保存使用 EMA。内存中
-  FP32 参数保存为 FP16、重载为 FP32，是固定库的现有行为；已用人工
-  模型验证。不能仅用完成训练后的 checkpoint epoch=-1 推断最佳轮次。
-- 逐张量核对原始 COCO 到两类模型的初始化：n 复用 319/355 个状态条目，
-  s 复用 349/355 个。它们的分类分支重新初始化范围不同；这些条目包含
-  缓冲区，不能当作参数百分比或效果指标。详见 MODEL_COMPONENTS_zh.txt。
-- 从学校源目录取得全部 1,098 张候选原图，服务器独立 SHA-256 与本机
-  副本逐一相同。每张完整解码、尺寸与框来源核对、EXIF 方向核对、
-  标签与清单核对均通过；没有完全相同的解码图像跨集合。图片未修改，
-  初次输入审计未做模型推理；后续训练、validation 和锁定补充评估均已完成。
-  去重不能证明患者独立。
-- 已核对课程 PDF 及 Ed #136/#137/#147，准备一页 feasibility PDF、
-  README 原理图和更明确的待确认清单。学生个人 check-off 尚无完成证据。
-
-目录说明
-
-PROTOCOL.json：任务、分组、评估边界及已锁定的训练选择。
-sources.json：相对本项目的来源路径和 SHA-256；来源在 data/source_snapshots/。
-原来的绝对路径仅存于历史溯源记录，不是当前程序的输入路径。
-data/known_lesion_v1/：新 manifest、标签和验证摘要，不是照片副本。
-recognition/YOLO_s4905914/：分组、标签、训练、评估、预测源码和测试。
-该目录的 README.md 是完整实验报告；RUNBOOK.md 保留早期运行说明。
-experiment.json 仍是禁用的原草案；实际运行使用已锁定的
-experiment_provisional.json。EXPERIMENT_NOTES_zh.txt 是配套中文学习笔记。
-MODEL_COMPONENTS_zh.txt：固定版本模型源码核对和组件学习说明。
-TEACHER_QUESTIONS.txt：已由学生反馈发送的分组追问，以及尚未发送的其他问题草稿。
-COURSE_REQUIREMENTS_AUDIT_zh.txt：课程材料逐项核对及官方答复来源。
-READINESS_STATUS_zh.txt：本次实际进展、学校运行状态和剩余工作。
-FEASIBILITY_REVIEW.txt：一页 review 草稿；PDF 在 output/pdf/，并非 check-off 证明。
-TRANSFER_GUIDE_zh.txt：带逐文件校验值的本机转移包说明。只克隆 Git 会
-缺少被忽略的数据清单；包内补齐标签与必要来源，照片和权重另行提供。
-
-下一步顺序
-
-1. 可以先推进已知病灶子集的候选研究，不无限等待老师回复。课程是否
-   接受子集、组件组织方式与 IoU 统计规则仍须保留为待确认；核实个人
-   feasibility check-off。默认文件名或导入函数不等于合规证明。
-2. 学校环境、真实输入与完整训练均已通过；实际显存和训练耗时已记录。
-   n/s validation 已独立复核。第三方实现边界见模型说明和 README。
-3. 已锁定并完成 60 轮 AdamW 翻转增强对照。原草案保留；实际使用的
-   experiment_provisional.json 未修改，主模型 n、对照 s 的阈值已锁定。
-4. 锁定后的补充评估及完整报告已完成。下一步是学生审阅、课程问题确认，
-   然后按课程要求整合 fork、提交 PR 和 README 的 PDF。
-
-参考来源
-
-官方 Task 3 分组说明：
-https://forum.isic-archive.com/t/task-3-supplemental-information/430
-官方数据索引：
-https://challenge.isic-archive.com/data/
-具体外部数据哈希和核对结果：
-outputs/grouping_followup_20261017/external_metadata_audit.json
-
-报告文字修订（2026-10-21）
-
-按学生要求保留必要技术术语，改写长句、过度正式的表达及重复说明，
-不增加面向初学者的概念教学。README与14页PDF已同步更新。
-feasibility review按课程第12页要求保留为独立的一页；正文采用
-FEASIBILITY_REVIEW_PLAIN.txt，标明17日原计划、21日措辞修订。原计划未改。
-117段正文/标题、300个表格单元及2段命令与PDF对应，14页已逐页检查。
-101行表格、9张图、2段命令和52个受保护源码/配置/证据文件未改变，
-模块单独复制后可重建相同README。未重训、未运行真实图片推理。
-本次是报告专项核验，没有重跑此前40项ML测试。18日提交前核验和
-复现ZIP仍是当时版本的记录；ZIP未随此次文字修订重新打包。
-旧报告备份及本次核验位于outputs/report_plain_language_20261021/。
-课程接受、check-off与正式提交状态未改变。本次没有commit、push或提交。
+以此更新和course_metrics_20261022.json为当前状态；旧实验计划中的pending字段是当时的记录，冻结配置不改写。

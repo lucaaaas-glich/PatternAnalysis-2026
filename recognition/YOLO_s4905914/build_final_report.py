@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 from report_expanded import add_expanded_section
 from report_known_optimization import add_known_optimization
+from report_course_closeout import add_course_closeout
 
 
 def build():
@@ -27,7 +28,9 @@ This project compares YOLOv8n and YOLOv8s for finding skin lesions and classifyi
 
 Both models completed 60 training epochs, but malignant detection remained weak. In the supplementary evaluation, n detected 10/41 malignant lesions at confidence 0.50, while s detected 6/41 at 0.80. Their mAP50:95 values were 0.3619 and 0.3527. n also raised malignant alerts on 16/124 benign images, above the 10% limit used to select its threshold on validation. The models and thresholds were kept unchanged after these results.
 
-On 21 October I reported that my teacher advised using the known-lesion subset. A new validation-only optimization study follows that advice and is reported at the end of this document. The earlier expanded-data experiment is retained as history. Imported Ultralytics components, the performance interpretation and personal tutor check-off still need confirmation. These experiments do not establish clinical suitability.''')
+The current development choice is YOLOv8n with light geometry at confidence 0.40, selected using only the known-lesion training and validation sets. It detects 18/41 malignant validation lesions with 12/124 benign alerts. The later bounded follow-up retained this model. The opening n/s reassessment figures refer to the original baseline experiment; the geometry candidate has not yet completed reassessment. The expanded-data experiment is retained as historical exploration and is excluded from the current choice.
+
+Zhao's reply supplied on 22 October requires overall and per-class IoU, Accuracy, and additional classification metrics for imbalance. The 0.8 IoU requirement includes an evidence-supported best-effort provision. The final sections add these metrics and the follow-up analysis. Imported Ultralytics components and personal tutor check-off still need confirmation. These experiments do not establish clinical suitability.''')
     optimization=json.loads((code/'known_optimization_results_20261021.json').read_text())
     decision=optimization['final_decision']
     if decision['status']=='completed' and 'confirmation' in optimization:
@@ -87,7 +90,7 @@ The checkpoint is selected by the highest validation macro mAP50:95 over 60 epoc
 
 A TP requires the correct class, confidence strictly above the selected threshold and IoU >= 0.5. Each GT matches the highest-confidence eligible prediction once. Unmatched predictions count as FP for their predicted class; unmatched GTs count as FN. A wrong-class or poorly localized box can therefore contribute both FP and FN. An image-level malignant alert requires any retained malignant prediction, regardless of IoU. Alert counts and detection recall are reported separately.
 
-AP50 and AP50:95 are calculated from the low-score sweep; macro mAP weights both classes equally. The operating threshold maximises malignant detection recall while allowing alerts on at most 12 of 124 benign validation images (10%). Ties favour higher precision, fewer benign alerts, then a higher threshold. The grid was fixed before training: 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90 and 0.95. This alert limit is an experimental comparison rule, not a clinical standard.
+AP50 and AP50:95 are calculated from the low-score sweep; macro mAP weights both classes equally. The operating threshold maximises malignant detection recall while allowing alerts on at most 12 of 124 benign validation images (10%). Ties favour higher precision, fewer benign alerts, then a higher threshold. The grid was fixed before training: 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90 and 0.95. This alert limit is an experimental comparison rule, not a course passing threshold or a clinical standard.
 
 ![Validation threshold trade-off](assets/threshold_tradeoff.png)
 
@@ -121,7 +124,7 @@ Both models detect five malignant reassessment cases, only n detects five, only 
     table(['Mean IoU at locked operating points','YOLOv8n','YOLOv8s'],[
         [f'{name}: {label}',*[f'{point(r[m])["classes"][name]["iou"][key]["mean"]:.4f} (N={point(r[m])["classes"][name]["iou"][key]["denominator"]})' for m in ('n','s')]]
         for name in ('Benign','Malignant') for label,key in [('all GT, correct class','all_gt_class_correct'),('all GT, ignore class','all_gt_class_agnostic'),('matched TP only','tp_only')]])
-    add('All-GT means use the best retained box under the stated class rule, with missing predictions scored zero. TP-only means exclude misses. Both malignant TP-only means are below 0.8, so the reported results do not demonstrate the course target. The required averaging rule still needs clarification.')
+    add("All-GT means use the best retained box under the stated class rule, with missing predictions scored zero. TP-only means exclude misses. Both malignant TP-only means are below 0.8, and the all-GT means are lower. The teacher's later reply requires overall and per-class reporting without specifying the treatment of missed or wrong-class predictions. The final sections provide pooled overall IoU alongside these definitions and discuss the best-effort provision.")
     add_expanded_section(code,add,page,table,pct)
     page()
     add(r'''## Main experiment: runtime and memory
@@ -178,9 +181,19 @@ The longer training-budget comparison is now reported in the final section. Furt
 
 Saved main training and validation results are in `outputs/provisional_20261017_669143`; reassessment and timing results are in `outputs/reassessment_20261017_669815`. Expanded n/s results are in `outputs/expanded_training_20261017_669929` and `outputs/expanded_s_20261018_670000`. Raw outputs and weights are excluded from Git, while summary JSON files and report figures are included. `expanded_evidence_provenance.json` identifies the copied exploration records. The PDF is generated from this README. Earlier commands are kept in `RUNBOOK.md`.
 
+### Restoring the recorded study layout
+
+In the course checkout, experimental sources are stored under this module's `research_sources/` directory. Restore them into a new working directory before using commands that refer to top-level `studies/`. The helper verifies source hashes and copies this module plus the recorded study sources; it does not copy photos, metadata, labels, prediction caches or weights. Run subsequent commands from the restored workspace.
+
+```bash
+python recognition/YOLO_s4905914/restore_study_sources.py \
+  --destination ../comp3710-reproduction
+cd ../comp3710-reproduction
+```
+
 ### Environment and inputs
 
-The school runs used Python 3.13.16, PyTorch 2.8.0, torchvision 0.23.0 and Ultralytics 8.3.221. `requirements.txt` fixes the ML package versions, and `requirements-linux-a100.lock.txt` records the tested Linux environment. PDF generation uses the separate `requirements-report.txt`. Use `experiment_provisional.json` for the main experiment; `experiment.json` is the original disabled draft.
+The school runs used Python 3.13.16, PyTorch 2.8.0, torchvision 0.23.0 and Ultralytics 8.3.221. `requirements.txt` fixes the ML package versions, and `requirements-linux-a100.lock.txt` records the tested Linux environment. PDF generation uses the separate `requirements-report.txt`. Use `experiment_provisional.json` to reproduce the original main experiment; `experiment.json` is the original disabled draft.
 
 To reproduce the main experiment, restore the image lists and labels in `data/known_lesion_v1`, the recorded metadata snapshots and the unchanged school images. These inputs and trained weights are not included in Git. The local transfer utility packages image lists, labels and source records, but not photos, masks or weights; it checks file integrity. To recreate labels in a new directory, use `prepare_dataset.py` with `sources.json` and `PROTOCOL.json`. It checks source hashes and refuses to overwrite existing output.
 
@@ -196,9 +209,9 @@ python recognition/YOLO_s4905914/train.py plan \
   --prepared data/known_lesion_v1
 ```
 
-`dataset.py` creates links to the original photos and copies the labels, leaving source photos unchanged. Training and evaluation commands are in `RUNBOOK.md`; select `experiment_provisional.json` for this experiment. The original school launchers depend on historical paths. On a new machine, check the inputs and GPU first, then use the direct commands in a new GPU allocation.
+`dataset.py` creates links to the original photos and copies the labels, leaving source photos unchanged. Training and evaluation commands are in `RUNBOOK.md`; select `experiment_provisional.json` for this experiment. The current candidate uses `studies/known_lesion_optimization_20261021/n_geometry.json` and the checkpoint/lock recorded in `known_optimization_decision_20261021.json`. Do not pair the original baseline config with the geometry checkpoint. The original school launchers depend on historical paths. On a new machine, check the inputs and GPU first, then use the direct commands in a new GPU allocation.
 
-### Saved-model example
+### Original baseline: saved-model example
 
 After restoring the checkpoint and its validation threshold record, this command saves prediction JSON and an overlay image. Replace the example image path with a dermoscopic photograph. The output confidence is not a cancer probability.
 
@@ -218,15 +231,15 @@ Missing identity information is the main data limitation. The official CSV and a
 
 The earlier image-level experiment and its test failures had already been viewed. The current validation set contains 120 images from old training, 22 from old validation and 23 from old test. Reassessment contains 122 from old training, 22 from old validation and 21 from old test. The new models started from original COCO weights, but that does not erase prior knowledge of the images. Reassessment is therefore a retrospective check, not a new blind test. It must not guide further model or threshold choices while being described as independent evaluation.
 
-Each evaluation set has only 41 malignant images. The original and expanded experiments each used one training seed; any seed-confirmation runs for the later optimization are listed separately. Diagnosis labels came from metadata and were not independently checked by clinicians. The comparisons do not establish a single cause of the classification errors. Class imbalance, label definitions and visible image features remain possible factors requiring separate evidence. There was no mobile-device test, probability calibration, measurement of real referrals or biopsies, or clinical safety study. The reported malignant IoU means do not demonstrate the 0.8 target, and the course's averaging rule and classification requirement still need clarification.
+Each evaluation set has only 41 malignant images. The original and expanded experiments each used one training seed; any seed-confirmation runs for the later optimization are listed separately. Diagnosis labels came from metadata and were not independently checked by clinicians. The comparisons do not establish a single cause of the classification errors. Class imbalance, label definitions and visible image features remain possible factors requiring separate evidence. There was no mobile-device test, probability calibration, measurement of real referrals or biopsies, or clinical safety study. The original reassessment results do not demonstrate the 0.8 target. The supplied teacher reply now requires Accuracy and additional imbalance-sensitive metrics, plus overall and per-class IoU. These are added later with explicit denominators. The treatment of wrong-class or missed predictions was not specified in that reply.
 
-YOLOv8 is allowed by the listed version requirement and falls in the Normal difficulty band. Use of the known-lesion subset follows the teacher advice reported on 21 October; imported model components and the interpretation of the performance requirements still need confirmation. Tutor check-off and the exact deadline also need checking. This code and report have not yet been submitted through a new course PR or Turnitin. The final material needs student review and may need changes after tutor feedback.
+YOLOv8 is allowed by the listed version requirement and falls in the Normal difficulty band. Use of the known-lesion subset follows the teacher advice reported on 21 October; imported model components still need confirmation. The teacher's metric clarification is recorded separately and does not establish full course acceptance. Tutor check-off and the exact deadline also need checking. This code and report have not yet been submitted through a new course PR or Turnitin. The final material needs student review and may need changes after tutor feedback.
 
 ## Artificial Intelligence Usage Disclosure
 
 OpenAI ChatGPT/Codex helped with planning, metadata and grouping checks, mask-to-box checks, training and evaluation code, diagnostic scripts, tests, resource measurements, figures, report writing and explanations. The YOLO network, layers, losses, trainer and AP calculation come from Ultralytics 8.3.221. These were not written from scratch for this assignment. This disclosure covers the assistance recorded in this project.
 
-Checks included inspecting the pinned library code, comparing file hashes and preprocessed tensors, checking pretrained-weight loading, running 40 unit tests and synthetic n/s pipelines, checking real photos, independently matching saved detections and reviewing the rendered PDF. AP itself was not independently recalculated. These checks cannot prove that every diagnosis or conclusion is correct. The student is responsible for reviewing, correcting and explaining the final work, including the parts prepared with AI assistance.
+Checks included inspecting the pinned library code, comparing file hashes and preprocessed tensors, checking pretrained-weight loading, running the original 40 unit tests, seven additional metric tests and synthetic n/s pipelines, checking real photos, independently matching saved detections and reviewing the rendered PDF. AP itself was not independently recalculated. These checks cannot prove that every diagnosis or conclusion is correct. The student is responsible for reviewing, correcting and explaining the final work, including the parts prepared with AI assistance.
 
 ## References
 
@@ -237,6 +250,7 @@ Checks included inspecting the pinned library code, comparing file hashes and pr
 5. COMP3710/COMP7710 assessment specification supplied by the student, filename `COMP3710_Report_2026_draft_v2.3.pdf`, cover marked DRAFT / Version 2.2. Project 3 and submission requirements are on pages 6-7 and 11-16. Previously checked Ed guidance is recorded in `COURSE_REQUIREMENTS_AUDIT_zh.txt`; later official course clarifications take precedence.
 ''')
     add_known_optimization(code,add,page,table,pct)
+    add_course_closeout(code,add,page,table,pct)
     (code/'README.md').write_text('\n'.join(parts))
     print(code/'README.md')
 

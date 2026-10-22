@@ -1,70 +1,34 @@
-最新报告检查（2026-10-22，未提交）
+最新收尾状态见 CLOSEOUT_STATUS_zh.txt（2026-10-22）。
+旧版本记录保留在 outputs/closeout_20261022/historical_PRE_SUBMISSION_CHECK_zh.txt。
 
-三个已知病灶子集对照和第二 seed 确认已完成，并按预定规则确定结果。
-本次完整记录见 studies/known_lesion_optimization_20261021/RESULTS_zh.txt。
-当前 README/PDF 核验见 outputs/known_optimization_report_20261021/verification.json。
-此次没有重跑全套 ML 单元测试、补充评估或更新旧转移 ZIP；没有提交。
-下方 18 日检查仅为当时版本的历史记录。
+收尾状态更新：2026-10-22
 
-提交前检查（2026-10-18，未提交）
+已完成：
+- 保存 Zhao 的最新回复；IoU>=0.8 仍是要求，合理试验、尽力且有充分分析时，老师允许未达到目标而不因此扣分；不是整体成绩保证。
+- 新增分类 Accuracy、每类 Precision/Recall/F1、Macro F1、覆盖率、混淆矩阵；无预测计为分类错误。
+- 新增整体和各类别 IoU，分别列出全 GT 正确类别、忽略类别、TP-only 和最高分单框定义。
+- 补齐八组 validation 模型及原始 n/s 回顾评估的指标；未重新选择模型或阈值。
+- 合并 22 October 分辨率、恶性正项加权、模型大小和单框规则实验分析。
+- 保留当前 n+轻度几何增强、seed=3710、confidence=0.40。
 
-结论
+当前 validation（165张）:
+Accuracy=118/165=71.52%；Macro F1=0.6663；分类恶性Recall=16/41=39.02%。
+恶性检测Recall=18/41=43.90%；恶性检测F1=0.5070。
+全GT正确类别最佳框IoU：整体0.6238，良性0.7058，恶性0.3757。
+这些是不同定义，完整口径见README的新增指标章节。
 
-本机完整研究工程中的模型配置、实际运行记录、README与现有14页PDF一致。
-这说明材料内部一致，不等于课程已认可实现方式、已达到性能要求或已完成提交。
-默认主实验仍为已知病灶子集n、confidence=0.50；扩充s、0.50仅为探索候选。
+报告：recognition/YOLO_s4905914/README.md
+PDF：output/pdf/COMP3710_Project3_Report.pdf
+新指标与锁定计划：recognition/YOLO_s4905914/course_metrics_20261022.json、course_closeout_plan.json。
+老师回复：recognition/YOLO_s4905914/teacher_response_20261022.txt。
+新指标由独立NumPy实现核对；原40项测试与新增7项指标测试通过。
 
-检查通过
+仍未完成：
+1. 当前geometry候选的最终固定回顾评估：SSH连接超时，本机缺这165张原始照片。已准备evaluate_locked_candidate.py，不重新训练或扫描阈值，也不会称新盲测。
+2. GitHub同步：线上lucaaaas-glich/PatternAnalysis-2026的topic-recognition有25次旧项目提交，最新06c71b5（布里斯班10月15日）。重做工程已有22次历史本地提交，随后已按实际日期提交两批已完成实验，后续收尾继续如实提交。
+3. 当前GitHub连接器是另一账号，尚未向远程写入；新课程PR和Turnitin也未提交。
+4. 学生需核对feasibility check-off登记、截止日期，以及第三方Ultralytics组件是否满足源码要求。
 
-- 40项现有测试通过；ML环境pip check通过；33个Python文件语法检查通过。
-- 4次训练各自的实际args、8个核心运行源码、best权重与validation锁相符。
-  主实验n/s阈值0.50/0.80；扩充n/s阈值0.70/0.50。未混用不同训练集权重。
-- 主实验两个补充评估的汇总指标与原始evaluation.json一致。
-- 原训练768张、扩充训练2263张；validation和reassessment均165张，
-  两实验的对应清单逐字节相同。分组缺失和既往曝光限制继续保留。
-- README的117段正文/标题、300个表格单元、2段命令与PDF提取内容逐项对应；
-  两个表格换行单元按列裁切后核对。PDF共14页，9张图的校验值正确。
-- 独立复制课程模块后，报告生成器重建README与当前版本逐字节相同。
-- 当前Git未跟踪数据目录、原始模型权重或ZIP；少量病例图是报告插图。
-  检查开始时有22个渐进本地commit；这本身不代替学生原创性与AI披露要求。
+课程Git要求：完成有意义的小里程碑后commit，使用清楚的消息；push才会更新GitHub；向上游topic-recognition创建PR才是课程提交的一部分。不是每改一行都提交，也不能用现在拆分的提交冒充过去的开发时间。
 
-已修复
-
-build_final_report.py原先依赖项目根目录FEASIBILITY_REVIEW.txt，单独复制
-recognition/YOLO_s4905914会报FileNotFoundError。现将同内容文字放在模块内，
-生成器读取本地副本。两份文件校验值一致；README和PDF内容没有改变。
-本次没有重训、真实病例推理、补充集调参或新的临床性能检验。
-
-仍需处理
-
-1. 老师确认：已知病灶子集及回顾性评估是否接受；使用第三方YOLO组件的
-   组织方式；IoU>=0.8的匹配/分母和是否属于性能通过门槛；分类数值要求。
-2. 学生/课程记录：个人feasibility check-off是否登记、适用的准确截止时间。
-   当前没有刷新Ed回复，不能将旧的未回复记录当作最新查询。
-3. 课程仓库整合：本地研究工程尚无Git remote，扩充研究源码仍在顶层studies/。
-   当前核对对象是完整本机工程，不是已经打好的公开课程PR。提交前还需将
-   需要的源码/说明按课程recognition目录要求整合，并保留可追踪开发历史。
-   原始照片、标签输入、来源快照、权重和私下复现ZIP不能随整个工程公开上传。
-   模块内的汇总证据足以重建报告；不等于完整扩充训练输入已包含在课程目录。
-
-可复制给老师的一段英文已保存为TEACHER_CONFIRMATION_EN.txt，未发送。
-原问题和历史仍在TEACHER_QUESTIONS.txt，不自动重复发帖。
-本次无推送、PR、Turnitin提交或对外消息。
-
-详细证据
-PRE_SUBMISSION_VERIFICATION.json
-outputs/pre_submission_20261018/consistency_check.json
-
-报告文字修订（2026-10-21）
-
-按学生要求保留必要技术术语，改写长句、过度正式的表达及重复说明，
-不增加面向初学者的概念教学。README与14页PDF已同步更新。
-feasibility review按课程第12页要求保留为独立的一页；正文采用
-FEASIBILITY_REVIEW_PLAIN.txt，标明17日原计划、21日措辞修订。原计划未改。
-117段正文/标题、300个表格单元及2段命令与PDF对应，14页已逐页检查。
-101行表格、9张图、2段命令和52个受保护源码/配置/证据文件未改变，
-模块单独复制后可重建相同README。未重训、未运行真实图片推理。
-本次是报告专项核验，没有重跑此前40项ML测试。18日提交前核验和
-复现ZIP仍是当时版本的记录；ZIP未随此次文字修订重新打包。
-旧报告备份及本次核验位于outputs/report_plain_language_20261021/。
-课程接受、check-off与正式提交状态未改变。本次没有commit、push或提交。
+以此更新和course_metrics_20261022.json为当前状态；旧实验计划中的pending字段是当时的记录，冻结配置不改写。

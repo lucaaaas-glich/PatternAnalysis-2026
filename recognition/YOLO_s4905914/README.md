@@ -6,7 +6,9 @@ This project compares YOLOv8n and YOLOv8s for finding skin lesions and classifyi
 
 Both models completed 60 training epochs, but malignant detection remained weak. In the supplementary evaluation, n detected 10/41 malignant lesions at confidence 0.50, while s detected 6/41 at 0.80. Their mAP50:95 values were 0.3619 and 0.3527. n also raised malignant alerts on 16/124 benign images, above the 10% limit used to select its threshold on validation. The models and thresholds were kept unchanged after these results.
 
-On 21 October I reported that my teacher advised using the known-lesion subset. A new validation-only optimization study follows that advice and is reported at the end of this document. The earlier expanded-data experiment is retained as history. Imported Ultralytics components, the performance interpretation and personal tutor check-off still need confirmation. These experiments do not establish clinical suitability.
+The current development choice is YOLOv8n with light geometry at confidence 0.40, selected using only the known-lesion training and validation sets. It detects 18/41 malignant validation lesions with 12/124 benign alerts. The later bounded follow-up retained this model. The opening n/s reassessment figures refer to the original baseline experiment; the geometry candidate has not yet completed reassessment. The expanded-data experiment is retained as historical exploration and is excluded from the current choice.
+
+Zhao's reply supplied on 22 October requires overall and per-class IoU, Accuracy, and additional classification metrics for imbalance. The 0.8 IoU requirement includes an evidence-supported best-effort provision. The final sections add these metrics and the follow-up analysis. Imported Ultralytics components and personal tutor check-off still need confirmation. These experiments do not establish clinical suitability.
 
 In the second-seed validation check, the geometry candidate detected 15/41 malignant lesions versus 12/41 for the repeated baseline, with 7 versus 8 benign alerts. It met the prespecified confirmation rule. The current choice is n with light geometry at confidence 0.40, using its seed-3710 checkpoint. This comparison reuses validation images and is not new test evidence.
 
@@ -90,7 +92,7 @@ The checkpoint is selected by the highest validation macro mAP50:95 over 60 epoc
 
 A TP requires the correct class, confidence strictly above the selected threshold and IoU >= 0.5. Each GT matches the highest-confidence eligible prediction once. Unmatched predictions count as FP for their predicted class; unmatched GTs count as FN. A wrong-class or poorly localized box can therefore contribute both FP and FN. An image-level malignant alert requires any retained malignant prediction, regardless of IoU. Alert counts and detection recall are reported separately.
 
-AP50 and AP50:95 are calculated from the low-score sweep; macro mAP weights both classes equally. The operating threshold maximises malignant detection recall while allowing alerts on at most 12 of 124 benign validation images (10%). Ties favour higher precision, fewer benign alerts, then a higher threshold. The grid was fixed before training: 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90 and 0.95. This alert limit is an experimental comparison rule, not a clinical standard.
+AP50 and AP50:95 are calculated from the low-score sweep; macro mAP weights both classes equally. The operating threshold maximises malignant detection recall while allowing alerts on at most 12 of 124 benign validation images (10%). Ties favour higher precision, fewer benign alerts, then a higher threshold. The grid was fixed before training: 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90 and 0.95. This alert limit is an experimental comparison rule, not a course passing threshold or a clinical standard.
 
 ![Validation threshold trade-off](assets/threshold_tradeoff.png)
 
@@ -143,7 +145,7 @@ Both models detect five malignant reassessment cases, only n detects five, only 
 | Malignant: all GT, ignore class | 0.6388 (N=41) | 0.3524 (N=41) |
 | Malignant: matched TP only | 0.7792 (N=10) | 0.7875 (N=6) |
 
-All-GT means use the best retained box under the stated class rule, with missing predictions scored zero. TP-only means exclude misses. Both malignant TP-only means are below 0.8, so the reported results do not demonstrate the course target. The required averaging rule still needs clarification.
+All-GT means use the best retained box under the stated class rule, with missing predictions scored zero. TP-only means exclude misses. Both malignant TP-only means are below 0.8, and the all-GT means are lower. The teacher's later reply requires overall and per-class reporting without specifying the treatment of missed or wrong-class predictions. The final sections provide pooled overall IoU alongside these definitions and discuss the best-effort provision.
 
 <!-- pagebreak -->
 
@@ -333,9 +335,19 @@ The longer training-budget comparison is now reported in the final section. Furt
 
 Saved main training and validation results are in `outputs/provisional_20261017_669143`; reassessment and timing results are in `outputs/reassessment_20261017_669815`. Expanded n/s results are in `outputs/expanded_training_20261017_669929` and `outputs/expanded_s_20261018_670000`. Raw outputs and weights are excluded from Git, while summary JSON files and report figures are included. `expanded_evidence_provenance.json` identifies the copied exploration records. The PDF is generated from this README. Earlier commands are kept in `RUNBOOK.md`.
 
+### Restoring the recorded study layout
+
+In the course checkout, experimental sources are stored under this module's `research_sources/` directory. Restore them into a new working directory before using commands that refer to top-level `studies/`. The helper verifies source hashes and copies this module plus the recorded study sources; it does not copy photos, metadata, labels, prediction caches or weights. Run subsequent commands from the restored workspace.
+
+```bash
+python recognition/YOLO_s4905914/restore_study_sources.py \
+  --destination ../comp3710-reproduction
+cd ../comp3710-reproduction
+```
+
 ### Environment and inputs
 
-The school runs used Python 3.13.16, PyTorch 2.8.0, torchvision 0.23.0 and Ultralytics 8.3.221. `requirements.txt` fixes the ML package versions, and `requirements-linux-a100.lock.txt` records the tested Linux environment. PDF generation uses the separate `requirements-report.txt`. Use `experiment_provisional.json` for the main experiment; `experiment.json` is the original disabled draft.
+The school runs used Python 3.13.16, PyTorch 2.8.0, torchvision 0.23.0 and Ultralytics 8.3.221. `requirements.txt` fixes the ML package versions, and `requirements-linux-a100.lock.txt` records the tested Linux environment. PDF generation uses the separate `requirements-report.txt`. Use `experiment_provisional.json` to reproduce the original main experiment; `experiment.json` is the original disabled draft.
 
 To reproduce the main experiment, restore the image lists and labels in `data/known_lesion_v1`, the recorded metadata snapshots and the unchanged school images. These inputs and trained weights are not included in Git. The local transfer utility packages image lists, labels and source records, but not photos, masks or weights; it checks file integrity. To recreate labels in a new directory, use `prepare_dataset.py` with `sources.json` and `PROTOCOL.json`. It checks source hashes and refuses to overwrite existing output.
 
@@ -351,9 +363,9 @@ python recognition/YOLO_s4905914/train.py plan \
   --prepared data/known_lesion_v1
 ```
 
-`dataset.py` creates links to the original photos and copies the labels, leaving source photos unchanged. Training and evaluation commands are in `RUNBOOK.md`; select `experiment_provisional.json` for this experiment. The original school launchers depend on historical paths. On a new machine, check the inputs and GPU first, then use the direct commands in a new GPU allocation.
+`dataset.py` creates links to the original photos and copies the labels, leaving source photos unchanged. Training and evaluation commands are in `RUNBOOK.md`; select `experiment_provisional.json` for this experiment. The current candidate uses `studies/known_lesion_optimization_20261021/n_geometry.json` and the checkpoint/lock recorded in `known_optimization_decision_20261021.json`. Do not pair the original baseline config with the geometry checkpoint. The original school launchers depend on historical paths. On a new machine, check the inputs and GPU first, then use the direct commands in a new GPU allocation.
 
-### Saved-model example
+### Original baseline: saved-model example
 
 After restoring the checkpoint and its validation threshold record, this command saves prediction JSON and an overlay image. Replace the example image path with a dermoscopic photograph. The output confidence is not a cancer probability.
 
@@ -375,15 +387,15 @@ Missing identity information is the main data limitation. The official CSV and a
 
 The earlier image-level experiment and its test failures had already been viewed. The current validation set contains 120 images from old training, 22 from old validation and 23 from old test. Reassessment contains 122 from old training, 22 from old validation and 21 from old test. The new models started from original COCO weights, but that does not erase prior knowledge of the images. Reassessment is therefore a retrospective check, not a new blind test. It must not guide further model or threshold choices while being described as independent evaluation.
 
-Each evaluation set has only 41 malignant images. The original and expanded experiments each used one training seed; any seed-confirmation runs for the later optimization are listed separately. Diagnosis labels came from metadata and were not independently checked by clinicians. The comparisons do not establish a single cause of the classification errors. Class imbalance, label definitions and visible image features remain possible factors requiring separate evidence. There was no mobile-device test, probability calibration, measurement of real referrals or biopsies, or clinical safety study. The reported malignant IoU means do not demonstrate the 0.8 target, and the course's averaging rule and classification requirement still need clarification.
+Each evaluation set has only 41 malignant images. The original and expanded experiments each used one training seed; any seed-confirmation runs for the later optimization are listed separately. Diagnosis labels came from metadata and were not independently checked by clinicians. The comparisons do not establish a single cause of the classification errors. Class imbalance, label definitions and visible image features remain possible factors requiring separate evidence. There was no mobile-device test, probability calibration, measurement of real referrals or biopsies, or clinical safety study. The original reassessment results do not demonstrate the 0.8 target. The supplied teacher reply now requires Accuracy and additional imbalance-sensitive metrics, plus overall and per-class IoU. These are added later with explicit denominators. The treatment of wrong-class or missed predictions was not specified in that reply.
 
-YOLOv8 is allowed by the listed version requirement and falls in the Normal difficulty band. Use of the known-lesion subset follows the teacher advice reported on 21 October; imported model components and the interpretation of the performance requirements still need confirmation. Tutor check-off and the exact deadline also need checking. This code and report have not yet been submitted through a new course PR or Turnitin. The final material needs student review and may need changes after tutor feedback.
+YOLOv8 is allowed by the listed version requirement and falls in the Normal difficulty band. Use of the known-lesion subset follows the teacher advice reported on 21 October; imported model components still need confirmation. The teacher's metric clarification is recorded separately and does not establish full course acceptance. Tutor check-off and the exact deadline also need checking. This code and report have not yet been submitted through a new course PR or Turnitin. The final material needs student review and may need changes after tutor feedback.
 
 ## Artificial Intelligence Usage Disclosure
 
 OpenAI ChatGPT/Codex helped with planning, metadata and grouping checks, mask-to-box checks, training and evaluation code, diagnostic scripts, tests, resource measurements, figures, report writing and explanations. The YOLO network, layers, losses, trainer and AP calculation come from Ultralytics 8.3.221. These were not written from scratch for this assignment. This disclosure covers the assistance recorded in this project.
 
-Checks included inspecting the pinned library code, comparing file hashes and preprocessed tensors, checking pretrained-weight loading, running 40 unit tests and synthetic n/s pipelines, checking real photos, independently matching saved detections and reviewing the rendered PDF. AP itself was not independently recalculated. These checks cannot prove that every diagnosis or conclusion is correct. The student is responsible for reviewing, correcting and explaining the final work, including the parts prepared with AI assistance.
+Checks included inspecting the pinned library code, comparing file hashes and preprocessed tensors, checking pretrained-weight loading, running the original 40 unit tests, seven additional metric tests and synthetic n/s pipelines, checking real photos, independently matching saved detections and reviewing the rendered PDF. AP itself was not independently recalculated. These checks cannot prove that every diagnosis or conclusion is correct. The student is responsible for reviewing, correcting and explaining the final work, including the parts prepared with AI assistance.
 
 ## References
 
@@ -507,3 +519,181 @@ These secondary measures do not change the prespecified decision rule. TP-only I
 | Candidate / 3711 | 54 / 60 | 8.17 min | 4.17 GiB |
 
 Both confirmation runs used the same 60-epoch budget and 2,880 optimizer calls. Timing and memory use the same definitions as the preceding resource table; queueing and environment installation are excluded.
+
+<!-- pagebreak -->
+
+## Course clarification and reporting definitions
+
+The student supplied a reply from Zhao on 22 October. It asks for both overall and per-class localization IoU, and classification accuracy with additional metrics such as F1 or recall for imbalanced data. IoU >= 0.8 remains mandatory, but the reply says that an unmet target will not lose marks if reasonable trials and best effort are supported by sound analysis. This is not a guarantee of the overall grade. The supplied reply is preserved in `teacher_response_20261022.txt`; the original email or Ed thread was not independently fetched.
+
+The reply does not specify how missed lesions or wrong-class predictions enter the IoU average. I therefore report the definitions below together, rather than selecting whichever gives the highest result. The 10% benign-image alert limit is my comparison rule, not a course passing threshold or a clinical requirement.
+
+| Measure | Definition |
+| --- | --- |
+| Image classification | The class of the highest-confidence retained box. The same fixed score threshold as detection is used. Ties use class ID then box coordinates. GT is not used to choose the box, and no localization test is applied. |
+| Accuracy and no prediction | Correct image labels / all images. No retained box is an abstention and counts as incorrect, including on benign images. Coverage is reported separately. |
+| Classification F1 and recall | For each class, TP/FP/FN come from one image decision. Abstentions add FN for the true class. F1 = 2TP/(2TP+FP+FN). Macro F1 averages the two class F1 values. |
+| Detection F1 and recall | Use all boxes and the original one-to-one, correct-class IoU >= 0.5 matcher. Duplicate or unmatched boxes remain FP. These counts can differ from image classification. |
+| Overall IoU | Sum the individual IoUs and divide by their count. All-GT measures use 165 images, with 124 benign and 41 malignant. TP-only measures use the matched TP count. The equal-weight mean of class means is a separate macro statistic. |
+
+The all-GT best-box diagnostics use the greatest GT overlap among retained boxes, either requiring the correct class or ignoring class. If no eligible box exists, the value is zero; a same-class box with IoU below 0.5 still contributes its actual overlap. These are oracle diagnostics and do not penalize extra boxes. TP-only IoU uses matched correct-class predictions and excludes missed GTs. Primary-box IoU instead uses the same GT-free highest-score box as classification, with zero for no prediction; the correct-class version also assigns zero to a wrong-class primary box.
+
+These definitions were added after development to answer the teacher clarification. `course_closeout_plan.json` fixes their implementation and cache hashes. No checkpoint, threshold or comparison budget was selected again using the new metrics. Confidence remains a model score, not a calibrated probability of cancer.
+
+<!-- pagebreak -->
+
+## Added classification metrics: validation
+
+All rows use the same 165 validation images and the operating thresholds already selected in their original studies. This is descriptive reporting on a repeatedly used development set, not an independent comparison or a fresh test.
+
+| Model | Conf. | Accuracy | Macro F1 | M recall |
+| --- | --- | --- | --- | --- |
+| Original n | 0.50 | 64.85% | 0.6061 | 34.15% |
+| Original s | 0.80 | 46.06% | 0.5131 | 26.83% |
+| n, cls=1.0 | 0.80 | 53.94% | 0.5727 | 34.15% |
+| n, 120 epochs | 0.90 | 43.03% | 0.4880 | 21.95% |
+| n, light geometry | 0.40 | 71.52% | 0.6663 | 39.02% |
+| n, input 896 | 0.50 | 65.45% | 0.5823 | 21.95% |
+| n, malignant positive weight 2 | 0.70 | 56.97% | 0.6214 | 41.46% |
+| s, light geometry | 0.50 | 58.18% | 0.5242 | 21.95% |
+
+### Current candidate: n with light geometry, confidence 0.40
+
+| Ground truth | Predicted benign | Predicted malignant | No prediction |
+| --- | --- | --- | --- |
+| Benign | 102 | 7 | 15 |
+| Malignant | 19 | 16 | 6 |
+
+| Class | Precision | Recall | F1 |
+| --- | --- | --- | --- |
+| Benign | 84.30% | 82.26% | 0.8327 |
+| Malignant | 69.57% | 39.02% | 0.5000 |
+
+Accuracy is 118/165 (71.52%), with predictions on 144/165 images (87.27% coverage). Balanced accuracy is 60.64%. Accuracy among only the covered images is 81.94%; it excludes abstentions and is not the headline accuracy. Always predicting benign would achieve 124/165 = 75.15% accuracy and zero malignant recall. This is a class-prior reference, not a detector, and shows why accuracy alone is insufficient.
+
+Malignant classification recall is 16/41, while malignant detection recall is 18/41. Two images have a valid malignant detection but a higher-confidence benign box, so the single image decision is wrong. Benign and malignant detection F1 values are 0.8031 and 0.5070. The 12/124 benign image alerts count any malignant box; only seven benign images have a malignant primary box. These are different definitions, not inconsistent counts.
+
+<!-- pagebreak -->
+
+## Overall and per-class IoU: validation
+
+The current candidate is n with light geometry at confidence 0.40. Each cell shows mean IoU and its denominator. Overall is pooled over observations, not the unweighted average of the two class values.
+
+| IoU definition | Overall | Benign | Malignant |
+| --- | --- | --- | --- |
+| Best correct-class box, all GT | 0.6238 (N=165) | 0.7058 (N=124) | 0.3757 (N=41) |
+| Best box ignoring class, all GT | 0.7409 (N=165) | 0.7385 (N=124) | 0.7482 (N=41) |
+| Matched correct-class TP only | 0.8534 (N=120) | 0.8530 (N=102) | 0.8558 (N=18) |
+| Highest-score box, ignore class | 0.7393 (N=165) | 0.7364 (N=124) | 0.7482 (N=41) |
+| Highest-score box, correct class | 0.6023 (N=165) | 0.6901 (N=124) | 0.3367 (N=41) |
+
+The TP-only means exceed 0.8, but omit 45 unmatched GTs, including 23 malignant lesions. They do not demonstrate that the full pipeline meets the target across all lesions. The all-GT correct-class mean is 0.6238 overall; its class-macro counterpart is 0.5408. The two differ because benign images are more numerous.
+
+### Same all-GT correct-class diagnostic across validation runs
+
+| Model at its selected threshold | Overall / 165 | Benign / 124 | Malignant / 41 |
+| --- | --- | --- | --- |
+| Original n | 0.5502 | 0.6372 | 0.2870 |
+| Original s | 0.3948 | 0.4552 | 0.2118 |
+| n, cls=1.0 | 0.4620 | 0.5137 | 0.3057 |
+| n, 120 epochs | 0.3730 | 0.4381 | 0.1762 |
+| n, light geometry | 0.6238 | 0.7058 | 0.3757 |
+| n, input 896 | 0.5451 | 0.6646 | 0.1837 |
+| n, malignant positive weight 2 | 0.4884 | 0.5333 | 0.3527 |
+| s, light geometry | 0.5070 | 0.6054 | 0.2092 |
+
+These all-GT averages remain paired with detection precision, recall and F1, because best-box IoU alone does not penalize duplicate predictions. No class-agnostic or TP-only value is substituted for the correct-class all-GT metric used in the original selection rule.
+
+<!-- pagebreak -->
+
+## Added metrics: original supplementary reassessment
+
+The following additions reuse the original saved reassessment predictions. No new threshold scan or inference was required. These are the original n and s models, not the later geometry candidate. The 165 images had prior exposure and this evaluation remains retrospective.
+
+| Measure | Original n, confidence 0.50 | Original s, confidence 0.80 |
+| --- | --- | --- |
+| Image accuracy | 66.06% | 41.82% |
+| Classification macro F1 | 0.5867 | 0.4667 |
+| Classified images / 165 | 145 | 82 |
+| Benign classification recall / F1 | 77.42% / 0.7967 | 49.19% / 0.6256 |
+| Malignant classification recall / F1 | 31.71% / 0.3768 | 19.51% / 0.3077 |
+| Benign detection F1 | 0.7440 | 0.6256 |
+| Malignant detection F1 | 0.2817 | 0.2308 |
+
+### Original n: overall and classwise localization
+
+| IoU definition | Overall | Benign | Malignant |
+| --- | --- | --- | --- |
+| Best correct-class box, all GT | 0.5459 (N=165) | 0.6512 (N=124) | 0.2272 (N=41) |
+| Best box ignoring class, all GT | 0.7204 (N=165) | 0.7474 (N=124) | 0.6388 (N=41) |
+| Matched correct-class TP only | 0.8452 (N=103) | 0.8523 (N=93) | 0.7792 (N=10) |
+
+### Original s: overall and classwise localization
+
+| IoU definition | Overall | Benign | Malignant |
+| --- | --- | --- | --- |
+| Best correct-class box, all GT | 0.3546 (N=165) | 0.4282 (N=124) | 0.1321 (N=41) |
+| Best box ignoring class, all GT | 0.4249 (N=165) | 0.4489 (N=124) | 0.3524 (N=41) |
+| Matched correct-class TP only | 0.8630 (N=67) | 0.8704 (N=61) | 0.7875 (N=6) |
+
+The current geometry checkpoint has not yet been evaluated on reassessment. Its final fixed evaluation is prepared separately; school SSH was unavailable during this report update. Until that run is completed, no current-candidate test score or held-out improvement is claimed. The original n/s results above cannot stand in for that missing evaluation.
+
+<!-- pagebreak -->
+
+## Bounded follow-up experiments: 22 October
+
+I tested three further changes against the geometry reference, using the same 768 training and 165 validation images, COCO initialization, 60 epochs, AdamW, FP32, batch 16 and seed 3710. Mosaic, mixed-image augmentation and oversampling remained off. The 896-input run changed only resolution. The loss-weight run doubled only the malignant positive BCE term during training; it kept soft targets, assignment, box loss and DFL unchanged, and used ordinary validation loss. The size comparison changed n to s with the same geometry preset.
+
+| Model | Conf. | M TP / 41 | B alerts / 124 | M all-GT IoU |
+| --- | --- | --- | --- | --- |
+| n, geometry reference | 0.40 | 18 | 12 | 0.3757 |
+| n, input 896 | 0.50 | 9 | 3 | 0.1837 |
+| n, positive weight 2 | 0.70 | 17 | 7 | 0.3527 |
+| s, geometry | 0.50 | 10 | 11 | 0.2092 |
+
+The planned replacement rule required at least three extra malignant TP, a higher malignant all-GT correct-class IoU, and no more than a 0.03 drop in benign all-GT correct-class IoU, while meeting the same alert budget. None qualified. The next seed-confirmation stage was therefore not triggered, and the prior reference was retained.
+
+| Model | At 0.40: M TP / B alerts | M AP50 / AP50:95 |
+| --- | --- | --- |
+| n, geometry reference | 18 / 12 | 0.4646 / 0.3134 |
+| n, input 896 | 14 / 14 | 0.4057 / 0.2827 |
+| n, positive weight 2 | 23 / 24 | 0.5052 / 0.3432 |
+| s, geometry | 20 / 25 | 0.3772 / 0.2699 |
+
+Positive weighting improved malignant AP50 from 0.4646 to 0.5052. At confidence 0.40 it also raised malignant TP from 18 to 23, but benign alerts rose from 12 to 24. Under the fixed alert budget its selected threshold was 0.70, yielding 17 malignant TP. Weighting was therefore not uniformly worse; it failed the specific replacement rule. A larger input or larger model likewise did not improve the selected operating point in this run. One seed does not establish a universal ranking.
+
+| Model | Best epoch / 60 | Training-call time | Peak CUDA allocation |
+| --- | --- | --- | --- |
+| n, geometry reference | 50 | 8.56 min | 4.17 GiB |
+| n, input 896 | 54 | 11.84 min | 7.11 GiB |
+| n, positive weight 2 | 60 | 8.40 min | 4.17 GiB |
+| s, geometry | 55 | 10.08 min | 9.60 GiB |
+
+All runs completed 2,880 optimizer calls on an A100. Time includes the training call and its internal validation, but excludes queueing, installation and the separate evaluation. Nodes differed. These are resource observations, not phone measurements.
+
+<!-- pagebreak -->
+
+## Error evidence, stopping decision and remaining work
+
+For the retained geometry model, the 23 malignant validation FN comprised 17 lesions with a sufficiently localized benign prediction and six images without a retained prediction. Raw-score inspection at confidence 0.40 found no well-localized malignant candidate above the threshold for those 23 lesions. At the diagnostic floor of 0.001, 30 lesions had a retained valid malignant candidate; the other 11 had a localized malignant score above the floor but lost the class argmax to benign. At these two checkpoints, none was lost solely in the subsequent NMS stage. GT was used only to diagnose this chain, not to choose operational predictions. CPU diagnostic TP/FP/FN matched the GPU cache; minor IoU differences are not mixed into the main tables.
+
+A separate GT-free single-box experiment chose the candidate with the largest class score and classified it using M/(B+M). Its plan was recorded before scoring the policy. The selected ratio cutoff of 0.60 gave 17/41 malignant TP and 12/124 benign alerts, failing the improvement rule. The ratio is not a calibrated cancer probability and is not the ordinary confidence threshold. This policy was rejected and did not replace the current detector.
+
+The evidence supports a classification and score-selection weakness, but not a single cause. The loss-weight experiment tested one imbalance intervention and revealed an operating-point trade-off. Extra training also changed learning-rate decay; geometry was tested as a combined preset; size and resolution changes did not isolate diagnosis-label quality. Hair, rulers, reflections, lesion size and metadata label quality were not controlled interventions. They remain possible factors, not established explanations for the failures.
+
+My final development choice remains YOLOv8n with light geometry, seed 3710, confidence 0.40. The earlier second-seed check supported its gain over original n on the same validation images. This bounded series covers training duration, loss weighting, augmentation, resolution, capacity and prediction policy. Continuing to search this small validation set would increase selection bias. I therefore stop model tuning and report the shortfall and trade-offs under the teacher's best-effort provision, without claiming that this automatically satisfies every marking criterion.
+
+### Reproducing and checking the added metrics
+
+`classification_metrics.py` defines image decisions, classification Accuracy/F1/Recall, detection F1 and pooled/classwise IoU. `complete_course_metrics.py` checks cached image membership, GT, checkpoints, thresholds and file hashes, then reproduces all original detection counts before adding the new metrics. Seven targeted tests cover abstentions, wrong location, conflicting classes, duplicate boxes, pooled denominators, ties and invalid records. The existing 40 tests also passed. An independent NumPy implementation reproduced classification counts, F1 and the all-GT IoU calculations across all ten caches. No training or threshold selection occurs in this reporting step.
+
+```bash
+python recognition/YOLO_s4905914/complete_course_metrics.py
+python recognition/YOLO_s4905914/build_final_report.py
+python recognition/YOLO_s4905914/export_readme_pdf.py \
+  --output output/pdf/COMP3710_Project3_Report.pdf
+```
+
+Cached predictions and source manifests must be restored for the first command; they are not training inputs supplied through Git. The second command uses the included summary JSON files. The third exports that same README to PDF, with a source-hash record. The current inference command and exact checkpoint/config/threshold hashes are recorded in the decision files; original examples remain explicitly labelled as historical.
+
+The source code and results remain available for review. The student must verify personal check-off completion, the applicable deadline and acceptance of imported Ultralytics components. The teacher's metric clarification does not answer those points. A course PR and the README PDF submission remain separate required actions; no new PR or Turnitin submission was made during this update.
