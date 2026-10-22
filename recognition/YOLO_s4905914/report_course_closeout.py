@@ -84,7 +84,7 @@ def add_course_closeout(code, add, page, table, pct):
         add('### '+r['label']+': overall and classwise localization')
         table(['IoU definition', 'Overall', 'Benign', 'Malignant'],
               [iou_row(label, r['metrics']['localization'][kind]) for kind, label in kinds[:3]])
-    add('The current geometry checkpoint has not yet been evaluated on reassessment. Its final fixed evaluation is prepared separately; school SSH was unavailable during this report update. Until that run is completed, no current-candidate test score or held-out improvement is claimed. The original n/s results above cannot stand in for that missing evaluation.')
+    add('These are the original baseline results. The later geometry checkpoint has now completed its own fixed retrospective evaluation, reported in the final sections. The earlier ten-cache metrics file is preserved as a historical reporting snapshot; its pending field records the state before that final run.')
 
     page()
     add('## Bounded follow-up experiments: 22 October')
@@ -122,4 +122,5 @@ python recognition/YOLO_s4905914/export_readme_pdf.py \\
   --output output/pdf/COMP3710_Project3_Report.pdf
 ```''')
     add('Cached predictions and source manifests must be restored for the first command; they are not training inputs supplied through Git. The second command uses the included summary JSON files. The third exports that same README to PDF, with a source-hash record. The current inference command and exact checkpoint/config/threshold hashes are recorded in the decision files; original examples remain explicitly labelled as historical.')
+    add('The final evaluation uses the separate `evaluate_locked_candidate.py` command and `audit_final_reassessment.py` audit. Its launch package and the pre-inference CPU decision are in `studies/final_reassessment_20261022/`. The earlier train/validation-only experiment loaders and their frozen selection rules remain unchanged.')
     add('The source code and results remain available for review. The student must verify personal check-off completion, the applicable deadline and acceptance of imported Ultralytics components. The teacher\'s metric clarification does not answer those points. A course PR and the README PDF submission remain separate required actions; no new PR or Turnitin submission was made during this update.')

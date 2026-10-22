@@ -34,6 +34,15 @@
     "studies/expanded_training_20261017/threshold_context.json": "033229a51c1b2ac72cfd8327f7d490058d19a58aef55093ee957d07cbe1c1201",
     "studies/expanded_training_20261017/verification.json": "360d61e5c4dfaea0c5f931f40c5d3cc75c93239a24a45af4f24168a280f00aa0",
     "studies/expanded_training_20261017/verify_preparation.py": "1f108d2ddf4c5e3dafdfac6e9be7f67b9aab975e0674c039ad8c760a1a10889b",
+    "studies/final_reassessment_20261022/.gitignore": "0c0295dc50a98c5fbfe1be28580da166443292d5a8950aea3bb679205cb8da23",
+    "studies/final_reassessment_20261022/RUNBOOK.md": "c789eb6ab96d0da3af29011f3ab4cc3c858ac9210d8b87e37268aa700043a696",
+    "studies/final_reassessment_20261022/RUN_STATUS.json": "d448a7cd961bea074ea6cd386d60024631a9f1e6ed9e743669cf8c24da7872eb",
+    "studies/final_reassessment_20261022/bundle_manifest.json": "dc5079961dd9caa0a601ea627425cfcab87d17818c6f8af928b1a132507e02d6",
+    "studies/final_reassessment_20261022/device_decision.json": "a7038584180853bbe95c688c47c33c34ebbad2045cd5d623b86405dd15ba1c20",
+    "studies/final_reassessment_20261022/evaluate_a100.sh": "9440ef64197749de1ff60b55eafe2964609a2bc0131ba26a812b4cdd473282ed",
+    "studies/final_reassessment_20261022/launch_record.json": "59ec0bacf4ac34678a2b008ca0ee6adc12b17c00983fcb78355acdfc538e15cb",
+    "studies/final_reassessment_20261022/prepare_bundle.py": "4bbb1ef310b82c3a6526ed526f496600c89c6f9816c8b12f90bed60eba407e9e",
+    "studies/final_reassessment_20261022/verify_bundle.py": "ea985d991ce7a5be3a31e04be815676dbd354131d11cdbda4888377ccf0d1905",
     "studies/known_lesion_followup_20261022/ACTIVE_WORK.txt": "ecd66764cee539e20069fe983b27dc3f6105b6b6481fac8b85ba2372012a6f3d",
     "studies/known_lesion_followup_20261022/RESULTS_zh.txt": "011e15eaa65de72abfc5fc735f70226eaa3b63bd20acfaa9008cca2dbfe42b18",
     "studies/known_lesion_followup_20261022/RUN_GUIDE.txt": "71daa671b395faa3b8350920d969d85e60a6945642704b1392d3a2b12fb983d1",
@@ -149,11 +158,11 @@
     "PROTOCOL.json": "933460d8c20bc1e5d3c9c62a4647722d262edf71e6d0f70ebe3601cbde850e17",
     "MODEL_COMPONENTS_zh.txt": "3f12f325b4848ecbf96ec8f2fe416c956937d6fa9adbf2a4d2a30c7ed1b9a5a7",
     "COURSE_REQUIREMENTS_AUDIT_zh.txt": "793b4e53e9088b01296e3e51e73827f53e1ce7ba162f05254029dacd47cff48b",
-    "CLOSEOUT_STATUS_zh.txt": "0124ffc3bdb059c6d735f31622074d6f794b3984c4557c1f385d7911c0807571",
+    "CLOSEOUT_STATUS_zh.txt": "0c263702dca15f67c56a9a365ccfeeb2e75773a966669c51ce8f2ef55b8840c0",
     "TRANSFER_GUIDE_zh.txt": "064a81590b8a9f062d2d7df31225370c634ae77085e347193cf89bfb8b834484",
     "FEASIBILITY_REVIEW.txt": "321d2b8ee5dfe374c3f31ff82d1915659c19f72ba17c885720f959683233aee5"
   },
   "photos_masks_training_labels_metadata_weights_included": false,
   "raw_prediction_cache_included": false,
-  "source_workspace_git_commit": "31f62869ec19ce5aa189e3da978368e07abf5383"
+  "source_workspace_git_commit": "88d9d85af12ff7fa6d24cabdfa7912574f5b017e"
 }
