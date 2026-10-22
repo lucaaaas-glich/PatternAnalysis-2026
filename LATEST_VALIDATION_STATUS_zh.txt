@@ -1,0 +1,5 @@
+最新 validation 优化：2026-10-22 已完成。
+本轮未找到符合预定替换规则的新模型，仍保留 n + 轻度几何增强，confidence=0.40。
+结果与代码：studies/known_lesion_followup_20261022/RESULTS_zh.txt
+补充报告：output/pdf/COMP3710_Validation_Followup_20261022.pdf
+补充评估集没有参与本轮调参或推理；旧报告和结果保持原样；作业尚未提交。
