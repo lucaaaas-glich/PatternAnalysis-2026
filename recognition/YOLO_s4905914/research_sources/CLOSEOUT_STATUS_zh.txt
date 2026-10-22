@@ -1,0 +1,31 @@
+收尾状态更新：2026-10-22
+
+已完成：
+- 保存 Zhao 的最新回复；IoU>=0.8 仍是要求，合理试验、尽力且有充分分析时，老师允许未达到目标而不因此扣分；不是整体成绩保证。
+- 新增分类 Accuracy、每类 Precision/Recall/F1、Macro F1、覆盖率、混淆矩阵；无预测计为分类错误。
+- 新增整体和各类别 IoU，分别列出全 GT 正确类别、忽略类别、TP-only 和最高分单框定义。
+- 补齐八组 validation 模型及原始 n/s 回顾评估的指标；未重新选择模型或阈值。
+- 合并 22 October 分辨率、恶性正项加权、模型大小和单框规则实验分析。
+- 保留当前 n+轻度几何增强、seed=3710、confidence=0.40。
+
+当前 validation（165张）:
+Accuracy=118/165=71.52%；Macro F1=0.6663；分类恶性Recall=16/41=39.02%。
+恶性检测Recall=18/41=43.90%；恶性检测F1=0.5070。
+全GT正确类别最佳框IoU：整体0.6238，良性0.7058，恶性0.3757。
+这些是不同定义，完整口径见README的新增指标章节。
+
+报告：recognition/YOLO_s4905914/README.md
+PDF：output/pdf/COMP3710_Project3_Report.pdf
+新指标与锁定计划：recognition/YOLO_s4905914/course_metrics_20261022.json、course_closeout_plan.json。
+老师回复：recognition/YOLO_s4905914/teacher_response_20261022.txt。
+新指标由独立NumPy实现核对；原40项测试与新增7项指标测试通过。
+
+仍未完成：
+1. 当前geometry候选的最终固定回顾评估：SSH连接超时，本机缺这165张原始照片。已准备evaluate_locked_candidate.py，不重新训练或扫描阈值，也不会称新盲测。
+2. GitHub同步：线上lucaaaas-glich/PatternAnalysis-2026的topic-recognition有25次旧项目提交，最新06c71b5（布里斯班10月15日）。重做工程已有22次历史本地提交，随后已按实际日期提交两批已完成实验，后续收尾继续如实提交。
+3. 当前GitHub连接器是另一账号，尚未向远程写入；新课程PR和Turnitin也未提交。
+4. 学生需核对feasibility check-off登记、截止日期，以及第三方Ultralytics组件是否满足源码要求。
+
+课程Git要求：完成有意义的小里程碑后commit，使用清楚的消息；push才会更新GitHub；向上游topic-recognition创建PR才是课程提交的一部分。不是每改一行都提交，也不能用现在拆分的提交冒充过去的开发时间。
+
+以此更新和course_metrics_20261022.json为当前状态；旧实验计划中的pending字段是当时的记录，冻结配置不改写。
