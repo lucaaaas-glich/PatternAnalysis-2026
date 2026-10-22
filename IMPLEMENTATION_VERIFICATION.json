@@ -949,5 +949,15 @@
     "evidence": "outputs/report_update_20261018/final_verification.json",
     "packaging_tests_passed": 3,
     "updated_package_evidence": "outputs/report_update_20261018/package_verification.json"
+  },
+  "pre_submission_20261018": {
+    "status": "local_consistency_checks_passed_submission_not_authorized",
+    "tests_passed": 40,
+    "actual_runs_checked": 4,
+    "report_pdf_unchanged": true,
+    "module_only_report_rebuild_identical": true,
+    "report_builder_sha256": "0b9e80d3714fc74d29bab670fc8a2d5ae24f4b6037b75ee64ad4373e443d2161",
+    "evidence": "PRE_SUBMISSION_VERIFICATION.json",
+    "external_submission": false
   }
 }

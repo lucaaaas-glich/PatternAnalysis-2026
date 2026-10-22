@@ -26,7 +26,7 @@ annotations.csv 是此前核验过的 mask-to-box 结果；本包可从该表重
 构建命令（项目根目录；输出必须尚不存在）
 
 python recognition/YOLO_s4905914/transfer.py build \
-  --output outputs/transfer_report_20261018_v2/comp3710_project3_reproducibility.zip
+  --output outputs/transfer_presubmit_20261018/comp3710_project3_reproducibility.zip
 
 同时生成 .zip.sha256。同一工具环境、相同内容生成相同 ZIP 字节；改动后
 使用新路径，不覆盖历史包。包内每个文件都有大小与 SHA-256，不能据此

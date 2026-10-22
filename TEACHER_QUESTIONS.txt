@@ -1,3 +1,15 @@
+Current status - 22 October 2026
+
+The student reports that the teacher advised using the known-lesion-ID subset.
+The three initial validation ablations and two second-seed confirmation runs
+are complete. No new reassessment inference or tuning was performed.
+The old cohort question below is historical. Remaining questions concern
+IoU aggregation and performance requirements, imported model components,
+personal check-off and the deadline. Use TEACHER_CONFIRMATION_EN.txt as
+the current consolidated draft; no message has been sent.
+
+Historical drafts and earlier status follow:
+
 Teacher questions — remaining drafts; status updated 17 October 2026
 Prepared 17 October 2026 (Australia/Brisbane)
 
@@ -103,3 +115,12 @@ replacement blinded result. The existing grouping question remains relevant;
 do not send a duplicate automatically. No new teacher reply was checked in
 this report-editing session. Confirm cohort acceptance, component packaging,
 metric rules and the student's own check-off/deadline before final submission.
+
+Pre-submission consolidation (18 October, not sent)
+
+A single current paragraph is saved in TEACHER_CONFIRMATION_EN.txt. It includes
+subset/retrospective evaluation acceptance, imported model components, the IoU
+aggregation and performance-hurdle interpretation, numerical classification
+requirements, personal check-off and the applicable deadline. No new Ed reply
+was fetched during this local check; do not infer that the teacher is currently
+still unanswered. The student requested no submission or sending.

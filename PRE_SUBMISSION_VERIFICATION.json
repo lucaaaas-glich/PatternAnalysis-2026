@@ -1,0 +1,103 @@
+{
+  "checked_at": "2026-10-18T01:06:49.526636+10:00",
+  "status": "local_consistency_checks_passed_submission_not_authorized",
+  "tests": {
+    "existing_unit_tests_passed": 40,
+    "ML_pip_check": "No broken requirements found",
+    "module_python_syntax_files_checked": 33
+  },
+  "runs": [
+    {
+      "cohort": "main",
+      "model": "n",
+      "configuration_matches_actual_args": true,
+      "runtime_source_files_match": 8,
+      "best_checkpoint_and_validation_lock_match": true,
+      "report_aggregate_matches_raw_evaluation": true,
+      "threshold": 0.5,
+      "best_epoch": 32
+    },
+    {
+      "cohort": "main",
+      "model": "s",
+      "configuration_matches_actual_args": true,
+      "runtime_source_files_match": 8,
+      "best_checkpoint_and_validation_lock_match": true,
+      "report_aggregate_matches_raw_evaluation": true,
+      "threshold": 0.8,
+      "best_epoch": 42
+    },
+    {
+      "cohort": "expanded_n",
+      "model": "n",
+      "configuration_matches_actual_args": true,
+      "runtime_source_files_match": 8,
+      "best_checkpoint_and_validation_lock_match": true,
+      "report_aggregate_matches_raw_evaluation": true,
+      "threshold": 0.7,
+      "best_epoch": 29
+    },
+    {
+      "cohort": "expanded_s",
+      "model": "s",
+      "configuration_matches_actual_args": true,
+      "runtime_source_files_match": 8,
+      "best_checkpoint_and_validation_lock_match": true,
+      "report_aggregate_matches_raw_evaluation": true,
+      "threshold": 0.5,
+      "best_epoch": 41
+    }
+  ],
+  "main_reassessment_models_matching_raw_records": 2,
+  "main_split_counts": [
+    768,
+    165,
+    165
+  ],
+  "expanded_split_counts": [
+    2263,
+    165,
+    165
+  ],
+  "validation_and_reassessment_membership_unchanged": true,
+  "report_sha256": "09373c48a48efde46165abda746d3b5776053d23dabccc8c8399639714b0fdda",
+  "README_sha256": "8fe6546bf21d1bb347cb26c60bf553ffb0ff10e51f57c4296997c37e4e688ccc",
+  "report_pages": 14,
+  "report_figures_matching": 9,
+  "copied_evidence_matching": true,
+  "portable_report_build": {
+    "initial_missing_dependency": "root FEASIBILITY_REVIEW.txt",
+    "fix": "Include an identical module-local copy and read that path",
+    "isolated_rebuild_README_identical": true,
+    "PDF_unchanged": true
+  },
+  "tracked_forbidden_data_or_weights": [],
+  "git_history_commits_before_this_check": 22,
+  "new_model_training": false,
+  "new_real_image_inference": false,
+  "new_test_selection": false,
+  "teacher_reply_refreshed": false,
+  "external_submission": false,
+  "unresolved": [
+    "Instructor acceptance of known-lesion subset and retrospective evaluation",
+    "Imported Ultralytics component packaging",
+    "Per-class IoU aggregation and classification-performance requirement",
+    "Personal feasibility check-off and exact applicable deadline",
+    "Course fork integration has not been performed; research workspace includes study sources outside recognition/"
+  ],
+  "model_decision_file": "recognition/YOLO_s4905914/coursework_model_decision.json",
+  "README_PDF_full_text_check": {
+    "paragraphs_or_headings_checked": 117,
+    "table_cells_checked": 300,
+    "code_blocks_checked": 2,
+    "wrapped_cells_verified_by_column_crop": [
+      "Horizontal/vertical flips, p=0.5 each",
+      "n validation / reassessment"
+    ],
+    "missing": []
+  },
+  "report_builder_sha256": "0b9e80d3714fc74d29bab670fc8a2d5ae24f4b6037b75ee64ad4373e443d2161",
+  "module_feasibility_sha256": "321d2b8ee5dfe374c3f31ff82d1915659c19f72ba17c885720f959683233aee5",
+  "teacher_question_file": "TEACHER_CONFIRMATION_EN.txt",
+  "teacher_question_sent": false
+}

@@ -47,7 +47,9 @@ def collect_files(root):
              'IMPLEMENTATION_VERIFICATION.json', 'CLEANUP_PLAN.txt')]
     paths += [Path(name) for name in ('FEASIBILITY_REVIEW.txt', 'READINESS_STATUS_zh.txt',
                                      'COURSE_REQUIREMENTS_AUDIT_zh.txt',
-                                     'SUBMISSION_DECISION_zh.txt') if (root / name).is_file()]
+                                     'SUBMISSION_DECISION_zh.txt', 'PRE_SUBMISSION_CHECK_zh.txt',
+                                     'PRE_SUBMISSION_VERIFICATION.json',
+                                     'TEACHER_CONFIRMATION_EN.txt') if (root / name).is_file()]
     paths += [p.relative_to(root) for p in sorted((root / CODE).iterdir())
               if p.is_file() and not p.name.startswith('.')
               and p.suffix in ('.py', '.json', '.txt', '.md', '.sh')]
