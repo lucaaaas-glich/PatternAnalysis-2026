@@ -4,6 +4,7 @@ import json
 from report_expanded import add_expanded_section
 from report_known_optimization import add_known_optimization
 from report_course_closeout import add_course_closeout
+from report_final_candidate import add_final_candidate
 
 
 def build():
@@ -26,9 +27,9 @@ COMP3710 Assignment 3, Project 3 | s4905914 | Report updated 22 October 2026
 
 This project compares YOLOv8n and YOLOv8s for finding skin lesions and classifying them as benign or malignant. The main question is whether either model can detect more malignant lesions while keeping false alerts on benign images low. YOLOv8n was chosen as the main baseline before training. The main experiment uses images with known lesion IDs; a later experiment adds more training images and is reported separately.
 
-Both models completed 60 training epochs, but malignant detection remained weak. In the supplementary evaluation, n detected 10/41 malignant lesions at confidence 0.50, while s detected 6/41 at 0.80. Their mAP50:95 values were 0.3619 and 0.3527. n also raised malignant alerts on 16/124 benign images, above the 10% limit used to select its threshold on validation. The models and thresholds were kept unchanged after these results.
+Both original models completed 60 training epochs, but malignant detection remained weak. In their supplementary evaluation, n detected 10/41 malignant lesions at confidence 0.50, while s detected 6/41 at 0.80. These baseline results motivated the later validation-only trials reported below.
 
-The current development choice is YOLOv8n with light geometry at confidence 0.40, selected using only the known-lesion training and validation sets. It detects 18/41 malignant validation lesions with 12/124 benign alerts. The later bounded follow-up retained this model. The opening n/s reassessment figures refer to the original baseline experiment; the geometry candidate has not yet completed reassessment. The expanded-data experiment is retained as historical exploration and is excluded from the current choice.
+The final choice is YOLOv8n with light geometry at confidence 0.40, selected using only the known-lesion training and validation sets. It detects 18/41 malignant validation lesions with 12/124 benign alerts. The fixed retrospective evaluation detects 13/41 with 13/124 benign alerts, Accuracy 72.73% and macro F1 0.6558. Its all-GT correct-class IoU is 0.6040 overall, 0.7150 for benign and 0.2680 for malignant. The final sections give the full definitions and results. No model or threshold changed after this evaluation. The expanded-data experiment remains historical exploration and is excluded from the final choice.
 
 Zhao's reply supplied on 22 October requires overall and per-class IoU, Accuracy, and additional classification metrics for imbalance. The 0.8 IoU requirement includes an evidence-supported best-effort provision. The final sections add these metrics and the follow-up analysis. Imported Ultralytics components and personal tutor check-off still need confirmation. These experiments do not establish clinical suitability.''')
     optimization=json.loads((code/'known_optimization_results_20261021.json').read_text())
@@ -100,7 +101,7 @@ Each marker is one of the 14 tested thresholds; the joining lines do not represe
 
 Validation classification loss is plotted on a logarithmic scale so both early spikes and later changes are visible. All recorded values are finite. The cause of the spikes was not tested. Completing 60 epochs does not establish convergence, and an earlier best checkpoint alone does not establish overfitting.''')
     page()
-    add(r'''## Main experiment: results
+    add(r'''## Original n/s experiment: results
 
 Validation and reassessment each contain 124 benign and 41 malignant images, with different membership. Each model was evaluated once on reassessment using its fixed checkpoint and threshold. Earlier exposure to some images means this is not a fresh blind test.''')
     table(['AP measure','n validation / reassessment','s validation / reassessment'],[
@@ -127,7 +128,7 @@ Both models detect five malignant reassessment cases, only n detects five, only 
     add("All-GT means use the best retained box under the stated class rule, with missing predictions scored zero. TP-only means exclude misses. Both malignant TP-only means are below 0.8, and the all-GT means are lower. The teacher's later reply requires overall and per-class reporting without specifying the treatment of missed or wrong-class predictions. The final sections provide pooled overall IoU alongside these definitions and discuss the best-effort provision.")
     add_expanded_section(code,add,page,table,pct)
     page()
-    add(r'''## Main experiment: runtime and memory
+    add(r'''## Original n/s experiment: runtime and memory
 
 Training ran on an A100 in job 669143. Reassessment and speed measurement ran on an A100-PCIE-40GB in job 669815. Speed was measured using validation images, FP32, 640-pixel input and one image at a time. Labels were not used to select a model in this test. Each model had 10 warm-up calls, followed by three passes through 165 images: 495 timed calls. GPU synchronization before and after each call ensured that timing included completed GPU work.''')
     table(['Measurement','YOLOv8n','YOLOv8s'],[
@@ -151,7 +152,7 @@ A separate NumPy matcher reproduced all 28 main-study validation threshold resul
 
 The training and evaluation source files matched the recorded runs, and the checkpoints and threshold records were unchanged. Changes to the transfer packager were separate from model execution. The resource check also recalculated means and throughput from all 495 timings per model. These checks support the consistency of the code and records; they do not verify every diagnosis or make the study a blind clinical evaluation.''')
     page()
-    add(r'''## Five failure examples from reassessment
+    add(r'''## Five failure examples: original n/s reassessment
 
 For each failure category, the image with the lowest ID was selected, without using an image twice. These examples illustrate errors rather than forming a random sample. Dashed boxes show GT; solid boxes show all predictions above the model's fixed threshold. B and M mean benign and malignant. Image proportions are preserved. Hair, rulers or other visible features are not assumed to cause an error without a controlled test.''')
     explanations=[
@@ -251,6 +252,7 @@ Checks included inspecting the pinned library code, comparing file hashes and pr
 ''')
     add_known_optimization(code,add,page,table,pct)
     add_course_closeout(code,add,page,table,pct)
+    add_final_candidate(code,add,page,table,pct)
     (code/'README.md').write_text('\n'.join(parts))
     print(code/'README.md')
 

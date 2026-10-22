@@ -1,34 +1,46 @@
-最新收尾状态见 CLOSEOUT_STATUS_zh.txt（2026-10-22）。
-旧版本记录保留在 outputs/closeout_20261022/historical_START_HERE_zh.txt。
+当前唯一状态说明：CLOSEOUT_STATUS_zh.txt（2026-10-22，固定回顾评估已完成）。
 
-收尾状态更新：2026-10-22
+收尾状态：2026-10-22，最终固定回顾评估已完成
+
+最终选择保持不变：YOLOv8n + 轻度几何增强，seed=3710，confidence > 0.40。
+只使用1,098张已知lesion_id的主实验数据：训练768、validation 165、回顾评估165；缺失patient_id仍限制患者独立性声明。
 
 已完成：
-- 保存 Zhao 的最新回复；IoU>=0.8 仍是要求，合理试验、尽力且有充分分析时，老师允许未达到目标而不因此扣分；不是整体成绩保证。
-- 新增分类 Accuracy、每类 Precision/Recall/F1、Macro F1、覆盖率、混淆矩阵；无预测计为分类错误。
-- 新增整体和各类别 IoU，分别列出全 GT 正确类别、忽略类别、TP-only 和最高分单框定义。
-- 补齐八组 validation 模型及原始 n/s 回顾评估的指标；未重新选择模型或阈值。
-- 合并 22 October 分辨率、恶性正项加权、模型大小和单框规则实验分析。
-- 保留当前 n+轻度几何增强、seed=3710、confidence=0.40。
+- 按Zhao回复补齐Accuracy、每类Precision/Recall/F1、Macro F1，以及整体/良性/恶性IoU和明确分母。
+- 完成有界validation试验、第二seed检查、失败原因诊断；不再继续调参。
+- 恢复学校登录，核对165张原始照片的SHA-256。
+- A100任务686313因预计排队到次日，在尚未启动时取消；在看到结果前记录改用本机Apple M2 CPU、FP32的决定。
+- 同一固定权重、预处理、NMS与阈值只完成一套最终回顾评估；没有重新选择模型或扫描阈值。
+- 47项测试通过；独立NumPy实现复算检测计数、警报、Accuracy/F1和各口径IoU。
 
-当前 validation（165张）:
-Accuracy=118/165=71.52%；Macro F1=0.6663；分类恶性Recall=16/41=39.02%。
-恶性检测Recall=18/41=43.90%；恶性检测F1=0.5070。
-全GT正确类别最佳框IoU：整体0.6238，良性0.7058，恶性0.3757。
-这些是不同定义，完整口径见README的新增指标章节。
+Validation（165张，开发数据）：
+Accuracy=118/165=71.52%；Macro F1=0.6663。
+恶性分类Recall=16/41=39.02%；恶性检测Recall=18/41=43.90%。
+全GT正确类别IoU：整体0.6238，良性0.7058，恶性0.3757。
 
-报告：recognition/YOLO_s4905914/README.md
+最终回顾评估（另165张，已有历史暴露，不是新盲测）：
+Accuracy=120/165=72.73%；Macro F1=0.6558。
+恶性分类Recall=15/41=36.59%；恶性分类F1=0.4545。
+恶性检测Recall=13/41=31.71%；恶性检测F1=0.3714。
+良性图片误警报=13/124=10.48%，略超validation上的自定10%比较预算。
+全GT正确类别IoU：整体0.6040，良性0.7150，恶性0.2680。
+忽略类别的全GT IoU：整体0.7305，良性0.7726，恶性0.6034。
+TP-only IoU：整体0.8428（117 TP），良性0.8470（104 TP），恶性0.8100（13 TP）。
+TP-only排除了48个未匹配GT，不能代替全GT结果或宣称整体达到0.8。
+原始n在同一回顾集检出10/41且16张良性误警报；本次13/41且13张误警报。各自阈值先由validation锁定，不据此回头挑选。
+
+报告入口：recognition/YOLO_s4905914/README.md
 PDF：output/pdf/COMP3710_Project3_Report.pdf
-新指标与锁定计划：recognition/YOLO_s4905914/course_metrics_20261022.json、course_closeout_plan.json。
-老师回复：recognition/YOLO_s4905914/teacher_response_20261022.txt。
-新指标由独立NumPy实现核对；原40项测试与新增7项指标测试通过。
+最终结果：recognition/YOLO_s4905914/final_candidate_reassessment_20261022.json
+原有10个缓存指标：course_metrics_20261022.json（历史snapshot，其中pending字段保留当时状态）。
+最终复算：audit_final_reassessment.py；单次评估：evaluate_locked_candidate.py。
+完整原始输出：outputs/final_reassessment_cpu_20261022（不进Git）。
+老师回复：teacher_response_20261022.txt；原锁定计划及所有选择记录均不改写。
 
-仍未完成：
-1. 当前geometry候选的最终固定回顾评估：SSH连接超时，本机缺这165张原始照片。已准备evaluate_locked_candidate.py，不重新训练或扫描阈值，也不会称新盲测。
-2. GitHub同步：线上lucaaaas-glich/PatternAnalysis-2026的topic-recognition有25次旧项目提交，最新06c71b5（布里斯班10月15日）。重做工程已有22次历史本地提交，随后已按实际日期提交两批已完成实验，后续收尾继续如实提交。
-3. 当前GitHub连接器是另一账号，尚未向远程写入；新课程PR和Turnitin也未提交。
-4. 学生需核对feasibility check-off登记、截止日期，以及第三方Ultralytics组件是否满足源码要求。
+仍需完成的外部步骤：
+1. GitHub并非空白：线上个人fork的topic-recognition有旧项目和25次旧提交。新工程与课程目录均在本机保存真实提交历史，尚未push本轮更新。
+2. 当前连接的GitHub账号与目标fork所有者不同；不向其他账号写入。课程PR和Turnitin按“先别提交”的要求保持未提交。
+3. 学生核对个人feasibility check-off是否登记、当前截止时间，以及导入Ultralytics组件是否满足组件源码要求。英文问题见TEACHER_CONFIRMATION_EN.txt。
 
-课程Git要求：完成有意义的小里程碑后commit，使用清楚的消息；push才会更新GitHub；向上游topic-recognition创建PR才是课程提交的一部分。不是每改一行都提交，也不能用现在拆分的提交冒充过去的开发时间。
-
-以此更新和course_metrics_20261022.json为当前状态；旧实验计划中的pending字段是当时的记录，冻结配置不改写。
+老师仍要求IoU >= 0.8；合理试验、尽力和充分分析支持未达到目标时不因此扣分的说明，不是整体成绩保证。
+课程要求有意义的小里程碑commit及清楚消息；push才更新GitHub；课程PR是另一步。没有回填或伪造过去提交时间。

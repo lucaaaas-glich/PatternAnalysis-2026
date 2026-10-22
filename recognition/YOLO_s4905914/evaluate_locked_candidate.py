@@ -15,10 +15,13 @@ from modules import load_trained
 from runtime import check_runtime, digest, load_config, read_json, write_json
 
 
-def evaluate(root, image_root, output, device):
+def evaluate(root, image_root, output, device, verify_only=False):
     code = Path(__file__).resolve().parent
     plan_path = code/'course_closeout_plan.json'
     plan = read_json(plan_path)
+    for name, expected in plan['reporting_code_sha256'].items():
+        if digest(code/name) != expected:
+            raise ValueError('Reporting implementation changed after closeout plan: '+name)
     chosen = plan['selected_model']
     config = root/chosen['config_path']
     checkpoint = root/chosen['checkpoint_path']
@@ -53,6 +56,9 @@ def evaluate(root, image_root, output, device):
         files[row['image_id']] = {'file_sha256': expected}
     if output.exists():
         raise ValueError('Choose a fresh output directory; results must not be overwritten')
+    if verify_only:
+        print('Verified fixed selection, reporting code and all 165 original photos; no inference started.')
+        return
     runtime = check_runtime()
     import yaml
     output.mkdir(parents=True)
@@ -98,5 +104,6 @@ if __name__ == '__main__':
     p.add_argument('--image-root', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--device', default='cpu')
+    p.add_argument('--verify-only', action='store_true', help='Check inputs without creating outputs or running inference')
     a = p.parse_args()
-    evaluate(a.root.resolve(), a.image_root.resolve(), a.output.resolve(), a.device)
+    evaluate(a.root.resolve(), a.image_root.resolve(), a.output.resolve(), a.device, a.verify_only)

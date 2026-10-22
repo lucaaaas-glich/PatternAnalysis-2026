@@ -4,9 +4,9 @@ COMP3710 Assignment 3, Project 3 | s4905914 | Report updated 22 October 2026
 
 This project compares YOLOv8n and YOLOv8s for finding skin lesions and classifying them as benign or malignant. The main question is whether either model can detect more malignant lesions while keeping false alerts on benign images low. YOLOv8n was chosen as the main baseline before training. The main experiment uses images with known lesion IDs; a later experiment adds more training images and is reported separately.
 
-Both models completed 60 training epochs, but malignant detection remained weak. In the supplementary evaluation, n detected 10/41 malignant lesions at confidence 0.50, while s detected 6/41 at 0.80. Their mAP50:95 values were 0.3619 and 0.3527. n also raised malignant alerts on 16/124 benign images, above the 10% limit used to select its threshold on validation. The models and thresholds were kept unchanged after these results.
+Both original models completed 60 training epochs, but malignant detection remained weak. In their supplementary evaluation, n detected 10/41 malignant lesions at confidence 0.50, while s detected 6/41 at 0.80. These baseline results motivated the later validation-only trials reported below.
 
-The current development choice is YOLOv8n with light geometry at confidence 0.40, selected using only the known-lesion training and validation sets. It detects 18/41 malignant validation lesions with 12/124 benign alerts. The later bounded follow-up retained this model. The opening n/s reassessment figures refer to the original baseline experiment; the geometry candidate has not yet completed reassessment. The expanded-data experiment is retained as historical exploration and is excluded from the current choice.
+The final choice is YOLOv8n with light geometry at confidence 0.40, selected using only the known-lesion training and validation sets. It detects 18/41 malignant validation lesions with 12/124 benign alerts. The fixed retrospective evaluation detects 13/41 with 13/124 benign alerts, Accuracy 72.73% and macro F1 0.6558. Its all-GT correct-class IoU is 0.6040 overall, 0.7150 for benign and 0.2680 for malignant. The final sections give the full definitions and results. No model or threshold changed after this evaluation. The expanded-data experiment remains historical exploration and is excluded from the final choice.
 
 Zhao's reply supplied on 22 October requires overall and per-class IoU, Accuracy, and additional classification metrics for imbalance. The 0.8 IoU requirement includes an evidence-supported best-effort provision. The final sections add these metrics and the follow-up analysis. Imported Ultralytics components and personal tutor check-off still need confirmation. These experiments do not establish clinical suitability.
 
@@ -104,7 +104,7 @@ Validation classification loss is plotted on a logarithmic scale so both early s
 
 <!-- pagebreak -->
 
-## Main experiment: results
+## Original n/s experiment: results
 
 Validation and reassessment each contain 124 benign and 41 malignant images, with different membership. Each model was evaluated once on reassessment using its fixed checkpoint and threshold. Earlier exposure to some images means this is not a fresh blind test.
 
@@ -242,7 +242,7 @@ Only one seed and 41 malignant validation images were used. Validation had alrea
 
 <!-- pagebreak -->
 
-## Main experiment: runtime and memory
+## Original n/s experiment: runtime and memory
 
 Training ran on an A100 in job 669143. Reassessment and speed measurement ran on an A100-PCIE-40GB in job 669815. Speed was measured using validation images, FP32, 640-pixel input and one image at a time. Labels were not used to select a model in this test. Each model had 10 warm-up calls, followed by three passes through 165 images: 495 timed calls. GPU synchronization before and after each call ensured that timing included completed GPU work.
 
@@ -271,7 +271,7 @@ The training and evaluation source files matched the recorded runs, and the chec
 
 <!-- pagebreak -->
 
-## Five failure examples from reassessment
+## Five failure examples: original n/s reassessment
 
 For each failure category, the image with the lowest ID was selected, without using an image twice. These examples illustrate errors rather than forming a random sample. Dashed boxes show GT; solid boxes show all predictions above the model's fixed threshold. B and M mean benign and malignant. Image proportions are preserved. Hair, rulers or other visible features are not assumed to cause an error without a controlled test.
 
@@ -636,7 +636,7 @@ The following additions reuse the original saved reassessment predictions. No ne
 | Best box ignoring class, all GT | 0.4249 (N=165) | 0.4489 (N=124) | 0.3524 (N=41) |
 | Matched correct-class TP only | 0.8630 (N=67) | 0.8704 (N=61) | 0.7875 (N=6) |
 
-The current geometry checkpoint has not yet been evaluated on reassessment. Its final fixed evaluation is prepared separately; school SSH was unavailable during this report update. Until that run is completed, no current-candidate test score or held-out improvement is claimed. The original n/s results above cannot stand in for that missing evaluation.
+These are the original baseline results. The later geometry checkpoint has now completed its own fixed retrospective evaluation, reported in the final sections. The earlier ten-cache metrics file is preserved as a historical reporting snapshot; its pending field records the state before that final run.
 
 <!-- pagebreak -->
 
@@ -696,4 +696,83 @@ python recognition/YOLO_s4905914/export_readme_pdf.py \
 
 Cached predictions and source manifests must be restored for the first command; they are not training inputs supplied through Git. The second command uses the included summary JSON files. The third exports that same README to PDF, with a source-hash record. The current inference command and exact checkpoint/config/threshold hashes are recorded in the decision files; original examples remain explicitly labelled as historical.
 
+The final evaluation uses the separate `evaluate_locked_candidate.py` command and `audit_final_reassessment.py` audit. Its launch package and the pre-inference CPU decision are in `studies/final_reassessment_20261022/`. The earlier train/validation-only experiment loaders and their frozen selection rules remain unchanged.
+
 The source code and results remain available for review. The student must verify personal check-off completion, the applicable deadline and acceptance of imported Ultralytics components. The teacher's metric clarification does not answer those points. A course PR and the README PDF submission remain separate required actions; no new PR or Turnitin submission was made during this update.
+
+<!-- pagebreak -->
+
+## Final candidate: fixed retrospective evaluation
+
+After the teacher clarification, I evaluated the retained YOLOv8n geometry checkpoint (seed 3710) on the same 165 supplementary reassessment images used in the earlier baseline study. The checkpoint and confidence > 0.40 were fixed before this run. I did not scan thresholds or change the model after seeing these results. Prior image exposure remains, so this is a retrospective evaluation, not a new blind test.
+
+The queued A100 job was cancelled before it started because its estimated start was the next morning. This final run used the local CPU with FP32 and the pinned Ultralytics/PyTorch versions. The photo hashes, single-letterbox preprocessing, class-aware single-label NMS at 0.70 and IoU >= 0.50 detection matching were unchanged. Device choice was recorded before inference. Small numerical differences across devices remain possible; this run supplies no A100 speed measurement.
+
+| Measure | Original n, 0.50 | Final geometry n, 0.40 |
+| --- | --- | --- |
+| Image classification accuracy | 66.06% | 72.73% |
+| Classification macro F1 | 0.5867 | 0.6558 |
+| Malignant classification recall | 31.71% | 36.59% |
+| Malignant detection TP / 41 | 10 | 13 |
+| Malignant detection precision | 33.33% | 44.83% |
+| Malignant detection F1 | 0.2817 | 0.3714 |
+| Benign images with malignant alert / 124 | 16 | 13 |
+| mAP50 / mAP50:95 | 0.5432 / 0.3619 | 0.6312 / 0.4290 |
+
+Each model keeps its own validation-selected threshold. This compares the two fixed operating policies; it does not isolate architecture or augmentation at a common score cutoff. The validation alert budget is not a guarantee on another set. AP is calculated across confidence ranks using the fixed low-score floor; it is not AP at confidence 0.40.
+
+| Final model class | AP50 | AP50:95 | Detection recall |
+| --- | --- | --- | --- |
+| Benign | 0.8392 | 0.5863 | 83.87% |
+| Malignant | 0.4233 | 0.2717 | 31.71% |
+
+Among the 41 malignant images, both models detect 7, only geometry n detects 6, only original n detects 3, and both miss 25. These paired counts describe this sample; they do not establish a population-level improvement. The selected model remains the validation-selected geometry checkpoint.
+
+<!-- pagebreak -->
+
+## Final candidate: classification and localization
+
+| Ground truth | Predicted benign | Predicted malignant | No prediction |
+| --- | --- | --- | --- |
+| Benign | 105 | 10 | 9 |
+| Malignant | 16 | 15 | 10 |
+
+| Image class | Precision | Recall | F1 |
+| --- | --- | --- | --- |
+| Benign | 86.78% | 84.68% | 0.8571 |
+| Malignant | 60.00% | 36.59% | 0.4545 |
+
+Full-cohort accuracy is 120/165 (72.73%); coverage is 146/165 (88.48%). Abstentions count as incorrect. Balanced accuracy is 60.63%, and macro F1 is 0.6558. This image-class decision uses the highest-confidence retained box without using GT. All boxes still enter detection matching and false-positive counts.
+
+Always predicting benign would give 75.15% accuracy and zero malignant recall on this class mix, so accuracy alone would be misleading. The final model classifies 15 malignant images correctly, but two of their boxes have IoU below 0.5, leaving 13 malignant detection TP. Three benign images have a correct benign primary box plus an extra malignant alert; this explains 13 benign alerts versus 10 malignant image-class decisions on benign GT.
+
+| IoU definition | Overall | Benign | Malignant |
+| --- | --- | --- | --- |
+| Best correct-class box, all GT | 0.6040 (N=165) | 0.7150 (N=124) | 0.2680 (N=41) |
+| Best box ignoring class, all GT | 0.7305 (N=165) | 0.7726 (N=124) | 0.6034 (N=41) |
+| Matched correct-class TP only | 0.8428 (N=117) | 0.8470 (N=104) | 0.8100 (N=13) |
+| Highest-score box, ignore class | 0.7256 (N=165) | 0.7662 (N=124) | 0.6028 (N=41) |
+| Highest-score box, correct class | 0.5906 (N=165) | 0.6973 (N=124) | 0.2680 (N=41) |
+
+The all-GT correct-class mean is 0.6040 overall, 0.7150 for benign and 0.2680 for malignant. The TP-only table excludes 48 unmatched GTs, including 28 malignant lesions. It cannot replace the all-GT result or establish successful detection of those missed lesions.
+
+The full-pipeline results still do not demonstrate IoU >= 0.8 across all lesions. I report the target shortfall with the completed controlled trials and error analysis, following the teacher's best-effort provision. This does not imply clinical safety or guarantee the overall assignment grade.
+
+`final_candidate_reassessment_20261022.json` contains the verified summary. `audit_final_reassessment.py` checks the image membership and labels, original photo hashes, checkpoint, lock, reporting code and prediction hashes. It independently replays TP/FP/FN, alerts, classification counts/F1 and every reported IoU denominator. AP values remain the pinned Ultralytics implementation. The original ten-cache reporting record is preserved as an earlier snapshot; this separate record supplies the newly completed evaluation.
+
+<!-- pagebreak -->
+
+## Final candidate: descriptive failure checks
+
+There are 28/41 malignant detection FN at the fixed operating point: 16 have a retained benign box with IoU >= 0.5, 10 have no retained box, and 2 have other class/location failures. These categories describe the output; they do not prove why the network failed.
+
+| Case and GT | Observed output at confidence > 0.40 |
+| --- | --- |
+| ISIC_0012989; Malignant; Malignant GT with localized benign prediction | B score=0.703, IoU=0.706 |
+| ISIC_0012884; Benign; Benign GT with malignant alert | B score=0.696, IoU=0.804; M score=0.542, IoU=0.962 |
+| ISIC_0014072; Malignant; Malignant alert with insufficient localization | M score=0.455, IoU=0.408 |
+| ISIC_0013198; Malignant; No retained prediction on malignant GT | No retained box |
+
+Examples use the lowest available image ID in each specified failure category, without reusing an image. They are illustrative, not a random sample. A well-localized benign prediction on a malignant GT is a classification failure; an absent retained box does not by itself prove that the image was too small, low contrast or obscured. No parameter changes followed this inspection.
+
+The earlier five illustrated cases remain labelled as original baseline examples. Their boxes are not presented as predictions from the final geometry model. The final candidate's quantitative errors above come from its own saved prediction cache.

@@ -9,17 +9,20 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
+import subprocess
 import tarfile
 
 
-def prepare(checkout):
+def prepare(checkout, backup_name='course_folder_before_integration.tar.gz'):
     root=Path(__file__).resolve().parent
     source=root/'recognition/YOLO_s4905914'
     target=checkout/'recognition/YOLO_s4905914'
     if not (checkout/'.git').exists() or checkout.resolve()==root.resolve():
         raise ValueError('Supply the separate course checkout')
     audit=root/'outputs/closeout_20261022';audit.mkdir(parents=True,exist_ok=True)
-    backup=audit/'course_folder_before_integration.tar.gz'
+    if Path(backup_name).name != backup_name or not backup_name.endswith('.tar.gz'):
+        raise ValueError('Use a plain .tar.gz backup filename')
+    backup=audit/backup_name
     if target.exists():
         if backup.exists():
             raise ValueError('Prior course-folder backup already exists; inspect before restaging')
@@ -28,7 +31,12 @@ def prepare(checkout):
     shutil.copytree(source,target,ignore=shutil.ignore_patterns('__pycache__','*.pyc','research_sources'))
     sources=target/'research_sources';sources.mkdir()
     members=[]
-    for file in sorted((root/'studies').rglob('*')):
+    # Respect Git exclusions: a staged final-evaluation bundle contains private
+    # manifests and weights that must not enter the source-only course folder.
+    study_files=subprocess.check_output(['git','-C',str(root),'ls-files','-z',
+        '--cached','--others','--exclude-standard','--','studies'],text=True).split('\0')
+    for relative in sorted(set(study_files)-{''}):
+        file=root/relative
         if not file.is_file() or '__pycache__' in file.parts:continue
         if file.suffix in ('.pt','.pth','.npz','.zip','.gz','.pyc'):continue
         if file.name=='policy_predictions_seed3710.json':continue
@@ -45,7 +53,6 @@ def prepare(checkout):
     manifest={'purpose':'Restore historical research paths without rewriting frozen experiment sources',
               'files':hashes,'photos_masks_training_labels_metadata_weights_included':False,
               'raw_prediction_cache_included':False,'source_workspace_git_commit':None}
-    import subprocess
     manifest['source_workspace_git_commit']=subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()
     (sources/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
     (target/'.gitignore').write_text('__pycache__/\n*.py[cod]\n*.pt\n*.pth\n.venv/\noutput/\noutputs/\ndata/\nweights/\n.DS_Store\n')
@@ -60,4 +67,5 @@ def prepare(checkout):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--checkout',type=Path,required=True)
-    a=p.parse_args();prepare(a.checkout.resolve())
+    p.add_argument('--backup-name',default='course_folder_before_integration.tar.gz')
+    a=p.parse_args();prepare(a.checkout.resolve(),a.backup_name)
