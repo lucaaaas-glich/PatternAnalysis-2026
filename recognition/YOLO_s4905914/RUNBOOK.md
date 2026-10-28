@@ -1,6 +1,15 @@
-Historical runbook snapshot: this file preserves preparation and validation-stage notes.
-The current completed experimental report and status are in README.md and the root READINESS_STATUS_zh.txt.
-Some status statements below describe that earlier stage, not the current completion state.
+# Current execution guide - 28 October 2026
+
+Use [REPRODUCING.md](REPRODUCING.md) for current data access, bundle verification,
+original n/s training, final geometry-n training and locked prediction commands.
+The tutor check-off and imported-component approach are confirmed, and the teacher
+accepted the known-lesion-only cohort. README.md contains the final results.
+
+The notes below preserve the earlier preparation and validation stages. Their
+then-pending decisions and unevaluated-set statements are historical, not current.
+Runnable baseline examples now point to the enabled experiment_provisional.json;
+the disabled experiment.json remains an unmodified planning record. For the final
+geometry run, use the study-specific two-split code specified in REPRODUCING.md.
 
 # COMP3710 Project 3 restart: YOLOv8 lesion detection
 
@@ -119,14 +128,14 @@ python -m pip install -r recognition/YOLO_s4905914/requirements.txt
 python recognition/YOLO_s4905914/fetch_weights.py --output weights/original_coco
 python -m unittest discover -s recognition/YOLO_s4905914 -p 'test_*.py' -v
 python recognition/YOLO_s4905914/train.py plan \
-  --config recognition/YOLO_s4905914/experiment.json --prepared data/known_lesion_v1
+  --config recognition/YOLO_s4905914/experiment_provisional.json --prepared data/known_lesion_v1
 ```
 
 Read-only initialization audit (no images, optimizer steps or saved checkpoints):
 
 ```bash
 python recognition/YOLO_s4905914/audit_initialization.py \
-  --config recognition/YOLO_s4905914/experiment.json \
+  --config recognition/YOLO_s4905914/experiment_provisional.json \
   --weights-dir weights/original_coco --output outputs/initialization_audit
 ```
 
@@ -146,7 +155,7 @@ The separate device preflight can run while the full-training gate remains close
 
 ```bash
 python recognition/YOLO_s4905914/preflight.py \
-  --config recognition/YOLO_s4905914/experiment.json \
+  --config recognition/YOLO_s4905914/experiment_provisional.json \
   --weights-dir weights/original_coco --output outputs/preflight_cpu \
   --device cpu --batch 2 --imgsz 128
 ```
@@ -155,7 +164,7 @@ On the school host, first obtain a GPU allocation using the school's procedure, 
 
 ```bash
 python recognition/YOLO_s4905914/preflight.py \
-  --config recognition/YOLO_s4905914/experiment.json \
+  --config recognition/YOLO_s4905914/experiment_provisional.json \
   --weights-dir weights/original_coco --output outputs/preflight_gpu --device 0
 ```
 
@@ -167,11 +176,11 @@ On the school host, stage the declared images and verify all files decode. The d
 
 ```bash
 python recognition/YOLO_s4905914/dataset.py \
-  --prepared data/known_lesion_v1 --config recognition/YOLO_s4905914/experiment.json \
+  --prepared data/known_lesion_v1 --config recognition/YOLO_s4905914/experiment_provisional.json \
   --output data/runtime_v1
 
 python recognition/YOLO_s4905914/train.py fit \
-  --config recognition/YOLO_s4905914/experiment.json --prepared data/known_lesion_v1 \
+  --config recognition/YOLO_s4905914/experiment_provisional.json --prepared data/known_lesion_v1 \
   --stage data/runtime_v1 --weights-dir weights/original_coco --model n \
   --output outputs/n_v1 --device 0
 ```
@@ -182,7 +191,7 @@ Validate and select the operating point:
 
 ```bash
 python recognition/YOLO_s4905914/train.py evaluate \
-  --config recognition/YOLO_s4905914/experiment.json --prepared data/known_lesion_v1 \
+  --config recognition/YOLO_s4905914/experiment_provisional.json --prepared data/known_lesion_v1 \
   --stage data/runtime_v1 --checkpoint outputs/n_v1/fit/weights/best.pt \
   --split val --output outputs/n_v1_validation --device 0
 ```
@@ -191,13 +200,13 @@ Review validation, confirm the declared comparison is complete, and only then ru
 
 ```bash
 python recognition/YOLO_s4905914/train.py evaluate \
-  --config recognition/YOLO_s4905914/experiment.json --prepared data/known_lesion_v1 \
+  --config recognition/YOLO_s4905914/experiment_provisional.json --prepared data/known_lesion_v1 \
   --stage data/runtime_v1 --checkpoint outputs/n_v1/fit/weights/best.pt \
   --split reassessment --lock outputs/n_v1_validation/selection_lock.json \
   --output outputs/n_v1_reassessment --device 0
 
 python recognition/YOLO_s4905914/predict.py \
-  --config recognition/YOLO_s4905914/experiment.json \
+  --config recognition/YOLO_s4905914/experiment_provisional.json \
   --checkpoint outputs/n_v1/fit/weights/best.pt \
   --lock outputs/n_v1_validation/selection_lock.json \
   --image /path/to/example.jpg --output outputs/example_prediction --device 0

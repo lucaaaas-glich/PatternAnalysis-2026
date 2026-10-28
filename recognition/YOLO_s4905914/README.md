@@ -26,13 +26,13 @@ Images connected by any recorded lesion or patient ID, including indirect links,
 
 ## 2. feasibility review
 
-This is the plan written on 17 October, with wording revised on 21 October. It records the proposal before the later results and teacher clarifications. Including it does not establish that the personal check-off was recorded.
+This plan was written on 17 October and revised on 21 October. Its experimental aims are retained; approval status was updated on 28 October. My tutor has recorded the feasibility check-off, and the known-lesion-only scope and imported Ultralytics components have been accepted.
 
 ### Purpose and scope
 For a project manager considering a dermoscopy prototype, this study will compare YOLOv8n as the main baseline with YOLOv8s. The aim is to assess malignant detection recall while limiting alerts on benign images. Each image contains one annotated lesion, so multiple-lesion scenes are outside the study. Image alerts are a proxy for workload, not actual biopsy counts, and confidence is not a cancer probability.
 
 ### Data and model choice
-The planned main dataset contains the 1,098 images with lesion IDs from ISIC2018 Task 1: 824 benign and 274 malignant. Images connected by recorded lesion or patient IDs will stay in one split, giving 768 training, 165 validation and 165 supplementary reassessment images. The remaining 1,496 images are excluded. The selected subset still has 708 missing patient IDs, so full patient independence cannot be established. Tutor acceptance of the subset is pending. Boxes come from official binary masks and classes from matched metadata. Both models use their own original COCO weights. The design applies convolutional features, multiscale fusion, box/class losses and NMS. Ultralytics provides the network and trainer.
+The planned main dataset contains the 1,098 images with lesion IDs from ISIC2018 Task 1: 824 benign and 274 malignant. Images connected by recorded lesion or patient IDs will stay in one split, giving 768 training, 165 validation and 165 supplementary reassessment images. The remaining 1,496 images are excluded. The selected subset still has 708 missing patient IDs, so full patient independence cannot be established. The teacher has accepted this restricted subset. Boxes come from official binary masks and classes from matched metadata. Both models use their own original COCO weights. The design applies convolutional features, multiscale fusion, box/class losses and NMS. Ultralytics provides the network and trainer.
 
 ### Five testable acceptance criteria
 1. Check every selected image, box and class label; verify split counts and no overlap of recorded lesion or patient IDs.
@@ -45,7 +45,7 @@ The planned main dataset contains the 1,098 images with lesion IDs from ISIC2018
 At the planning stage, checks included 40 unit tests, one-epoch synthetic n/s runs, preprocessing comparisons and original COCO weight checks. Synthetic results do not establish lesion accuracy. Risks include missing IDs, subset bias, weak malignant classification and repeated validation use. Earlier test images had been viewed; regrouping would not create a blind test. The planned sequence was tutor clarification and real-input/GPU checks, then a fixed n/s training protocol, validation threshold selection, one supplementary evaluation and 3-5 failure examples. If the subset was rejected, the split would need revision before training. If resource or numerical checks failed, both models' shared protocol would need review before rerunning.
 
 ### Course and authorship notes
-YOLOv8 is the Normal-difficulty option. Imported components and the IoU averaging rule need clarification.  Codex assisted with code, checks and drafting; the student must review and explain the submitted work. Sources: assessment draft sections 2.3, 3 and 4; Ultralytics 8.3.221; previously checked Ed threads #136 and #147.
+YOLOv8 is the Normal-difficulty option. The imported-component approach is accepted. Section 8 explains the IoU definitions and the teacher guidance. Codex assisted with code, checks and drafting; I remain responsible for reviewing and explaining the work. Sources: assessment Sections 2.3, 3 and 4; Ultralytics 8.3.221; Ed threads #136 and #147.
 
 <!-- pagebreak -->
 
@@ -282,7 +282,7 @@ The main files are `modules.py` (model construction/loading), `dataset.py` (data
 
 School training used Python 3.13.16, PyTorch 2.8.0, torchvision 0.23.0 and Ultralytics 8.3.221. `requirements.txt` pins the ML dependencies; `requirements-linux-a100.lock.txt` records the tested Linux environment. The final local CPU evaluation used Python 3.13.13 with the same core package versions. PDF dependencies are separate in `requirements-report.txt`. Fixed seeds do not guarantee identical results across platforms.
 
-In the course checkout, first restore the recorded research paths into a new directory. Original photos, metadata/manifests, prediction caches and weights are supplied separately and are not included in Git. Training commands are recorded in `RUNBOOK.md` and the study scripts; only an allocated GPU should run the training jobs.
+Follow `REPRODUCING.md` for the complete setup, input checks and training commands. The separate review-input archive contains fixed manifests, labels, source snapshots and the three saved model/lock pairs. Course reviewers can request it from me at s4905914@student.uq.edu.au; its filename and SHA-256 are recorded in the guide. Photographs come from the course dataset. Data and weights stay outside Git.
 
 ```bash
 python recognition/YOLO_s4905914/restore_study_sources.py \
@@ -291,7 +291,7 @@ cd ../comp3710-reproduction
 python -m pip install -r recognition/YOLO_s4905914/requirements.txt
 ```
 
-After restoring the recorded final checkpoint and lock, replace the example image path below. The input is a dermoscopic photograph; outputs are `prediction.json` (boxes, classes, scores and primary label) and `prediction.jpg` (overlay). The command reads the locked threshold rather than selecting one on the new image.
+After verifying and extracting the review inputs into the restored workspace, replace the example image path below. Outputs are `prediction.json` (boxes, classes, scores and primary label) and `prediction.jpg` (overlay). The command uses the recorded final checkpoint and locked threshold. For retraining, the guide distinguishes the original n/s config from the final geometry study code; the disabled `experiment.json` is not a training config.
 
 ```bash
 REPORT_CONFIG=studies/known_lesion_optimization_20261021/n_geometry.json
@@ -304,7 +304,7 @@ python recognition/YOLO_s4905914/predict.py \
 
 `known_optimization_decision_20261021.json` records the exact config, checkpoint and lock. The figures in Section 9 show example inputs and corresponding saved outputs. Existing audits included 47 tests and independent replay of TP/FP/FN, classification metrics and IoU from cached predictions. These checks validate calculation consistency, not diagnostic correctness. AP remains the library calculation.
 
-Rebuild this report with `python recognition/YOLO_s4905914/build_final_report.py`, then export it with `python recognition/YOLO_s4905914/export_readme_pdf.py --output output/pdf/COMP3710_Project3_Report.pdf`. This uses the included summaries and figures without retraining. Exact source hashes and reporting checks are preserved with the results.
+Export the current README with `python recognition/YOLO_s4905914/export_readme_pdf.py --output output/pdf/COMP3710_Project3_Report.pdf`. `build_final_report.py` regenerates README from the included summaries and report builder; use it only when intentionally replacing the Markdown source. Neither command retrains a model. `REPRODUCTION_CHECKS_20261028.json` records the fresh-workspace checks for the updated guide.
 
 ### Artificial Intelligence Usage Disclosure
 
@@ -336,4 +336,4 @@ The full earlier tables, expanded-data study, all threshold points and original 
 
 `teacher_response_20261022.txt` and `teacher_response_20261023.txt` preserve the supplied teacher replies. The latter was transcribed from the student's screenshot, not independently fetched from Ed. `evaluation_sources_20261023.json` records the paper locations and pinned-source checks. The shorter report changes presentation only; model, threshold and evaluation records are unchanged.
 
-Course completion also requires the recorded feasibility check-off, an upstream GitHub PR and the README PDF submitted through Turnitin by the deadline. Acceptance of the imported-component implementation remains a point to confirm with the teaching team. After submission, the teaching team's PR feedback must be addressed within the announced response window.
+The feasibility check-off and imported-component approach are confirmed. The remaining submission steps are an upstream GitHub PR and the README PDF through Turnitin by the deadline. After submission, I must address the teaching team's PR feedback within the announced response window. Historical plans retain their original status fields; they do not override these current confirmations.

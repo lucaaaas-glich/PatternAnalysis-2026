@@ -34,7 +34,7 @@ def build():
     add('Images connected by any recorded lesion or patient ID, including indirect links, were kept in one split. No recorded ID crosses sets. The subset contains 1,083 lesions and 1,043 splitting groups; a group is not a patient ID. Patient IDs are missing for 708 images, so full patient independence cannot be established. Image deduplication cannot resolve these missing links.')
 
     page('2. feasibility review')
-    add('This is the plan written on 17 October, with wording revised on 21 October. It records the proposal before the later results and teacher clarifications. Including it does not establish that the personal check-off was recorded.')
+    add('This plan was written on 17 October and revised on 21 October. Its experimental aims are retained; approval status was updated on 28 October. My tutor has recorded the feasibility check-off, and the known-lesion-only scope and imported Ultralytics components have been accepted.')
     review=(code/'FEASIBILITY_REVIEW_PLAIN.txt').read_text().splitlines()
     headings={'Purpose and scope','Data and model choice','Five testable acceptance criteria','Evidence, risks and next decision','Course and authorship notes'}
     add('\n'.join(('### '+s) if s in headings else s for s in review[3:]).replace('This review does not establish completed check-off.', ''))
@@ -167,14 +167,14 @@ def build():
     page('11. Reproducing and using the project')
     add('The main files are `modules.py` (model construction/loading), `dataset.py` (data loading), `train.py` (training/evaluation/checkpoints), `predict.py` (saved-model inference) and this README. Supporting scripts preserve the grouping checks, experiment settings and metric audits.')
     add('School training used Python 3.13.16, PyTorch 2.8.0, torchvision 0.23.0 and Ultralytics 8.3.221. `requirements.txt` pins the ML dependencies; `requirements-linux-a100.lock.txt` records the tested Linux environment. The final local CPU evaluation used Python 3.13.13 with the same core package versions. PDF dependencies are separate in `requirements-report.txt`. Fixed seeds do not guarantee identical results across platforms.')
-    add('In the course checkout, first restore the recorded research paths into a new directory. Original photos, metadata/manifests, prediction caches and weights are supplied separately and are not included in Git. Training commands are recorded in `RUNBOOK.md` and the study scripts; only an allocated GPU should run the training jobs.')
+    add('Follow `REPRODUCING.md` for the complete setup, input checks and training commands. The separate review-input archive contains fixed manifests, labels, source snapshots and the three saved model/lock pairs. Course reviewers can request it from me at s4905914@student.uq.edu.au; its filename and SHA-256 are recorded in the guide. Photographs come from the course dataset. Data and weights stay outside Git.')
     add(r'''```bash
 python recognition/YOLO_s4905914/restore_study_sources.py \
   --destination ../comp3710-reproduction
 cd ../comp3710-reproduction
 python -m pip install -r recognition/YOLO_s4905914/requirements.txt
 ```''')
-    add('After restoring the recorded final checkpoint and lock, replace the example image path below. The input is a dermoscopic photograph; outputs are `prediction.json` (boxes, classes, scores and primary label) and `prediction.jpg` (overlay). The command reads the locked threshold rather than selecting one on the new image.')
+    add('After verifying and extracting the review inputs into the restored workspace, replace the example image path below. Outputs are `prediction.json` (boxes, classes, scores and primary label) and `prediction.jpg` (overlay). The command uses the recorded final checkpoint and locked threshold. For retraining, the guide distinguishes the original n/s config from the final geometry study code; the disabled `experiment.json` is not a training config.')
     add(r'''```bash
 REPORT_CONFIG=studies/known_lesion_optimization_20261021/n_geometry.json
 REPORT_RUN=outputs/known_lesion_optimization_20261021_681452/n_geometry
@@ -184,7 +184,7 @@ python recognition/YOLO_s4905914/predict.py \
   --image /path/to/image.jpg --output outputs/demo --device cpu
 ```''')
     add('`known_optimization_decision_20261021.json` records the exact config, checkpoint and lock. The figures in Section 9 show example inputs and corresponding saved outputs. Existing audits included 47 tests and independent replay of TP/FP/FN, classification metrics and IoU from cached predictions. These checks validate calculation consistency, not diagnostic correctness. AP remains the library calculation.')
-    add('Rebuild this report with `python recognition/YOLO_s4905914/build_final_report.py`, then export it with `python recognition/YOLO_s4905914/export_readme_pdf.py --output output/pdf/COMP3710_Project3_Report.pdf`. This uses the included summaries and figures without retraining. Exact source hashes and reporting checks are preserved with the results.')
+    add('Export the current README with `python recognition/YOLO_s4905914/export_readme_pdf.py --output output/pdf/COMP3710_Project3_Report.pdf`. `build_final_report.py` regenerates README from the included summaries and report builder; use it only when intentionally replacing the Markdown source. Neither command retrains a model. `REPRODUCTION_CHECKS_20261028.json` records the fresh-workspace checks for the updated guide.')
     add('### Artificial Intelligence Usage Disclosure')
     add('OpenAI ChatGPT/Codex assisted with planning, metadata/grouping audits, label conversion, training and evaluation scripts, debugging, tests, plots, report drafting and explanations. YOLO layers, losses and training machinery come from Ultralytics and are attributed [3]. Checks included inspecting source code, comparing hashes and preprocessing, synthetic and real-data runs, independent metric replay and PDF review. These checks cannot prove every diagnosis or claim; I am responsible for reviewing and explaining the submitted work.')
 
@@ -200,7 +200,7 @@ python recognition/YOLO_s4905914/predict.py \
     add('The full earlier tables, expanded-data study, all threshold points and original baseline examples remain in `EXPERIMENT_DETAILS.md`. The concise report keeps the evidence needed for the final model decision and required evaluation. No excluded experiment was deleted from its source records.')
     add('`validation_results_669143.json` and `reassessment_results_669815.json` contain the original n/s summaries. `known_optimization_results_20261021.json` and `followup_results_20261022.json` contain the validation trials. `course_metrics_20261022.json` contains the later classification and localization additions; its historical pending field is not a current status flag. Final results are in `final_candidate_reassessment_20261022.json`. The final A100 timing summary and 495 raw observations are in `final_candidate_benchmark_20261028.json` and `final_candidate_benchmark_measurements_20261028.json`; `final_candidate_benchmark_verification_20261028.json` records the independent checks.')
     add('`teacher_response_20261022.txt` and `teacher_response_20261023.txt` preserve the supplied teacher replies. The latter was transcribed from the student\'s screenshot, not independently fetched from Ed. `evaluation_sources_20261023.json` records the paper locations and pinned-source checks. The shorter report changes presentation only; model, threshold and evaluation records are unchanged.')
-    add("Course completion also requires the recorded feasibility check-off, an upstream GitHub PR and the README PDF submitted through Turnitin by the deadline. Acceptance of the imported-component implementation remains a point to confirm with the teaching team. After submission, the teaching team's PR feedback must be addressed within the announced response window.")
+    add("The feasibility check-off and imported-component approach are confirmed. The remaining submission steps are an upstream GitHub PR and the README PDF through Turnitin by the deadline. After submission, I must address the teaching team's PR feedback within the announced response window. Historical plans retain their original status fields; they do not override these current confirmations.")
     (code/'README.md').write_text('\n'.join(parts))
     print(code/'README.md')
 
