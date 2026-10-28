@@ -1,5 +1,6 @@
 """Build course-required reporting and the bounded follow-up analysis."""
 import json
+from report_metric_rationale import add_metric_rationale
 
 
 def add_course_closeout(code, add, page, table, pct):
@@ -18,7 +19,7 @@ def add_course_closeout(code, add, page, table, pct):
     page()
     add('## Course clarification and reporting definitions')
     add('The student supplied a reply from Zhao on 22 October. It asks for both overall and per-class localization IoU, and classification accuracy with additional metrics such as F1 or recall for imbalanced data. IoU >= 0.8 remains mandatory, but the reply says that an unmet target will not lose marks if reasonable trials and best effort are supported by sound analysis. This is not a guarantee of the overall grade. The supplied reply is preserved in `teacher_response_20261022.txt`; the original email or Ed thread was not independently fetched.')
-    add('The reply does not specify how missed lesions or wrong-class predictions enter the IoU average. I therefore report the definitions below together, rather than selecting whichever gives the highest result. The 10% benign-image alert limit is my comparison rule, not a course passing threshold or a clinical requirement.')
+    add('In a follow-up Ed reply supplied on 23 October, Zhao recommends reading the paper and choosing metrics that support the claims, treating the project as open research. This does not specify one IoU denominator or withdraw the earlier target. I therefore explain the choices and their limits below; I do not treat a missing universal formula as a reason to delay reporting. The screenshot transcription is in `teacher_response_20261023.txt`.')
     table(['Measure', 'Definition'], [
         ['Image classification', 'The class of the highest-confidence retained box. The same fixed score threshold as detection is used. Ties use class ID then box coordinates. GT is not used to choose the box, and no localization test is applied.'],
         ['Accuracy and no prediction', 'Correct image labels / all images. No retained box is an abstention and counts as incorrect, including on benign images. Coverage is reported separately.'],
@@ -27,7 +28,9 @@ def add_course_closeout(code, add, page, table, pct):
         ['Overall IoU', 'Sum the individual IoUs and divide by their count. All-GT measures use 165 images, with 124 benign and 41 malignant. TP-only measures use the matched TP count. The equal-weight mean of class means is a separate macro statistic.'],
     ])
     add('The all-GT best-box diagnostics use the greatest GT overlap among retained boxes, either requiring the correct class or ignoring class. If no eligible box exists, the value is zero; a same-class box with IoU below 0.5 still contributes its actual overlap. These are oracle diagnostics and do not penalize extra boxes. TP-only IoU uses matched correct-class predictions and excludes missed GTs. Primary-box IoU instead uses the same GT-free highest-score box as classification, with zero for no prediction; the correct-class version also assigns zero to a wrong-class primary box.')
-    add('These definitions were added after development to answer the teacher clarification. `course_closeout_plan.json` fixes their implementation and cache hashes. No checkpoint, threshold or comparison budget was selected again using the new metrics. Confidence remains a model score, not a calibrated probability of cancer.')
+    add('The 22 October additions are fixed in `course_closeout_plan.json`; the 23 October revision adds literature checks and interpretation. Neither changes the checkpoint, threshold or comparison budget. The 10% benign-image alert limit is my experimental policy, not a course or clinical standard. Confidence is a model score, not a calibrated probability of cancer.')
+
+    add_metric_rationale(add, page, table)
 
     page()
     add('## Added classification metrics: validation')

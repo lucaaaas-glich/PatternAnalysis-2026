@@ -158,11 +158,44 @@
     "PROTOCOL.json": "933460d8c20bc1e5d3c9c62a4647722d262edf71e6d0f70ebe3601cbde850e17",
     "MODEL_COMPONENTS_zh.txt": "3f12f325b4848ecbf96ec8f2fe416c956937d6fa9adbf2a4d2a30c7ed1b9a5a7",
     "COURSE_REQUIREMENTS_AUDIT_zh.txt": "793b4e53e9088b01296e3e51e73827f53e1ce7ba162f05254029dacd47cff48b",
-    "CLOSEOUT_STATUS_zh.txt": "0c263702dca15f67c56a9a365ccfeeb2e75773a966669c51ce8f2ef55b8840c0",
+    "CLOSEOUT_STATUS_zh.txt": "119cc447dd10a14abd5b1ba4aede9e651b0859a8f68898cc7cec5f697c64bf4a",
     "TRANSFER_GUIDE_zh.txt": "064a81590b8a9f062d2d7df31225370c634ae77085e347193cf89bfb8b834484",
-    "FEASIBILITY_REVIEW.txt": "321d2b8ee5dfe374c3f31ff82d1915659c19f72ba17c885720f959683233aee5"
+    "FEASIBILITY_REVIEW.txt": "321d2b8ee5dfe374c3f31ff82d1915659c19f72ba17c885720f959683233aee5",
+    "studies/final_benchmark_20261028/benchmark_a100.sh": "c2618ead0b06818450a22ad7ef274fdc9b3b4a6731ffbdceff88b8ab6ad6590c",
+    "studies/final_benchmark_20261028/README.md": "6a4fb12209545daccb961d83fdc30e6d5d503a17b1a57a0a0223113e28253ed0",
+    "studies/final_benchmark_20261028/inputs.sha256": "9e6fda745556f657b77cf437af48b7bd9072d81b6f103107248b9a484175ce2c"
   },
   "photos_masks_training_labels_metadata_weights_included": false,
   "raw_prediction_cache_included": false,
-  "source_workspace_git_commit": "88d9d85af12ff7fa6d24cabdfa7912574f5b017e"
+  "source_workspace_git_commit": "88d9d85af12ff7fa6d24cabdfa7912574f5b017e",
+  "source_workspace_worktree_revision": {
+    "date": "2026-10-25",
+    "committed": false,
+    "description": "Concise 14-page report, retained evidence and frozen-prediction figures; experiments and selection unchanged",
+    "module_files": {
+      "README.md": "553e3026762beb529f0aa2be46a6b09639ed7f6e6d6f43c3ceacf66f830b5fc2",
+      "build_final_report.py": "26bca559388e08a1da60f327abc04a7162193cc68e80210522b941037345a59f",
+      "report_course_closeout.py": "408058c541cd13a6e3938b497dd39b0b307fb1eea80b00e42fab02c454a6461b",
+      "report_final_candidate.py": "f2d1967b67dc75c9068538013ec93448c82d22f9de012110da91c4b62573fc7d",
+      "evaluation_sources_20261023.json": "769823ef75b732bbec24a7df9620e8d28d47dade4b694ce831f907c020cdad2d",
+      "report_metric_rationale.py": "fcc489032283792fc6a013f27c39d190334143289f8fb634b7bd8be4505d5f84",
+      "report_revision_verification_20261023.json": "bbc3550d189744924456d4315b1134ea3b668b803ce95126ac89ab00d154101e",
+      "teacher_response_20261023.txt": "0ae19b92f41d9d2c06da03236222b1b27d97de423f4d8b0103d3318033323bcf",
+      "report_compact.py": "7d40aaf2e77f4bbe7711b881b05b368668c73773ca5c1a244a23e62c9104a6b7",
+      "build_report_figures.py": "f5c77e8cc18507d1a99e71e46c7f2744f6380e19ce6642f91b9af6feb7d358ba",
+      "EXPERIMENT_DETAILS.md": "cc2b4b51a7e71e58a30e69ef68af74a49e142a2815e2e00972855990c7afea12",
+      "report_figure_provenance_20261025.json": "fb69d743abc8c2c441d9424519f6653b4e95814667f1d94c06489db8e59a2e41",
+      "report_condense_verification_20261025.json": "9c4b04cb826514ca3e4b286fa34f027cfb490bdc99a7d64c5fb278ee24fd25d9",
+      "assets/report_pipeline.png": "71383ad9eb84783151f6f41a3788e2dce2df4b966b0ac4633eb4ac78e151039a",
+      "assets/report_threshold_tradeoff.png": "37494a37b98c4120e62a0d687b5799d2190f38b925e55dba5041e5a073697ced",
+      "assets/report_final_case_1.png": "c1e5e93fe5a949f114830f0a6e53b95e14c049775ded94fc3557bed646e51218",
+      "assets/report_final_case_2.png": "580719e395ab483f48947317105528e68d8ddc651cf5786b96ed70268f46769c",
+      "assets/report_final_case_3.png": "50064e185d317f0fba46acc157c065c99aecc1104a85fdcc6b2bf0cf1b323c86"
+    }
+  },
+  "resource_benchmark_addition_20261028": {
+    "job_id": 706962,
+    "study": "studies/final_benchmark_20261028",
+    "purpose": "Final fixed-model validation resource timing only; local update, not submitted"
+  }
 }
